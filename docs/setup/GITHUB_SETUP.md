@@ -69,4 +69,3 @@ Once the repository is created and code is pushed, you can:
 **Commit hash:** `f9ce1dd`  
 **Branch:** `main`  
 **Files committed:** 31 files
-
