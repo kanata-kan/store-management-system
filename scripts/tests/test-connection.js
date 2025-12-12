@@ -1,8 +1,8 @@
 /**
  * MongoDB Connection Test Script
- * 
+ *
  * This script tests the MongoDB Atlas connection and suggests a database name.
- * 
+ *
  * Usage: node scripts/test-connection.js
  */
 
@@ -60,14 +60,14 @@ async function testConnection() {
     console.log(`   Host: ${db.host}`);
     console.log(`   Port: ${db.port}`);
     console.log(`   Database: ${actualDbName}`);
-    console.log(`   Ready State: ${db.readyState === 1 ? "Connected" : "Disconnected"}\n`);
+    console.log(
+      `   Ready State: ${db.readyState === 1 ? "Connected" : "Disconnected"}\n`
+    );
 
     // Suggest database name if different
     if (actualDbName !== SUGGESTED_DB_NAME) {
       console.log("💡 Recommendation:");
-      console.log(
-        `   Consider using database name: "${SUGGESTED_DB_NAME}"`
-      );
+      console.log(`   Consider using database name: "${SUGGESTED_DB_NAME}"`);
       console.log(
         `   Update your connection string to: ${MONGODB_URI.replace(/\/[^/]+(\?|$)/, `/${SUGGESTED_DB_NAME}$1`)}\n`
       );
@@ -80,7 +80,9 @@ async function testConnection() {
     const collections = await db.db.listCollections().toArray();
     console.log(`   Collections found: ${collections.length}`);
     if (collections.length > 0) {
-      console.log(`   Collection names: ${collections.map((c) => c.name).join(", ")}`);
+      console.log(
+        `   Collection names: ${collections.map((c) => c.name).join(", ")}`
+      );
     }
     console.log("");
 
@@ -122,4 +124,3 @@ async function testConnection() {
 
 // Run test
 testConnection();
-

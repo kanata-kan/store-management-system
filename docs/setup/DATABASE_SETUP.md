@@ -5,6 +5,7 @@
 **Suggested Database Name:** `store-management-system`
 
 This name:
+
 - Matches the project name
 - Uses kebab-case (standard for MongoDB)
 - Is descriptive and clear
@@ -45,6 +46,7 @@ node test-db-connection.js
 ```
 
 This will:
+
 - ✅ Verify connection string format
 - ✅ Test connection to MongoDB Atlas
 - ✅ Show current database name
@@ -131,15 +133,18 @@ When connection is successful, you should see:
 ## 🐛 Troubleshooting
 
 ### Error: "authentication failed"
+
 - Check username and password
 - Verify user has proper permissions
 
 ### Error: "timeout"
+
 - Check IP whitelist in MongoDB Atlas
 - Verify cluster is running (not paused)
 - Check network connectivity
 
 ### Error: "Invalid connection string"
+
 - Verify connection string format
 - Check for special characters in password (may need URL encoding)
 - Ensure database name doesn't contain invalid characters
@@ -156,5 +161,4 @@ After successful connection:
 
 ---
 
-*Last updated: 2025-01-11*
-
+_Last updated: 2025-01-11_

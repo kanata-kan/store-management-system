@@ -1,6 +1,6 @@
 /**
  * Manual Product Deletion Hook Test
- * 
+ *
  * Tests the pre-delete hook that prevents deletion if product has sales
  */
 
@@ -154,4 +154,3 @@ async function testDeletionHook() {
 }
 
 testDeletionHook();
-

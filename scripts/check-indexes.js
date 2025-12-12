@@ -1,6 +1,6 @@
 /**
  * Check Database Indexes
- * 
+ *
  * Shows all indexes for each collection in the database
  */
 
@@ -72,4 +72,3 @@ async function checkIndexes() {
 }
 
 checkIndexes();
-

@@ -1,6 +1,6 @@
 /**
  * Models Test Script
- * 
+ *
  * Tests all models for:
  * - Schema validation
  * - Model registration
@@ -87,7 +87,9 @@ async function testModelRegistration() {
         hasSchema: true,
         fields: Object.keys(schema.paths).length,
       };
-      console.log(`   ✅ ${name} - Registered (${testResults.models[name].fields} fields)`);
+      console.log(
+        `   ✅ ${name} - Registered (${testResults.models[name].fields} fields)`
+      );
     } catch (error) {
       testResults.models[name] = {
         registered: false,
@@ -126,16 +128,16 @@ async function testIndexes() {
           unique: idx.unique || false,
         })),
       };
-      console.log(
-        `   ✅ ${collectionName} - ${indexes.length} index(es)`
-      );
+      console.log(`   ✅ ${collectionName} - ${indexes.length} index(es)`);
     } catch (error) {
       // Collection might not exist yet (no documents created)
       testResults.indexes[collectionName] = {
         count: 0,
         error: "Collection does not exist yet",
       };
-      console.log(`   ⚠️  ${collectionName} - Collection not created yet (normal for new DB)`);
+      console.log(
+        `   ⚠️  ${collectionName} - Collection not created yet (normal for new DB)`
+      );
     }
   }
 }
@@ -173,9 +175,10 @@ async function testHooks() {
   try {
     const productSchema = Product.schema;
     const hooks = productSchema._pres || productSchema._posts || {};
-    
+
     // Check if deleteOne hook exists
-    const hasDeleteHook = productSchema._pres?.deleteOne || productSchema._posts?.deleteOne;
+    const hasDeleteHook =
+      productSchema._pres?.deleteOne || productSchema._posts?.deleteOne;
     if (hasDeleteHook) {
       console.log("   ✅ Product deleteOne hook exists");
     } else {
@@ -184,17 +187,21 @@ async function testHooks() {
       if (hookNames.includes("deleteOne")) {
         console.log("   ✅ Product deleteOne hook exists");
       } else {
-        console.log("   ⚠️  Product deleteOne hook check inconclusive (will test manually)");
+        console.log(
+          "   ⚠️  Product deleteOne hook check inconclusive (will test manually)"
+        );
       }
     }
   } catch (error) {
-    console.log("   ⚠️  Hook structure check inconclusive (will test manually)");
+    console.log(
+      "   ⚠️  Hook structure check inconclusive (will test manually)"
+    );
   }
 }
 
 async function runTests() {
   console.log("🧪 Starting Models Test Suite\n");
-  console.log("=" .repeat(50));
+  console.log("=".repeat(50));
 
   // Test connection
   const connected = await testConnection();
@@ -226,7 +233,9 @@ async function runTests() {
 
   if (allModelsRegistered && !hasErrors) {
     console.log("✅ All tests passed!");
-    console.log(`   Models: ${Object.keys(testResults.models).length}/8 registered`);
+    console.log(
+      `   Models: ${Object.keys(testResults.models).length}/8 registered`
+    );
     console.log(`   Errors: 0`);
     await mongoose.connection.close();
     process.exit(0);
@@ -249,4 +258,3 @@ runTests().catch((error) => {
   console.error("❌ Test suite failed:", error);
   process.exit(1);
 });
-

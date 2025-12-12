@@ -13,12 +13,14 @@ const MONGODB_URI = process.env.MONGODB_URI;
 const SUGGESTED_DB_NAME = "store-management-system";
 
 console.log("🔍 MongoDB Connection Test\n");
-console.log("=" .repeat(50));
+console.log("=".repeat(50));
 
 if (!MONGODB_URI) {
   console.error("❌ Error: MONGODB_URI not found in .env file");
   console.log("\n📝 Please add your MongoDB connection string to .env file:");
-  console.log("MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority\n");
+  console.log(
+    "MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority\n"
+  );
   process.exit(1);
 }
 
@@ -105,4 +107,3 @@ mongoose
     console.error("   4. Ensure cluster is running\n");
     process.exit(1);
   });
-
