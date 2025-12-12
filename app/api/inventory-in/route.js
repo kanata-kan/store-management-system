@@ -8,7 +8,7 @@
 import { validateInventoryEntry } from "@/lib/validation/inventory.validation.js";
 import InventoryService from "@/lib/services/InventoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
-import { success, error } from "@/lib/api/response.js";
+import { success, successWithMeta, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/inventory-in
@@ -51,12 +51,8 @@ export async function GET(request) {
 
     const result = await InventoryService.getInventoryHistory(filters);
 
-    return Response.json({
-      status: "success",
-      data: result.items,
-      meta: {
-        pagination: result.pagination,
-      },
+    return successWithMeta(result.items, {
+      pagination: result.pagination,
     });
   } catch (err) {
     return error(err);

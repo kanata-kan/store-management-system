@@ -8,7 +8,7 @@
 import { validateSale } from "@/lib/validation/sale.validation.js";
 import SaleService from "@/lib/services/SaleService.js";
 import { requireManager, requireCashier } from "@/lib/auth/middleware.js";
-import { success, error } from "@/lib/api/response.js";
+import { success, successWithMeta, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/sales
@@ -51,12 +51,8 @@ export async function GET(request) {
 
     const result = await SaleService.getSales(filters);
 
-    return Response.json({
-      status: "success",
-      data: result.items,
-      meta: {
-        pagination: result.pagination,
-      },
+    return successWithMeta(result.items, {
+      pagination: result.pagination,
     });
   } catch (err) {
     return error(err);

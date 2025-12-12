@@ -418,8 +418,8 @@ All relationships use MongoDB references (ObjectId), not embedded documents:
 
 **Session Duration:**
 
-- Default: 24 hours
-- Refresh: Token refreshed on each request if less than 1 hour remaining
+- Default: 7 days (renewed on login)
+- Refresh: Token renewed on each login (7-day expiration)
 
 **Login Flow:**
 

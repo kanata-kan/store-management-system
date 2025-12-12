@@ -8,7 +8,7 @@
 import { validateCreateProduct } from "@/lib/validation/product.validation.js";
 import ProductService from "@/lib/services/ProductService.js";
 import { requireManager, requireCashier } from "@/lib/auth/middleware.js";
-import { success, error } from "@/lib/api/response.js";
+import { success, successWithMeta, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/products
@@ -54,12 +54,8 @@ export async function GET(request) {
 
     const result = await ProductService.getProducts(filters);
 
-    return Response.json({
-      status: "success",
-      data: result.items,
-      meta: {
-        pagination: result.pagination,
-      },
+    return successWithMeta(result.items, {
+      pagination: result.pagination,
     });
   } catch (err) {
     return error(err);

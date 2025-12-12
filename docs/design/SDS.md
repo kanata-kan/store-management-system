@@ -1176,8 +1176,8 @@ All UI text in **French**:
     "exp": 1234571490
   }
   ```
-- **Session Duration:** 24 hours
-- **Refresh:** Token refreshed on each request if less than 1 hour remaining
+- **Session Duration:** 7 days (renewed on login)
+- **Refresh:** Token renewed on each login (7-day expiration)
 
 ### 10.2 Authorization
 
