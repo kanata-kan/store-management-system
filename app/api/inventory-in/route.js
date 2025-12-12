@@ -8,7 +8,7 @@
 import { validateInventoryEntry } from "@/lib/validation/inventory.validation.js";
 import InventoryService from "@/lib/services/InventoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
-import { success, successWithMeta, error } from "@/lib/api/response.js";
+import { success, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/inventory-in
@@ -51,7 +51,7 @@ export async function GET(request) {
 
     const result = await InventoryService.getInventoryHistory(filters);
 
-    return successWithMeta(result.items, {
+    return success(result.items, 200, {
       pagination: result.pagination,
     });
   } catch (err) {
@@ -76,9 +76,8 @@ export async function POST(request) {
 
     const result = await InventoryService.addInventoryEntry(validated);
 
-    return Response.json({
-      status: "success",
-      data: {
+    return success(
+      {
         inventoryId: result.inventoryLog._id,
         product: result.inventoryLog.product,
         quantityAdded: result.inventoryLog.quantityAdded,
@@ -88,7 +87,8 @@ export async function POST(request) {
         manager: result.inventoryLog.manager,
         createdAt: result.inventoryLog.createdAt,
       },
-    }, { status: 201 });
+      201
+    );
   } catch (err) {
     return error(err);
   }

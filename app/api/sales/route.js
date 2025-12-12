@@ -8,7 +8,7 @@
 import { validateSale } from "@/lib/validation/sale.validation.js";
 import SaleService from "@/lib/services/SaleService.js";
 import { requireManager, requireCashier } from "@/lib/auth/middleware.js";
-import { success, successWithMeta, error } from "@/lib/api/response.js";
+import { success, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/sales
@@ -51,7 +51,7 @@ export async function GET(request) {
 
     const result = await SaleService.getSales(filters);
 
-    return successWithMeta(result.items, {
+    return success(result.items, 200, {
       pagination: result.pagination,
     });
   } catch (err) {
@@ -76,9 +76,8 @@ export async function POST(request) {
 
     const result = await SaleService.registerSale(validated);
 
-    return Response.json({
-      status: "success",
-      data: {
+    return success(
+      {
         saleId: result.sale._id,
         product: result.sale.product,
         quantity: result.sale.quantity,
@@ -89,7 +88,8 @@ export async function POST(request) {
         cashier: result.sale.cashier,
         createdAt: result.sale.createdAt,
       },
-    }, { status: 201 });
+      201
+    );
   } catch (err) {
     return error(err);
   }
