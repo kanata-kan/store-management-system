@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "seed": "node --require dotenv/config scripts/seed-dev.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

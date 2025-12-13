@@ -15,6 +15,35 @@
  * Usage: node scripts/seed-dev.js
  */
 
+// Load environment variables from .env file
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join, resolve } from "path";
+import { existsSync } from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env from project root (absolute path)
+const envPath = resolve(__dirname, "..", ".env");
+if (existsSync(envPath)) {
+  const result = dotenv.config({ path: envPath });
+  if (result.error) {
+    console.error("⚠️  Warning: Error loading .env file:", result.error.message);
+    process.exit(1);
+  }
+  // Verify MONGODB_URI was loaded
+  if (!process.env.MONGODB_URI) {
+    console.error("❌ Error: MONGODB_URI not found in .env file");
+    console.error("   Please add MONGODB_URI to your .env file");
+    process.exit(1);
+  }
+} else {
+  console.error("❌ Error: .env file not found at:", envPath);
+  console.error("   Please create .env file with MONGODB_URI variable.");
+  process.exit(1);
+}
+
 import mongoose from "mongoose";
 import connectDB from "../lib/db/connect.js";
 
