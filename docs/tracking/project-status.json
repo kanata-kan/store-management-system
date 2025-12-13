@@ -866,6 +866,15 @@
           "dependencies": ["7.1", "phase-5"]
         },
         {
+          "id": "7.2.5",
+          "name": "DEV Database Seeding",
+          "description": "Full database seeding script for realistic store data",
+          "status": "completed",
+          "completedAt": "2025-01-13T14:00:00Z",
+          "notes": "DEV-ONLY seeding script that generates realistic store data (100+ products, 300+ inventory logs, 200+ sales). Respects all model relationships and validations. Includes safety check to prevent running in production. Comprehensive documentation created.",
+          "dependencies": ["phase-2"]
+        },
+        {
           "id": "7.3",
           "name": "Products List Page",
           "description": "Table with search, filters, pagination, sorting",
