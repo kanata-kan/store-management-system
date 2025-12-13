@@ -23,8 +23,14 @@ export async function GET(request) {
 
     // Parse query parameters
     const filters = {};
+    if (searchParams.get("name")) {
+      filters.name = searchParams.get("name");
+    }
     if (searchParams.get("brandId")) {
       filters.brandId = searchParams.get("brandId");
+    }
+    if (searchParams.get("categoryId")) {
+      filters.categoryId = searchParams.get("categoryId");
     }
     if (searchParams.get("subCategoryId")) {
       filters.subCategoryId = searchParams.get("subCategoryId");

@@ -1,3 +1,4 @@
+import StyledComponentsRegistry from "@/components/StyledComponentsRegistry.js";
 import ThemeProviderWrapper from "@/components/ThemeProviderWrapper.js";
 
 export const metadata = {
@@ -9,7 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body>
-        <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
+        <StyledComponentsRegistry>
+          <ThemeProviderWrapper>{children}</ThemeProviderWrapper>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );
