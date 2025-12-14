@@ -8,6 +8,7 @@
 "use client";
 
 import styled from "styled-components";
+import { AppIcon } from "@/components/ui/icon";
 
 const SearchContainer = styled.div`
   position: relative;
@@ -44,30 +45,24 @@ const IconContainer = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
+  justify-content: center;
   pointer-events: none;
 
   ${(props) => props.$hasClearButton && `pointer-events: all;`}
 `;
 
-const SearchIcon = styled.span`
-  color: ${(props) => props.theme.colors.muted};
-  font-size: ${(props) => props.theme.typography.fontSize.lg};
-`;
-
 const ClearButton = styled.button`
   background: none;
   border: none;
-  color: ${(props) => props.theme.colors.muted};
   cursor: pointer;
   padding: ${(props) => props.theme.spacing.xs};
   display: flex;
   align-items: center;
-  font-size: ${(props) => props.theme.typography.fontSize.lg};
+  justify-content: center;
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${(props) => props.theme.colors.foreground};
+    opacity: 0.7;
   }
 `;
 
@@ -117,10 +112,10 @@ export default function SearchInput({
       <IconContainer $hasClearButton={!!value && !!onClear}>
         {value && onClear ? (
           <ClearButton onClick={handleClear} aria-label="Effacer">
-            ×
+            <AppIcon name="close" size="sm" color="muted" />
           </ClearButton>
         ) : (
-          <SearchIcon>🔍</SearchIcon>
+          <AppIcon name="search" size="md" color="muted" />
         )}
       </IconContainer>
     </SearchContainer>

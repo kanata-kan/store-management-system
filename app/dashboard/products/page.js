@@ -12,11 +12,9 @@ import ProductsListClient, {
   SearchSection,
   FiltersSection,
   TableSection,
-} from "@/components/dashboard/ProductsListClient.js";
-import ProductSearchBar from "@/components/dashboard/ProductSearchBar.js";
-import ProductFilters from "@/components/dashboard/ProductFilters.js";
-import ProductsTable from "@/components/dashboard/ProductsTable.js";
-import Pagination from "@/components/ui/Pagination.js";
+} from "@/components/domain/product/ProductsListClient";
+import { ProductSearchBar, ProductFilters, ProductTable } from "@/components/domain/product";
+import { Pagination } from "@/components/ui/pagination";
 
 /**
  * Helper function to fetch data from API with cookies
@@ -194,7 +192,7 @@ export default async function ProductsPage({ searchParams = {} }) {
       </FiltersSection>
 
       <TableSection>
-        <ProductsTable
+        <ProductTable
           products={products}
           currentSortBy={currentSortBy}
           currentSortOrder={currentSortOrder}

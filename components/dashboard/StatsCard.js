@@ -8,21 +8,19 @@
 "use client";
 
 import styled from "styled-components";
+import { fadeIn, subtleHover } from "@/components/motion";
 
 const Card = styled.div`
-  background-color: ${(props) => props.theme.colors.background};
+  background-color: ${(props) => props.theme.colors.surface};
   border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  padding: ${(props) => props.theme.spacing.lg};
-  box-shadow: ${(props) => props.theme.shadows.sm};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.xl};
+  box-shadow: ${(props) => props.theme.shadows.card};
   display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.spacing.sm};
-  transition: box-shadow 0.2s ease;
-
-  &:hover {
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
+  gap: ${(props) => props.theme.spacing.md};
+  ${fadeIn}
+  ${subtleHover}
 `;
 
 const Title = styled.h3`
@@ -30,6 +28,8 @@ const Title = styled.h3`
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   color: ${(props) => props.theme.colors.muted};
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 `;
 
 const Value = styled.div`

@@ -10,16 +10,18 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import styled from "styled-components";
-import Table from "@/components/ui/Table.js";
-import TableHeader from "@/components/ui/TableHeader.js";
-import EmptyState from "@/components/ui/EmptyState.js";
+import { Table, TableHeader } from "@/components/ui/table";
+import { EmptyState } from "@/components/ui/empty-state";
+import { slideUp, smoothTransition } from "@/components/motion";
+import { AppIcon } from "@/components/ui/icon";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  transition: background-color 0.2s ease;
+  ${smoothTransition("background-color")}
+  ${slideUp}
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.border};
+    background-color: ${(props) => props.theme.colors.surfaceHover};
   }
 
   ${(props) =>
@@ -86,16 +88,23 @@ const PriceCell = styled.span`
 const ActionLink = styled(Link)`
   padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
   background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.background};
+  color: ${(props) => props.theme.colors.surface};
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   text-decoration: none;
-  display: inline-block;
-  transition: opacity 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  ${smoothTransition("all")}
 
   &:hover {
-    opacity: 0.9;
+    background-color: ${(props) => props.theme.colors.primaryHover};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 

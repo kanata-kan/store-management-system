@@ -13,8 +13,8 @@ import DashboardClient, {
   ActivityGrid,
 } from "@/components/dashboard/DashboardClient.js";
 import StatsCard from "@/components/dashboard/StatsCard.js";
-import RecentSalesList from "@/components/dashboard/RecentSalesList.js";
-import RecentInventoryList from "@/components/dashboard/RecentInventoryList.js";
+import { RecentSalesList } from "@/components/domain/sale";
+import { RecentInventoryList } from "@/components/domain/inventory";
 
 /**
  * Helper function to fetch data from API with cookies

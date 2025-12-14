@@ -11,7 +11,9 @@ import styled from "styled-components";
 
 export const PageTitle = styled.h1`
   font-size: ${(props) => props.theme.typography.fontSize["2xl"]};
-  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
+  font-weight: ${(props) => props.theme.typography.variants.pageTitle.fontWeight};
+  line-height: ${(props) => props.theme.typography.variants.pageTitle.lineHeight};
+  letter-spacing: ${(props) => props.theme.typography.variants.pageTitle.letterSpacing};
   color: ${(props) => props.theme.colors.foreground};
   margin-bottom: ${(props) => props.theme.spacing.xl};
 

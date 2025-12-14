@@ -9,7 +9,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import SearchInput from "@/components/ui/SearchInput.js";
+import { SearchInput } from "@/components/ui/input";
 
 /**
  * ProductSearchBar Component

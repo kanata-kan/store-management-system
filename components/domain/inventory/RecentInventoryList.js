@@ -1,20 +1,22 @@
 /**
- * Recent Sales List Component
+ * Recent Inventory List Component
  *
- * Client Component for displaying recent sales activity.
+ * Client Component for displaying recent inventory-in entries.
  * Simple display-only component with no business logic.
  */
 
 "use client";
 
 import styled from "styled-components";
+import { fadeIn } from "@/components/motion";
 
 const Section = styled.section`
-  background-color: ${(props) => props.theme.colors.background};
+  background-color: ${(props) => props.theme.colors.surface};
   border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  padding: ${(props) => props.theme.spacing.lg};
-  box-shadow: ${(props) => props.theme.shadows.sm};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.xl};
+  box-shadow: ${(props) => props.theme.shadows.card};
+  ${fadeIn}
 `;
 
 const SectionTitle = styled.h2`
@@ -57,9 +59,9 @@ const Details = styled.div`
   color: ${(props) => props.theme.colors.muted};
 `;
 
-const Amount = styled.span`
+const Quantity = styled.span`
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
-  color: ${(props) => props.theme.colors.success};
+  color: ${(props) => props.theme.colors.primary};
 `;
 
 const EmptyState = styled.div`
@@ -70,42 +72,37 @@ const EmptyState = styled.div`
 `;
 
 /**
- * RecentSalesList Component
+ * RecentInventoryList Component
  * @param {Object} props
- * @param {Array} props.sales - Array of recent sales (from API)
+ * @param {Array} props.inventoryEntries - Array of recent inventory entries (from API)
  */
-export default function RecentSalesList({ sales = [] }) {
-  if (!sales || sales.length === 0) {
+export default function RecentInventoryList({ inventoryEntries = [] }) {
+  if (!inventoryEntries || inventoryEntries.length === 0) {
     return (
       <Section>
-        <SectionTitle>Ventes récentes</SectionTitle>
-        <EmptyState>Aucune vente récente</EmptyState>
+        <SectionTitle>Approvisionnements récents</SectionTitle>
+        <EmptyState>Aucun approvisionnement récent</EmptyState>
       </Section>
     );
   }
 
   return (
     <Section>
-      <SectionTitle>Ventes récentes</SectionTitle>
+      <SectionTitle>Approvisionnements récents</SectionTitle>
       <List>
-        {sales.map((sale) => (
-          <ListItem key={sale.id || sale._id}>
+        {inventoryEntries.map((entry) => (
+          <ListItem key={entry.id || entry._id || entry.inventoryId}>
             <ProductName>
-              {sale.product?.name || "Produit inconnu"}
+              {entry.product?.name || "Produit inconnu"}
             </ProductName>
             <Details>
+              <Quantity>+{entry.quantityAdded || 0} unités</Quantity>
               <span>
-                {sale.quantity} × {sale.sellingPrice?.toLocaleString("fr-FR")}{" "}
+                {entry.purchasePrice
+                  ? entry.purchasePrice.toLocaleString("fr-FR")
+                  : 0}{" "}
                 DA
               </span>
-              <Amount>
-                {sale.totalAmount
-                  ? sale.totalAmount.toLocaleString("fr-FR")
-                  : (sale.quantity * (sale.sellingPrice || 0)).toLocaleString(
-                      "fr-FR"
-                    )}{" "}
-                DA
-              </Amount>
             </Details>
           </ListItem>
         ))}

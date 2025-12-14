@@ -8,14 +8,16 @@
 "use client";
 
 import styled from "styled-components";
+import { fadeIn } from "@/components/motion";
 
 const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  background-color: ${(props) => props.theme.colors.background};
-  box-shadow: ${(props) => props.theme.shadows.sm};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  background-color: ${(props) => props.theme.colors.surface};
+  box-shadow: ${(props) => props.theme.shadows.card};
+  ${fadeIn}
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     overflow-x: scroll;

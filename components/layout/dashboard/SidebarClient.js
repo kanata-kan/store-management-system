@@ -7,11 +7,12 @@
 
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
 import { theme } from "@/styles/theme.js";
+import { AppIcon } from "@/components/ui/icon";
+import { useSidebar } from "./SidebarContext.js";
 
 const SidebarContainer = styled.aside`
   position: fixed;
@@ -37,7 +38,7 @@ const SidebarHeader = styled.div`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
 
 const Logo = styled.h1`
@@ -46,23 +47,6 @@ const Logo = styled.h1`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
-const MenuToggle = styled.button`
-  display: none;
-  padding: ${(props) => props.theme.spacing.sm};
-  color: ${(props) => props.theme.colors.foreground};
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: ${(props) => props.theme.typography.fontSize.lg};
-
-  @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
-    display: block;
-  }
-
-  &:hover {
-    color: ${(props) => props.theme.colors.primary};
-  }
-`;
 
 const Nav = styled.nav`
   flex: 1;
@@ -83,6 +67,7 @@ const NavItem = styled.li`
 const NavLink = styled(Link)`
   display: flex;
   align-items: center;
+  gap: ${(props) => props.theme.spacing.md};
   padding: ${(props) => props.theme.spacing.md} ${(props) => props.theme.spacing.xl};
   color: ${(props) =>
     props.$isActive
@@ -95,7 +80,7 @@ const NavLink = styled(Link)`
       ? props.theme.typography.fontWeight.semibold
       : props.theme.typography.fontWeight.normal};
   background-color: ${(props) =>
-    props.$isActive ? "rgba(0, 112, 243, 0.1)" : "transparent"};
+    props.$isActive ? props.theme.colors.primaryLight : "transparent"};
   border-left: 3px solid
     ${(props) => (props.$isActive ? props.theme.colors.primary : "transparent")};
   transition: all 0.2s ease;
@@ -103,8 +88,8 @@ const NavLink = styled(Link)`
   &:hover {
     background-color: ${(props) =>
       props.$isActive
-        ? "rgba(0, 112, 243, 0.1)"
-        : "rgba(0, 0, 0, 0.05)"};
+        ? props.theme.colors.primaryLight
+        : props.theme.colors.surfaceHover};
     color: ${(props) => props.theme.colors.primary};
   }
 `;
@@ -139,7 +124,7 @@ const Overlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.colors.foreground}80;
   z-index: 999;
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
@@ -149,38 +134,27 @@ const Overlay = styled.div`
 
 // Navigation items in French (as per requirements)
 const navigationItems = [
-  { href: "/dashboard", label: "Tableau de bord" },
-  { href: "/dashboard/products", label: "Produits" },
-  { href: "/dashboard/inventory", label: "Inventaire" },
-  { href: "/dashboard/categories", label: "Catégories" },
-  { href: "/dashboard/subcategories", label: "Sous-catégories" },
-  { href: "/dashboard/brands", label: "Marques" },
-  { href: "/dashboard/suppliers", label: "Fournisseurs" },
-  { href: "/dashboard/sales", label: "Ventes" },
-  { href: "/dashboard/alerts", label: "Alertes" },
+  { href: "/dashboard", label: "Tableau de bord", icon: "dashboard" },
+  { href: "/dashboard/products", label: "Produits", icon: "product" },
+  { href: "/dashboard/inventory", label: "Inventaire", icon: "inventory" },
+  { href: "/dashboard/categories", label: "Catégories", icon: "category" },
+  { href: "/dashboard/subcategories", label: "Sous-catégories", icon: "category" },
+  { href: "/dashboard/brands", label: "Marques", icon: "brand" },
+  { href: "/dashboard/suppliers", label: "Fournisseurs", icon: "supplier" },
+  { href: "/dashboard/sales", label: "Ventes", icon: "sale" },
+  { href: "/dashboard/alerts", label: "Alertes", icon: "alert" },
 ];
 
 export default function SidebarClient({ user }) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const closeMenu = () => {
-    setIsOpen(false);
-  };
+  const { isOpen, closeSidebar } = useSidebar();
 
   return (
     <>
-      <Overlay $isOpen={isOpen} onClick={closeMenu} />
+      <Overlay $isOpen={isOpen} onClick={closeSidebar} />
       <SidebarContainer $isOpen={isOpen}>
         <SidebarHeader>
           <Logo>Gestion Stock</Logo>
-          <MenuToggle onClick={toggleMenu} aria-label="Toggle menu">
-            {isOpen ? "✕" : "☰"}
-          </MenuToggle>
         </SidebarHeader>
 
         <Nav>
@@ -189,7 +163,12 @@ export default function SidebarClient({ user }) {
               const isActive = pathname === item.href;
               return (
                 <NavItem key={item.href}>
-                  <NavLink href={item.href} $isActive={isActive} onClick={closeMenu}>
+                  <NavLink href={item.href} $isActive={isActive} onClick={closeSidebar}>
+                    <AppIcon
+                      name={item.icon}
+                      size="md"
+                      color={isActive ? "primary" : "muted"}
+                    />
                     {item.label}
                   </NavLink>
                 </NavItem>

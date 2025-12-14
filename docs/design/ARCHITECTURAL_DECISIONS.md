@@ -219,6 +219,316 @@ if (SKIP_AUTH) {
 
 ---
 
+### ADR-006: Premium Design System
+
+**Status:** ✅ Active (Phase 7.3.5+)
+
+**Date:** 2025-01-14
+
+**Context:**
+Before Task 7.4 (Forms & Product Edit/Create), we needed to establish a solid UI foundation with a premium, professional design system. The existing theme needed refinement to match enterprise-grade dashboard standards (calm, luxury feel) while maintaining consistency.
+
+**Decision:**
+Refine the design system with:
+
+1. **Premium Color Palette:** Softer, calmer colors that feel professional and luxurious
+   - Primary: `#2563eb` (softer blue)
+   - Status colors: Softer variants (success: `#10b981`, warning: `#f59e0b`, error: `#ef4444`)
+   - Neutral palette: Premium grays with elevation backgrounds
+   - Added color tokens: `primaryHover`, `primaryLight`, `successLight`, `warningLight`, `errorLight`, `info`, `infoLight`, `elevation1/2/3`
+
+2. **Typography:** Use Inter font as single global font family
+   - Load Inter from Google Fonts
+   - Add typography variants (pageTitle, sectionTitle, cardTitle, body, caption)
+
+3. **Shadows & Elevation:** Add premium elevation presets for layered depth
+   - Added: `xs`, `inner`, `2xl` shadows
+   - Premium presets: `card`, `cardHover`, `dropdown`, `modal`
+
+4. **Motion Tokens:** Add motion system to theme
+   - Duration tokens: instant, fast, normal, slow, slower
+   - Easing tokens: easeIn, easeOut, easeInOut, spring
+
+**Implementation:**
+```javascript
+// styles/theme.js
+colors: {
+  primary: "#2563eb",
+  // ... refined premium palette
+},
+typography: {
+  fontFamily: {
+    sans: '"Inter", -apple-system, ...',
+  },
+  variants: {
+    pageTitle: { fontSize: "2xl", fontWeight: 700, ... },
+    // ... more variants
+  },
+},
+shadows: {
+  card: "...",
+  cardHover: "...",
+  // ... premium elevation presets
+},
+motion: {
+  duration: { fast: "150ms", normal: "200ms", ... },
+  easing: { easeOut: "cubic-bezier(...)", ... },
+}
+```
+
+**Consequences:**
+- ✅ Premium, professional appearance
+- ✅ Calm and soothing color palette
+- ✅ Consistent typography hierarchy
+- ✅ Layered depth through shadows
+- ✅ Foundation for motion system
+- ✅ Backward compatible (existing color names preserved)
+
+**Related Files:**
+- `styles/theme.js`
+- `app/layout.js` (Inter font loading)
+- `docs/phases/phase-7/task-7.3.5-ui-foundation.md`
+
+---
+
+### ADR-007: Component Architecture Structure
+
+**Status:** ✅ Active (Phase 7.3.5+)
+
+**Date:** 2025-01-14
+
+**Context:**
+Components were organized in flat structure (`components/ui/`, `components/dashboard/`). Before Task 7.4, we needed a scalable, maintainable component architecture that clearly separates concerns and enables future growth without refactoring.
+
+**Decision:**
+Refactor components to follow this structure:
+
+```
+components/
+├── ui/                # Primitive, reusable, domain-agnostic
+│   ├── button/
+│   ├── input/
+│   ├── table/
+│   ├── pagination/
+│   ├── icon/
+│   ├── empty-state/
+│   └── index.js
+│
+├── layout/            # Layout-only components
+│   └── dashboard/
+│       ├── Sidebar.js
+│       ├── TopBar.js
+│       └── index.js
+│
+├── domain/            # Domain UI (NO business logic)
+│   ├── product/
+│   ├── sale/
+│   └── inventory/
+│
+├── shared/            # Cross-domain UI helpers
+│   ├── badges/
+│   ├── status/
+│   ├── price/
+│   └── index.js
+│
+└── motion/            # Global animation presets
+    └── index.js
+```
+
+**Rules:**
+- `ui/` components: **NEVER** know about products, sales, inventory
+- `domain/` components: May know domain, but **NO business logic**
+- `layout/` components: Structure only
+- No circular dependencies
+- Each folder exposes `index.js` for clean imports
+
+**Implementation:**
+- Moved all components to appropriate locations
+- Created index.js files for all folders
+- Updated all imports
+
+**Consequences:**
+- ✅ Clear separation of concerns
+- ✅ Scalable architecture
+- ✅ Easy to find components
+- ✅ No circular dependencies
+- ✅ Clean imports via index.js
+- ⚠️ Initial migration effort required (one-time)
+
+**Related Files:**
+- `components/ui/`, `components/layout/`, `components/domain/`, `components/shared/`, `components/motion/`
+- `docs/phases/phase-7/task-7.3.5-ui-foundation.md`
+- `docs/MASTER_REFERENCE.md`
+
+---
+
+### ADR-008: Centralized Icon System
+
+**Status:** ✅ Active (Phase 7.3.5+)
+
+**Date:** 2025-01-14
+
+**Context:**
+Icons need to be consistent across the application. Without a centralized system, developers might import icons directly from lucide-react, leading to inconsistency in sizing, coloring, and styling.
+
+**Decision:**
+Create centralized `AppIcon` component that:
+- Maps icon names to lucide-react icons
+- Supports size variants: xs, sm, md, lg, xl
+- Supports color from theme tokens
+- Supports stroke width customization
+- Uses styled-components for theming
+
+**Implementation:**
+```javascript
+// components/ui/icon/AppIcon.js
+import { LayoutGrid, Package, Pencil, ... } from "lucide-react";
+
+const ICONS = {
+  dashboard: LayoutGrid,
+  product: Package,
+  edit: Pencil,
+  // ... more mappings
+};
+
+export default function AppIcon({ name, size = "md", color = "foreground", strokeWidth = 2 }) {
+  // ... implementation
+}
+```
+
+**Usage:**
+```javascript
+import { AppIcon } from "@/components/ui/icon";
+<AppIcon name="edit" size="md" color="primary" />
+```
+
+**Rules:**
+- ❌ **Forbidden:** Direct imports from lucide-react in components
+- ✅ **Required:** All icons through `<AppIcon name="..." />`
+- Size and color come from theme tokens
+- Add new icons to ICONS mapping as needed
+
+**Consequences:**
+- ✅ Consistent icon sizing and coloring
+- ✅ Single source of truth for icons
+- ✅ Easy to update icon library
+- ✅ Theme-aware icons
+- ✅ Better maintainability
+
+**Related Files:**
+- `components/ui/icon/AppIcon.js`
+- `components/ui/icon/index.js`
+- `docs/phases/phase-7/task-7.3.5-ui-foundation.md`
+
+---
+
+### ADR-009: Motion/Animation System
+
+**Status:** ✅ Active (Phase 7.3.5+)
+
+**Date:** 2025-01-14
+
+**Context:**
+Animations and transitions need to be consistent across the application. Without centralized presets, developers might define animations inline, leading to inconsistency and code duplication.
+
+**Decision:**
+Create centralized motion presets in `components/motion/index.js` that:
+- Use motion tokens from theme (duration, easing)
+- Provide reusable animation presets
+- Support CSS-based animations (no framer-motion unless explicitly needed)
+- Are subtle and professional
+
+**Implementation:**
+```javascript
+// components/motion/index.js
+import { theme } from "@/styles/theme.js";
+
+export const fadeIn = `
+  opacity: 0;
+  animation: fadeIn ${theme.motion.duration.normal} ${theme.motion.easing.easeOut} forwards;
+  // ... keyframes
+`;
+
+export const slideUp = `...`;
+export const subtleHover = `...`;
+export const scaleOnHover = `...`;
+export const smoothTransition = (properties) => `...`;
+```
+
+**Usage:**
+```javascript
+import { fadeIn, subtleHover } from "@/components/motion";
+
+const Card = styled.div`
+  ${fadeIn}
+  ${subtleHover}
+`;
+```
+
+**Rules:**
+- ❌ **Forbidden:** Defining animations inside components
+- ✅ **Required:** Use motion presets from `components/motion/index.js`
+- Animations must be subtle and professional
+- Simple transitions (e.g., `transition: opacity 0.2s ease`) can remain inline if they're trivial
+
+**Consequences:**
+- ✅ Consistent animations across application
+- ✅ Single source of truth for motion
+- ✅ Easy to update animation timing/easing globally
+- ✅ Theme-aware animations
+- ✅ Better maintainability
+- ✅ CSS-based (no additional dependencies)
+
+**Related Files:**
+- `components/motion/index.js`
+- `styles/theme.js` (motion tokens)
+- `docs/phases/phase-7/task-7.3.5-ui-foundation.md`
+
+---
+
+### ADR-010: Sidebar State Management with Context
+
+**Status:** ✅ Active (Phase 7.3.5+)
+
+**Date:** 2025-01-14
+
+**Context:**
+Hamburger button for mobile sidebar toggle was initially placed inside the Sidebar component itself. On mobile devices, when the sidebar is hidden (`transform: translateX(-100%)`), the hamburger button becomes inaccessible, creating a UX problem.
+
+**Decision:**
+Create a React Context (`SidebarContext`) to share sidebar open/close state between `TopBarClient` (where hamburger button is displayed) and `SidebarClient` (where sidebar state is applied).
+
+**Implementation:**
+```javascript
+// components/layout/dashboard/SidebarContext.js
+export function SidebarProvider({ children }) {
+  const [isOpen, setIsOpen] = useState(false);
+  // ... provide toggleSidebar, closeSidebar
+}
+
+// TopBarClient uses useSidebar() to toggle
+// SidebarClient uses useSidebar() to read state and close
+```
+
+**Rules:**
+- Hamburger button MUST be in TopBar (not Sidebar) for mobile accessibility
+- Sidebar state MUST be shared via Context (not local useState)
+- SidebarProvider MUST wrap DashboardLayoutClient
+
+**Consequences:**
+- ✅ Hamburger button accessible on mobile (in TopBar)
+- ✅ Sidebar state shared correctly between components
+- ✅ Clean separation of concerns
+- ✅ Works on both desktop (always visible) and mobile (toggleable)
+
+**Related Files:**
+- `components/layout/dashboard/SidebarContext.js`
+- `components/layout/dashboard/TopBarClient.js`
+- `components/layout/dashboard/SidebarClient.js`
+- `components/layout/dashboard/DashboardLayoutClient.js`
+
+---
+
 ## Decision Status Legend
 
 - ✅ **Active** - Currently in effect, must be followed
@@ -250,11 +560,13 @@ Decisions that may need to be made in future phases:
 - **Architecture Blueprint:** `docs/design/ARCHITECTURE_BLUEPRINT.md`
 - **Coding Standards:** `docs/standards/CODING_STANDARDS.md`
 - **API Contract:** `docs/api/API_CONTRACT.md`
+- **Master Reference:** `docs/MASTER_REFERENCE.md`
 - **Task 7.3 Documentation:** `docs/phases/phase-7/task-7.3-products-list.md`
+- **Task 7.3.5 Documentation:** `docs/phases/phase-7/task-7.3.5-ui-foundation.md`
 
 ---
 
 **Document Status:** ✅ Active  
-**Last Updated:** 2025-01-13  
+**Last Updated:** 2025-01-14  
 **Maintained By:** Development Team
 

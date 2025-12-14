@@ -9,8 +9,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import FilterDropdown from "@/components/ui/FilterDropdown.js";
-import FilterPriceRange from "@/components/ui/FilterPriceRange.js";
+import { FilterDropdown, FilterPriceRange } from "@/components/ui";
 
 const FiltersContainer = styled.div`
   display: flex;

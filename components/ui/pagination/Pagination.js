@@ -12,6 +12,8 @@
 
 import styled from "styled-components";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { AppIcon } from "@/components/ui/icon";
+import { smoothTransition } from "@/components/motion";
 
 const PaginationContainer = styled.div`
   display: flex;
@@ -35,19 +37,23 @@ const PaginationInfo = styled.span`
 const PageButton = styled.button`
   padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
   border: 1px solid ${(props) => props.theme.colors.border};
-  background-color: ${(props) => props.theme.colors.background};
+  background-color: ${(props) => props.theme.colors.surface};
   color: ${(props) => props.theme.colors.foreground};
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   cursor: pointer;
-  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  ${smoothTransition("all")}
   min-width: 40px;
-  text-align: center;
 
   &:hover:not(:disabled) {
-    background-color: ${(props) => props.theme.colors.border};
+    background-color: ${(props) => props.theme.colors.surfaceHover};
     border-color: ${(props) => props.theme.colors.primary};
+    transform: translateY(-1px);
   }
 
   &:disabled {
@@ -59,17 +65,17 @@ const PageButton = styled.button`
     props.$active &&
     `
     background-color: ${props.theme.colors.primary};
-    color: ${props.theme.colors.background};
+    color: ${props.theme.colors.surface};
     border-color: ${props.theme.colors.primary};
     
     &:hover {
-      background-color: ${props.theme.colors.primary};
-      opacity: 0.9;
+      background-color: ${props.theme.colors.primaryHover};
+      transform: translateY(-1px);
     }
   `}
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    display: ${(props) => (props.$hideOnMobile ? "none" : "block")};
+    display: ${(props) => (props.$hideOnMobile ? "none" : "flex")};
     padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
     min-width: 36px;
   }
@@ -191,7 +197,7 @@ export default function Pagination({
           disabled={currentPage === 1}
           aria-label="Page précédente"
         >
-          ‹
+          <AppIcon name="chevronLeft" size="sm" color={currentPage === 1 ? "muted" : "foreground"} />
         </PageButton>
 
         {/* Desktop: Show page numbers */}
@@ -220,7 +226,7 @@ export default function Pagination({
           disabled={currentPage === totalPages}
           aria-label="Page suivante"
         >
-          ›
+          <AppIcon name="chevronRight" size="sm" color={currentPage === totalPages ? "muted" : "foreground"} />
         </PageButton>
       </ButtonGroup>
 

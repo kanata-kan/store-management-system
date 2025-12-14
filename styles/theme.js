@@ -5,15 +5,42 @@
 
 export const theme = {
   colors: {
-    primary: "#0070f3",
-    secondary: "#7928ca",
-    success: "#17c964",
-    warning: "#f5a623",
-    error: "#e00",
-    background: "#ffffff",
-    foreground: "#000000",
-    border: "#eaeaea",
-    muted: "#666666",
+    // Primary brand colors - Professional blue
+    primary: "#2563eb",
+    primaryHover: "#1d4ed8",
+    primaryLight: "#dbeafe",
+    
+    // Accent colors
+    secondary: "#6366f1",
+    accent: "#8b5cf6",
+    
+    // Status colors - Softer, calmer
+    success: "#10b981",
+    successLight: "#d1fae5",
+    warning: "#f59e0b",
+    warningLight: "#fef3c7",
+    error: "#ef4444",
+    errorLight: "#fee2e2",
+    info: "#3b82f6",
+    infoLight: "#dbeafe",
+    
+    // Neutral palette - Premium grays
+    background: "#f9fafb",
+    surface: "#ffffff",
+    surfaceHover: "#f9fafb",
+    foreground: "#111827",
+    foregroundSecondary: "#374151",
+    
+    // Muted and borders
+    muted: "#6b7280",
+    mutedLight: "#9ca3af",
+    border: "#e5e7eb",
+    borderLight: "#f3f4f6",
+    
+    // Elevation backgrounds (for layered effect)
+    elevation1: "#ffffff",
+    elevation2: "#f9fafb",
+    elevation3: "#f3f4f6",
   },
   spacing: {
     xs: "0.25rem",
@@ -25,8 +52,8 @@ export const theme = {
   },
   typography: {
     fontFamily: {
-      sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      mono: 'Menlo, Monaco, "Courier New", monospace',
+      sans: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      mono: '"JetBrains Mono", Menlo, Monaco, "Courier New", monospace',
     },
     fontSize: {
       xs: "0.75rem",
@@ -44,6 +71,35 @@ export const theme = {
       semibold: 600,
       bold: 700,
     },
+    variants: {
+      pageTitle: {
+        fontSize: "2xl",
+        fontWeight: 700,
+        lineHeight: 1.2,
+        letterSpacing: "-0.02em",
+      },
+      sectionTitle: {
+        fontSize: "xl",
+        fontWeight: 600,
+        lineHeight: 1.3,
+      },
+      cardTitle: {
+        fontSize: "lg",
+        fontWeight: 600,
+        lineHeight: 1.4,
+      },
+      body: {
+        fontSize: "base",
+        fontWeight: 400,
+        lineHeight: 1.6,
+      },
+      caption: {
+        fontSize: "sm",
+        fontWeight: 400,
+        lineHeight: 1.5,
+        color: "muted",
+      },
+    },
   },
   breakpoints: {
     sm: "640px",
@@ -60,9 +116,33 @@ export const theme = {
     full: "9999px",
   },
   shadows: {
-    sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    md: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-    lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-    xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+    xs: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+    sm: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
+    md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)",
+    lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+    xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+    "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)",
+    
+    // Premium elevation presets
+    card: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
+    cardHover: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+    dropdown: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)",
+    modal: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+  },
+  motion: {
+    duration: {
+      instant: "0ms",
+      fast: "150ms",
+      normal: "200ms",
+      slow: "300ms",
+      slower: "500ms",
+    },
+    easing: {
+      easeIn: "cubic-bezier(0.4, 0, 1, 1)",
+      easeOut: "cubic-bezier(0, 0, 0.2, 1)",
+      easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+      spring: "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+    },
   },
 };

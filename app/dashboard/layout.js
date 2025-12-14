@@ -9,9 +9,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AuthService from "@/lib/services/AuthService.js";
-import Sidebar from "@/components/dashboard/Sidebar.js";
-import TopBar from "@/components/dashboard/TopBar.js";
-import DashboardLayoutClient from "@/components/dashboard/DashboardLayoutClient.js";
+import { Sidebar, TopBar, DashboardLayoutClient } from "@/components/layout/dashboard";
 
 export default async function DashboardLayout({ children }) {
   // DEVELOPMENT MODE: Skip authentication if SKIP_AUTH is enabled

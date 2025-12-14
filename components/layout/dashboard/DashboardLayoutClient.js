@@ -8,6 +8,7 @@
 
 import styled from "styled-components";
 import { theme } from "@/styles/theme.js";
+import { SidebarProvider } from "./SidebarContext.js";
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -39,13 +40,15 @@ const ContentWrapper = styled.div`
 
 export default function DashboardLayoutClient({ children, sidebar, topBar }) {
   return (
-    <LayoutContainer>
-      {sidebar}
-      <MainContent>
-        {topBar}
-        <ContentWrapper>{children}</ContentWrapper>
-      </MainContent>
-    </LayoutContainer>
+    <SidebarProvider>
+      <LayoutContainer>
+        {sidebar}
+        <MainContent>
+          {topBar}
+          <ContentWrapper>{children}</ContentWrapper>
+        </MainContent>
+      </LayoutContainer>
+    </SidebarProvider>
   );
 }
 
