@@ -1,6 +1,7 @@
 /**
  * Category by ID API Routes
  *
+ * GET /api/categories/[id] - Get category by ID (Manager only)
  * PATCH /api/categories/[id] - Update category (Manager only)
  * DELETE /api/categories/[id] - Delete category (Manager only)
  */
@@ -9,6 +10,25 @@ import { validateUpdateCategory } from "@/lib/validation/category.validation.js"
 import CategoryService from "@/lib/services/CategoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+
+/**
+ * GET /api/categories/[id]
+ * Get category by ID
+ * Authorization: Manager only
+ */
+export async function GET(request, { params }) {
+  try {
+    await requireManager(request);
+
+    const { id } = params;
+
+    const category = await CategoryService.getCategoryById(id);
+
+    return success(category);
+  } catch (err) {
+    return error(err);
+  }
+}
 
 /**
  * PATCH /api/categories/[id]
