@@ -29,6 +29,7 @@ import {
   Truck,
   ShoppingCart,
   Bell,
+  Loader2,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -55,6 +56,7 @@ const ICONS = {
   supplier: Truck,
   sale: ShoppingCart,
   alert: Bell,
+  loader: Loader2,
   // Add more icon mappings as needed
 };
 
@@ -69,6 +71,20 @@ const IconWrapper = styled.span`
   }};
   width: ${(props) => props.$size};
   height: ${(props) => props.$size};
+  ${(props) =>
+    props.$spinning &&
+    `
+    animation: spin 1s linear infinite;
+    
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  `}
 `;
 
 /**
@@ -78,12 +94,14 @@ const IconWrapper = styled.span`
  * @param {string} size - Icon size: "xs" | "sm" | "md" | "lg" | "xl"
  * @param {string} color - Icon color from theme: "primary" | "muted" | "error" | etc.
  * @param {number} strokeWidth - Icon stroke width (default: 2)
+ * @param {boolean} spinning - Whether to show spinning animation (for loader icons)
  */
 export default function AppIcon({
   name,
   size = "md",
   color = "foreground",
   strokeWidth = 2,
+  spinning = false,
 }) {
   const IconComponent = ICONS[name];
 
@@ -103,7 +121,7 @@ export default function AppIcon({
   const iconSize = sizeMap[size] || sizeMap.md;
 
   return (
-    <IconWrapper $size={iconSize} $color={color}>
+    <IconWrapper $size={iconSize} $color={color} $spinning={spinning}>
       <IconComponent size={iconSize} strokeWidth={strokeWidth} />
     </IconWrapper>
   );

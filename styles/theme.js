@@ -108,6 +108,13 @@ export const theme = {
     xl: "1280px",
     "2xl": "1536px",
   },
+  container: {
+    sm: "640px",
+    md: "768px",
+    lg: "1024px",
+    xl: "1200px",
+    form: "800px", // Specific width for forms
+  },
   borderRadius: {
     sm: "0.25rem",
     md: "0.5rem",

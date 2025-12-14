@@ -18,7 +18,22 @@ export * from "./empty-state";
 // Icon components
 export * from "./icon";
 
+// Form components
+export * from "./form";
+
+// Button components
+export * from "./button";
+
+// Select components
+export * from "./select";
+
+// Textarea components
+export * from "./textarea";
+
+// Switch components
+export * from "./switch";
+
 // Filter components (kept in ui root)
-export { default as FilterDropdown } from "./FilterDropdown";
-export { default as FilterPriceRange } from "./FilterPriceRange";
+export { default as FilterDropdown } from "./FilterDropdown.js";
+export { default as FilterPriceRange } from "./FilterPriceRange.js";
 

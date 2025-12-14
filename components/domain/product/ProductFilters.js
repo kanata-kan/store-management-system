@@ -81,6 +81,7 @@ export default function ProductFilters({ brands, categories, subCategories }) {
     }
     
     router.push(`/dashboard/products?${params.toString()}`);
+    router.refresh(); // Force server component to re-fetch data
   };
 
   const handleBrandChange = (brandId) => {
@@ -116,6 +117,7 @@ export default function ProductFilters({ brands, categories, subCategories }) {
     
     params.set("page", "1");
     router.push(`/dashboard/products?${params.toString()}`);
+    router.refresh(); // Force server component to re-fetch data
   };
 
   // Prepare options

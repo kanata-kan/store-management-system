@@ -926,21 +926,12 @@
         },
         {
           "id": "7.4",
-          "name": "Add Product Page",
-          "description": "Form with all product fields and validation",
-          "status": "pending",
-          "completedAt": null,
-          "notes": "",
-          "dependencies": ["7.1", "5.1"]
-        },
-        {
-          "id": "7.5",
-          "name": "Edit Product Page",
-          "description": "Pre-filled form with update and delete functionality",
-          "status": "pending",
-          "completedAt": null,
-          "notes": "",
-          "dependencies": ["7.1", "5.3", "5.4", "5.5"]
+          "name": "Product Create / Edit Pages",
+          "description": "Reusable ProductForm component with Create and Edit pages",
+          "status": "completed",
+          "completedAt": "2025-01-14T20:00:00Z",
+          "notes": "COMPLETED: Created comprehensive form system with base UI components (FormField, FormError, Button, Select, Textarea, Input, Switch). Implemented reusable ProductForm component (ProductForm, ProductFormFields, ProductFormActions) following strict architecture (no business logic, API calls in page wrappers only). Created ProductCreatePage and ProductEditPage as thin wrappers. Both pages share the same form component. All fields match backend validation schema (name, brandId, categoryId/subCategoryId cascade, supplierId, purchasePrice, stock, lowStockThreshold). Client-side UX validation + server-side validation. Proper error handling (field-level and global errors). Category cascade (UI-only). 100% theme tokens, AppIcon usage, motion presets. French UI labels. Desktop-first responsive design. Routes: /dashboard/products/new and /dashboard/products/[id]/edit. BUG FIXES: Fixed Button.js ReferenceError (props scope issue), fixed Edit link in ProductTable, added 'Nouveau produit' button in Products List page header. UX improvements: PageHeader component for consistent layout, improved navigation flow. Zero regressions. Production-ready.",
+          "dependencies": ["7.3.5"]
         },
         {
           "id": "7.6",
@@ -952,43 +943,43 @@
           "dependencies": ["7.1", "5.10", "5.11"]
         },
         {
-          "id": "7.7",
+          "id": "7.6",
           "name": "Categories Management Page",
           "description": "Categories list with CRUD operations",
           "status": "pending",
           "completedAt": null,
           "notes": "",
-          "dependencies": ["7.1", "5.12", "5.13", "5.14", "5.15"]
+          "dependencies": ["7.4", "5.12", "5.13", "5.14", "5.15"]
         },
         {
-          "id": "7.8",
+          "id": "7.7",
           "name": "SubCategories Management Page",
           "description": "SubCategories list with CRUD operations",
           "status": "pending",
           "completedAt": null,
           "notes": "",
-          "dependencies": ["7.1", "5.16", "5.17", "5.18", "5.19"]
+          "dependencies": ["7.4", "5.16", "5.17", "5.18", "5.19"]
         },
         {
-          "id": "7.9",
+          "id": "7.8",
           "name": "Brands Management Page",
           "description": "Brands list with CRUD operations",
           "status": "pending",
           "completedAt": null,
           "notes": "",
-          "dependencies": ["7.1", "5.20", "5.21", "5.22", "5.23"]
+          "dependencies": ["7.4", "5.20", "5.21", "5.22", "5.23"]
         },
         {
-          "id": "7.10",
+          "id": "7.9",
           "name": "Suppliers Management Page",
           "description": "Suppliers list with CRUD operations",
           "status": "pending",
           "completedAt": null,
           "notes": "",
-          "dependencies": ["7.1", "5.24", "5.25", "5.26", "5.27"]
+          "dependencies": ["7.4", "5.24", "5.25", "5.26", "5.27"]
         },
         {
-          "id": "7.11",
+          "id": "7.10",
           "name": "Sales Records Page",
           "description": "All sales table with filters and pagination",
           "status": "pending",

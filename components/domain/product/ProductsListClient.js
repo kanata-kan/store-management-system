@@ -9,17 +9,29 @@
 
 import styled from "styled-components";
 
+export const PageHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${(props) => props.theme.spacing.xl};
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: ${(props) => props.theme.spacing.md};
+  }
+`;
+
 export const PageTitle = styled.h1`
   font-size: ${(props) => props.theme.typography.fontSize["2xl"]};
   font-weight: ${(props) => props.theme.typography.variants.pageTitle.fontWeight};
   line-height: ${(props) => props.theme.typography.variants.pageTitle.lineHeight};
   letter-spacing: ${(props) => props.theme.typography.variants.pageTitle.letterSpacing};
   color: ${(props) => props.theme.colors.foreground};
-  margin-bottom: ${(props) => props.theme.spacing.xl};
+  margin: 0;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     font-size: ${(props) => props.theme.typography.fontSize.xl};
-    margin-bottom: ${(props) => props.theme.spacing.lg};
   }
 `;
 

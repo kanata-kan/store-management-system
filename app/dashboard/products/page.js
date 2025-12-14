@@ -7,14 +7,17 @@
  */
 
 import { cookies, headers } from "next/headers";
+import Link from "next/link";
 import ProductsListClient, {
+  PageHeader,
   PageTitle,
   SearchSection,
   FiltersSection,
   TableSection,
 } from "@/components/domain/product/ProductsListClient";
 import { ProductSearchBar, ProductFilters, ProductTable } from "@/components/domain/product";
-import { Pagination } from "@/components/ui/pagination";
+import ProductsListSuccessMessage from "@/components/domain/product/ProductsListSuccessMessage";
+import { Pagination, Button, AppIcon } from "@/components/ui";
 
 /**
  * Helper function to fetch data from API with cookies
@@ -174,10 +177,18 @@ export default async function ProductsPage({ searchParams = {} }) {
   const currentSortBy = searchParams?.sortBy || "createdAt";
   const currentSortOrder = searchParams?.sortOrder || "desc";
   const currentPage = parseInt(searchParams?.page || "1", 10);
+  const successMessage = searchParams?.success;
 
   return (
     <ProductsListClient>
-      <PageTitle>Produits</PageTitle>
+      <ProductsListSuccessMessage message={successMessage} />
+      <PageHeader>
+        <PageTitle>Produits</PageTitle>
+        <Button variant="primary" size="md" as={Link} href="/dashboard/products/new">
+          <AppIcon name="add" size="sm" color="surface" />
+          Nouveau produit
+        </Button>
+      </PageHeader>
 
       <SearchSection>
         <ProductSearchBar />

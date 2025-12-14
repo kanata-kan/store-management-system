@@ -153,6 +153,7 @@ export default function ProductsTable({
     params.set("sortOrder", sortOrder);
     params.set("page", "1"); // Reset to page 1 on sort
     router.push(`/dashboard/products?${params.toString()}`);
+    router.refresh(); // Force server component to re-fetch data
   };
 
   const isEmpty = !products || products.length === 0;
@@ -232,7 +233,8 @@ export default function ProductsTable({
               <PriceCell>{formatPrice(product.purchasePrice)} DA</PriceCell>
             </TableCell>
             <TableCell $align="center">
-              <ActionLink href={`/dashboard/products/${product.id || product._id}`}>
+              <ActionLink href={`/dashboard/products/${product.id || product._id}/edit`}>
+                <AppIcon name="edit" size="xs" color="surface" />
                 Modifier
               </ActionLink>
             </TableCell>

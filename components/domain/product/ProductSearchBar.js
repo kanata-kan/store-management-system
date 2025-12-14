@@ -47,6 +47,7 @@ export default function ProductSearchBar() {
     params.set("page", "1");
     
     router.push(`/dashboard/products?${params.toString()}`);
+    router.refresh(); // Force server component to re-fetch data
   };
 
   return (
