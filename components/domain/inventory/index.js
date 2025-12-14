@@ -1,7 +1,9 @@
 /**
  * Inventory Domain Components
- * Inventory-specific UI components (NO business logic)
  */
 
-export { default as RecentInventoryList } from "./RecentInventoryList";
-
+export { default as InventoryPage } from "./InventoryPage.js";
+export { default as InventoryLogsTable } from "./InventoryLogsTable.js";
+export { default as RecentInventoryList } from "./RecentInventoryList.js";
+export { default as InventorySuccessMessage } from "./InventorySuccessMessage.js";
+export * from "./InventoryStockInForm";

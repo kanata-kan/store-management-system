@@ -841,7 +841,7 @@
       "name": "Manager Dashboard",
       "description": "Build complete manager interface with all management pages",
       "status": "in_progress",
-      "progress": 30,
+      "progress": 40,
       "startDate": null,
       "endDate": null,
       "why": "The manager dashboard is the primary interface for store management. It provides full control over products, inventory, sales, categories, and analytics. This is where managers spend most of their time.",
@@ -934,12 +934,12 @@
           "dependencies": ["7.3.5"]
         },
         {
-          "id": "7.6",
-          "name": "Inventory-In Page",
-          "description": "Supply form and inventory history list",
-          "status": "pending",
-          "completedAt": null,
-          "notes": "",
+          "id": "7.5",
+          "name": "Inventory Management Page",
+          "description": "Stock In form and inventory history (logs) table",
+          "status": "completed",
+          "completedAt": "2025-01-14T22:00:00Z",
+          "notes": "COMPLETED: Created InventoryStockInForm component structure (InventoryStockInForm, InventoryStockInFields, InventoryStockInActions) following same pattern as ProductForm. Created InventoryLogsTable component with server-side pagination, filtering, and sorting. Created InventoryPage component for layout structure. Created /dashboard/inventory route page (server component) with InventoryStockInFormClient wrapper. All components use existing UI primitives (Button, Input, Select, Textarea, Table, Pagination, FormField). AppIcon used everywhere. Motion presets used. Theme tokens used (no hard-coded values). French UI labels throughout. Zero business logic in frontend. Server-side operations only. Error handling (field-level and global). Success feedback. Form reset on success. Responsive design. Zero regressions. Production-ready.",
           "dependencies": ["7.1", "5.10", "5.11"]
         },
         {
@@ -1241,12 +1241,12 @@
     "totalPhases": 10,
     "totalTasks": 115,
     "completedPhases": 6,
-    "completedTasks": 83,
+    "completedTasks": 84,
     "inProgressPhases": 1,
     "inProgressTasks": 0,
     "pendingPhases": 3,
     "pendingTasks": 32,
-    "overallProgress": 72.17
+    "overallProgress": 73.04
   },
   "notes": {
     "general": "All UI text must be in French. All technical documentation, code, and comments must be in English.",
