@@ -1,6 +1,7 @@
 /**
  * Supplier by ID API Routes
  *
+ * GET /api/suppliers/[id] - Get supplier by ID (Manager only)
  * PATCH /api/suppliers/[id] - Update supplier (Manager only)
  * DELETE /api/suppliers/[id] - Delete supplier (Manager only)
  */
@@ -9,6 +10,24 @@ import { validateUpdateSupplier } from "@/lib/validation/supplier.validation.js"
 import SupplierService from "@/lib/services/SupplierService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+
+/**
+ * GET /api/suppliers/[id]
+ * Get supplier by ID
+ * Authorization: Manager only
+ */
+export async function GET(request, { params }) {
+  try {
+    await requireManager(request);
+
+    const { id } = params;
+    const supplier = await SupplierService.getSupplierById(id);
+
+    return success(supplier);
+  } catch (err) {
+    return error(err);
+  }
+}
 
 /**
  * PATCH /api/suppliers/[id]
@@ -49,4 +68,5 @@ export async function DELETE(request, { params }) {
     return error(err);
   }
 }
+
 

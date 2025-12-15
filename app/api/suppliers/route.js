@@ -1,7 +1,7 @@
 /**
  * Suppliers API Routes
  *
- * GET /api/suppliers - Get all suppliers
+ * GET /api/suppliers - Get suppliers (with pagination and search)
  * POST /api/suppliers - Create a new supplier (Manager only)
  */
 
@@ -12,16 +12,47 @@ import { success, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/suppliers
- * Get all suppliers
+ * Get suppliers with optional pagination and search
  * Authorization: Manager + Cashier (read access)
+ * Query params: page, limit, sortBy, sortOrder, search
  */
 export async function GET(request) {
   try {
     await requireManager(request);
 
-    const suppliers = await SupplierService.getSuppliers();
+    const { searchParams } = new URL(request.url);
+    const hasPaginationParams =
+      searchParams.has("page") || searchParams.has("limit");
 
-    return success(suppliers);
+    if (hasPaginationParams) {
+      const page = parseInt(searchParams.get("page") || "1", 10);
+      const limit = parseInt(searchParams.get("limit") || "20", 10);
+      const sortBy = searchParams.get("sortBy") || "name";
+      const sortOrder = searchParams.get("sortOrder") || "asc";
+      const search = searchParams.get("search") || undefined;
+
+      const result = await SupplierService.getSuppliers({
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+        search,
+      });
+
+      return success(result.data, 200, {
+        pagination: result.pagination,
+      });
+    }
+
+    // Legacy mode: return all suppliers without pagination (for backward compatibility)
+    const result = await SupplierService.getSuppliers({
+      page: 1,
+      limit: 1000,
+      sortBy: "name",
+      sortOrder: "asc",
+    });
+
+    return success(result.data);
   } catch (err) {
     return error(err);
   }
