@@ -1,6 +1,7 @@
 /**
  * SubCategory by ID API Routes
  *
+ * GET /api/subcategories/[id] - Get subcategory by ID (Manager only)
  * PATCH /api/subcategories/[id] - Update subcategory (Manager only)
  * DELETE /api/subcategories/[id] - Delete subcategory (Manager only)
  */
@@ -9,6 +10,25 @@ import { validateUpdateSubCategory } from "@/lib/validation/subcategory.validati
 import SubCategoryService from "@/lib/services/SubCategoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+
+/**
+ * GET /api/subcategories/[id]
+ * Get subcategory by ID
+ * Authorization: Manager only
+ */
+export async function GET(request, { params }) {
+  try {
+    await requireManager(request);
+
+    const { id } = params;
+
+    const subcategory = await SubCategoryService.getSubCategoryById(id);
+
+    return success(subcategory);
+  } catch (err) {
+    return error(err);
+  }
+}
 
 /**
  * PATCH /api/subcategories/[id]
