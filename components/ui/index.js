@@ -33,6 +33,9 @@ export * from "./textarea";
 // Switch components
 export * from "./switch";
 
+// DatePicker components
+export * from "./datepicker";
+
 // Filter components (kept in ui root)
 export { default as FilterDropdown } from "./FilterDropdown.js";
 export { default as FilterPriceRange } from "./FilterPriceRange.js";

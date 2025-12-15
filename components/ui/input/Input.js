@@ -50,6 +50,69 @@ const StyledInput = styled.input`
       margin: 0;
     }
   }
+
+  &[type="date"] {
+    position: relative;
+    cursor: pointer;
+    padding-right: ${(props) => `calc(${props.theme.spacing.xl} + 24px)`};
+    min-height: 44px;
+
+    &::-webkit-calendar-picker-indicator {
+      position: absolute;
+      right: ${(props) => props.theme.spacing.sm};
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      opacity: 0.6;
+      width: 20px;
+      height: 20px;
+      ${smoothTransition("opacity, transform")}
+
+      &:hover {
+        opacity: 1;
+        transform: translateY(-50%) scale(1.1);
+      }
+    }
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-clear-button {
+      display: none;
+    }
+
+    /* Firefox */
+    &::-moz-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+      width: 20px;
+      height: 20px;
+      ${smoothTransition("opacity")}
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+
+    /* Improve date display */
+    &::-webkit-datetime-edit {
+      padding: 0;
+    }
+
+    &::-webkit-datetime-edit-fields-wrapper {
+      padding: 0;
+    }
+
+    &::-webkit-datetime-edit-text {
+      color: ${(props) => props.theme.colors.muted};
+      padding: 0 ${(props) => props.theme.spacing.xs};
+    }
+
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-year-field {
+      color: ${(props) => props.theme.colors.foreground};
+      padding: 0 ${(props) => props.theme.spacing.xs};
+    }
+  }
 `;
 
 /**

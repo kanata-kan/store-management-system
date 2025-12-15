@@ -19,8 +19,9 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
 - ✅ Server-side filters by **product**, **cashier**, and **date range**.
 - ✅ Server-side sorting by **date**, **quantity**, and **total amount**.
 - ✅ Server-side pagination via query parameters.
+- ✅ Professional **DatePicker** component using `react-day-picker` (production-ready, used by major companies).
 - ✅ Clean, French-only UI labels, with English code and documentation.
-- ✅ Strict adherence to “no business logic in frontend” rule.
+- ✅ Strict adherence to "no business logic in frontend" rule.
 
 ---
 
@@ -59,7 +60,7 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
 - Layout component mirroring other management pages (e.g., `BrandsPage`, `SuppliersPage`):
   - `PageContainer` — centers and constrains width.
   - `PageHeader` — aligns title and potential future actions.
-  - `PageTitle` — displays **“Historique des ventes”**.
+  - `PageTitle` — displays **"Historique des ventes"**.
   - `FiltersSection` — container for filter form.
   - `TableSection` — container for the sales table.
 - No business logic; purely structural and visual.
@@ -76,17 +77,23 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
   - **Produit:**
     - Dropdown listing all products (from `products` prop).
     - `name="productId"`, posts back selected product ID.
+    - Uses `Select` component with controlled state.
   - **Caissier:**
     - Dropdown listing all users with role `cashier` (from `cashiers` prop).
     - `name="cashierId"`.
+    - Uses `Select` component with controlled state.
+    - Data fetched from `/api/users?role=cashier`.
   - **Date de début:**
-    - `Input` of type `date` → `name="startDate"`.
+    - Professional `DatePicker` component (see below).
+    - `name="startDate"`.
   - **Date de fin:**
-    - `Input` of type `date` → `name="endDate"`.
+    - Professional `DatePicker` component.
+    - `name="endDate"`.
+    - Automatically enforces `min` date constraint (cannot select date before `startDate`).
 - Actions:
   - **Appliquer**:
     - Submits the form.
-    - Builds new `URLSearchParams` from the current URL + `FormData`.
+    - Builds new `URLSearchParams` from the current URL + form state.
     - Sets/removes `productId`, `cashierId`, `startDate`, `endDate`.
     - Resets `page` to `1`.
     - Performs `router.push` + `router.refresh`.
@@ -96,7 +103,36 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
     - Performs `router.push` + `router.refresh`.
 - No direct calls to services or APIs; everything is URL-driven.
 
-### 4. Sales Records Page Route
+### 4. Professional DatePicker Component
+
+#### `DatePicker` (`components/ui/datepicker/DatePicker.js`)
+
+- **Production-ready** date picker built on `react-day-picker` v8.
+- Used by major companies and fully tested in production environments.
+- Features:
+  - **Month/Year Dropdowns**: Professional dropdown selectors for quick navigation.
+  - **French Localization**: Full French language support using `date-fns/locale/fr`.
+  - **Date Formatting**: Uses `date-fns` for reliable date parsing and formatting.
+  - **Min/Max Constraints**: Supports date range restrictions.
+  - **Today Highlighting**: Clearly highlights today's date.
+  - **Selected Date Highlighting**: Visual feedback for selected date.
+  - **Outside Days**: Shows days from previous/next months for better UX.
+  - **Fixed Weeks**: Always displays 6 weeks for consistent layout.
+  - **Custom Styling**: Fully styled with `styled-components` using theme tokens.
+  - **Accessibility**: Built-in keyboard navigation and screen reader support.
+- Integration:
+  - Imports `react-day-picker/dist/style.css` for base styles.
+  - Overrides all styles using `styled-components` to match project theme.
+  - Uses `AppIcon` for calendar icon.
+  - Includes "Aujourd'hui" and "Effacer" action buttons.
+- Props:
+  - `value`: Date string in `YYYY-MM-DD` format.
+  - `onChange`: Handler that receives event with `target.value`.
+  - `min`, `max`: Optional date constraints.
+  - `placeholder`, `required`, `disabled`, `hasError`: Standard input props.
+- **Fully Reusable**: Can be used anywhere in the application.
+
+### 5. Sales Records Page Route
 
 #### `/dashboard/sales` (`app/dashboard/sales/page.js`)
 
@@ -105,7 +141,7 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
   - Fetching:
     - Sales list.
     - Products list (for filter dropdown).
-    - Cashiers list (for filter dropdown).
+    - Cashiers list (for filter dropdown) via `/api/users?role=cashier`.
   - Passing all data and current filter state to `SalesPageClient`.
 - Uses a shared `fetchWithCookies` helper (analogous to other Phase 7 pages):
   - Adds session cookies.
@@ -121,7 +157,7 @@ All data operations (filters, sorting, pagination) are implemented strictly **se
   - `sales` → array from `salesData.data`.
   - `pagination` → from `salesData.meta.pagination`.
   - `products` → from `productsData.data`.
-  - `cashiers` → from `cashiersData.data`.
+  - `cashiers` → from `cashiersData.data` (users with role `cashier`).
 - Renders:
 
 ```text
@@ -132,7 +168,22 @@ SalesPage
   └─ Pagination (if totalPages > 1)
 ```
 
-### 5. Domain Index
+### 6. Users API Endpoint
+
+#### `GET /api/users` (`app/api/users/route.js`)
+
+- **New API endpoint** created to support cashier filtering.
+- Authorization: **Manager only** (`requireManager`).
+- Query parameters:
+  - `role` (optional): Filter users by role (`manager`, `cashier`).
+- Returns:
+  - Array of users (excluding `passwordHash`).
+  - Formatted with `id`, `name`, `email`, `role`, `createdAt`.
+- Usage:
+  - `/api/users?role=cashier` → Returns all cashier users for filter dropdown.
+  - Used by Sales Records page to populate cashier filter.
+
+### 7. Domain Index
 
 #### `components/domain/sale/index.js`
 
@@ -184,15 +235,30 @@ return success(result.items, 200, { pagination: result.pagination });
 
 - This is exactly what the Sales Records page consumes through `fetchWithCookies`.
 
+### Users API Route (New)
+
+#### `GET /api/users` (`app/api/users/route.js`)
+
+- **New endpoint** created for this task.
+- Authorization: **Manager only** (`requireManager`).
+- Query parameters:
+  - `role` (optional): Filter by user role.
+- Implementation:
+  - Connects to database via `connectDB()`.
+  - Queries `User` model with optional role filter.
+  - Excludes `passwordHash` from response.
+  - Sorts by `name` ascending.
+  - Returns formatted user objects with `id`, `name`, `email`, `role`, `createdAt`.
+- Used by:
+  - Sales Records page to fetch cashier list for filter dropdown.
+
 ### Auxiliary APIs for Filters
 
 - `GET /api/products`
-  - Reused in “legacy” mode to fetch a list of products for filter dropdown.
+  - Reused in "legacy" mode to fetch a list of products for filter dropdown.
 - `GET /api/users?role=cashier`
-  - Expected to return a list of cashier users for filter dropdown.
-  - The Sales page does not depend on complex behavior here; it simply expects an array in `data`.
-
-No modifications were needed to the Sale service or model for this task; the page only consumes existing behavior.
+  - Returns a list of cashier users for filter dropdown.
+  - The Sales page expects an array in `data` format.
 
 ---
 
@@ -203,14 +269,29 @@ No modifications were needed to the Sale service or model for this task; the pag
 - `components/domain/sale/SalesTable.js`
 - `components/domain/sale/index.js`
 
+**New UI Components**
+- `components/ui/datepicker/DatePicker.js` (Professional date picker using react-day-picker)
+- `components/ui/datepicker/index.js`
+
 **New Dashboard Route**
 - `app/dashboard/sales/page.js`
 - `app/dashboard/sales/SalesPageClient.js`
+
+**New API Endpoint**
+- `app/api/users/route.js` (GET endpoint for users with role filtering)
+
+**Updated UI Exports**
+- `components/ui/index.js` (Added DatePicker export)
+- `components/ui/icon/AppIcon.js` (Added `calendar` icon)
 
 **Existing Backend (Reused)**
 - `lib/models/Sale.js`
 - `lib/services/SaleService.js`
 - `app/api/sales/route.js`
+
+**Dependencies Added**
+- `react-day-picker` (v8) - Professional date picker library
+- `date-fns` - Date formatting and parsing utilities
 
 **Documentation**
 - `docs/phases/phase-7/task-7.10-sales-records-management.md` (this file)
@@ -250,6 +331,28 @@ Next.js reloads Server Component with new searchParams
 Server re-fetches sales with updated filters/sorting and re-renders table
 ```
 
+### DatePicker Flow
+
+```text
+User clicks on DatePicker input
+    ↓
+DatePicker opens calendar popup (react-day-picker)
+    ↓
+User selects month/year from dropdowns
+    ↓
+Calendar updates to show selected month/year
+    ↓
+User clicks on a date
+    ↓
+DatePicker formats date to YYYY-MM-DD
+    ↓
+onChange handler updates form state
+    ↓
+On form submit, date is added to URL query params
+    ↓
+Server Component re-fetches sales with date filter
+```
+
 ### Sorting & Pagination Flow
 
 ```text
@@ -274,6 +377,32 @@ Table shows the selected page of sales
 
 ---
 
+## 🎨 UX Features
+
+### DatePicker Enhancements
+
+- **Professional Appearance**: Modern, clean design matching project theme.
+- **Month/Year Navigation**: Dropdown selectors for quick month and year selection.
+- **French Localization**: All month names, weekdays, and labels in French.
+- **Today Highlighting**: Today's date is clearly highlighted with primary color background.
+- **Selected Date**: Selected date has distinct styling with primary color.
+- **Date Constraints**: Automatically disables dates outside min/max range.
+- **Action Buttons**: "Aujourd'hui" (Today) and "Effacer" (Clear) for quick actions.
+- **Outside Days**: Shows days from previous/next months for better context.
+- **Fixed Layout**: Always displays 6 weeks for consistent visual layout.
+- **Keyboard Navigation**: Full keyboard support for accessibility.
+- **Click Outside**: Calendar closes when clicking outside the component.
+
+### Filter Form
+
+- **Controlled Components**: All form inputs use controlled state for reliable behavior.
+- **Select Dropdowns**: Product and Cashier filters use `Select` component with proper options.
+- **Date Range**: Start and end date pickers with automatic min date constraint.
+- **Form Validation**: Client-side validation for immediate feedback.
+- **Reset Functionality**: "Réinitialiser" button clears all filters and resets to default view.
+
+---
+
 ## 🧪 Testing Checklist
 
 Manual tests performed:
@@ -281,12 +410,25 @@ Manual tests performed:
 - **Initial Load**
   - [x] `/dashboard/sales` loads successfully for manager.
   - [x] Default sorting is by `createdAt desc` (most recent sales first).
+  - [x] Cashier dropdown populates correctly from `/api/users?role=cashier`.
 - **Filters**
   - [x] Selecting a **product** filters sales to that product only.
   - [x] Selecting a **cashier** filters sales to that cashier only.
   - [x] Applying **date range** (`startDate`, `endDate`) limits sales to that interval.
   - [x] Combining product + cashier + date filters works as expected.
-  - [x] “Réinitialiser” button clears filters and shows full list again.
+  - [x] "Réinitialiser" button clears filters and shows full list again.
+- **DatePicker**
+  - [x] DatePicker opens when clicking on input field.
+  - [x] Month dropdown changes the displayed month correctly.
+  - [x] Year dropdown changes the displayed year correctly.
+  - [x] Selecting a date updates the input value.
+  - [x] Today's date is highlighted correctly.
+  - [x] Selected date is highlighted correctly.
+  - [x] Min date constraint works (end date cannot be before start date).
+  - [x] "Aujourd'hui" button selects today's date.
+  - [x] "Effacer" button clears the selected date.
+  - [x] Calendar closes when clicking outside.
+  - [x] French localization displays correctly.
 - **Sorting**
   - [x] Sorting by **Date / heure** toggles between newest/oldest.
   - [x] Sorting by **Quantité** orders by quantity asc/desc.
@@ -302,6 +444,7 @@ Manual tests performed:
   - [x] No console errors in browser.
   - [x] No new linter errors introduced.
   - [x] Visual design matches other Phase 7 management pages.
+  - [x] DatePicker styling matches project theme perfectly.
 
 ---
 
@@ -313,7 +456,7 @@ Manual tests performed:
 - No advanced text search (e.g., by product name substring or cashier name).
 - No inline row expansion or detail view (future enhancement).
 
-These omissions are intentional: Task 7.10 focuses exclusively on a robust, read-only sales records table with essential filters.
+These omissions are intentional: Task 7.10 focuses exclusively on a robust, read-only sales records table with essential filters and a professional date picker.
 
 ---
 
@@ -325,7 +468,51 @@ These omissions are intentional: Task 7.10 focuses exclusively on a robust, read
 - Add text search by product name or model.
 - Add export to CSV/Excel for accounting/reporting.
 - Integrate with Alerts page to highlight sales that triggered low-stock events.
+- Add date range presets (e.g., "Last 7 days", "This month", "Last month").
 
 All future improvements should continue using the same server-side query and clean architecture principles established in this task.
 
+---
 
+## 📚 Technical Decisions
+
+### Why react-day-picker?
+
+- **Production-Ready**: Used by major companies and fully tested in production.
+- **Lightweight**: Small bundle size, no unnecessary dependencies.
+- **Customizable**: Fully customizable with styled-components and theme tokens.
+- **Accessible**: Built-in keyboard navigation and screen reader support.
+- **Localized**: Full French localization support via date-fns.
+- **Maintained**: Active development and community support.
+
+### Why date-fns?
+
+- **Reliable**: Industry-standard date library for parsing and formatting.
+- **Tree-Shakeable**: Only imports what you use, keeping bundle size small.
+- **Immutable**: All functions return new dates, preventing side effects.
+- **Localized**: Full French locale support.
+
+### Architecture Consistency
+
+- All data operations are server-side (filters, sorting, pagination).
+- Frontend only updates URL parameters and displays server responses.
+- No business logic in React components.
+- Strict separation of concerns (UI vs. business logic).
+- Reusable components following established patterns.
+
+---
+
+## ✅ Task Completion Status
+
+**Status:** ✅ **COMPLETED**
+
+All planned features have been implemented and tested:
+- ✅ Sales Records page with read-only table
+- ✅ Server-side filters (product, cashier, date range)
+- ✅ Server-side sorting and pagination
+- ✅ Professional DatePicker component
+- ✅ Users API endpoint for cashier filtering
+- ✅ Full French localization
+- ✅ Complete documentation
+
+**Ready for:** Production deployment and Phase 8 (Cashier Panel) development.

@@ -30,6 +30,7 @@ import {
   ShoppingCart,
   Bell,
   Loader2,
+  Calendar,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -57,6 +58,7 @@ const ICONS = {
   sale: ShoppingCart,
   alert: Bell,
   loader: Loader2,
+  calendar: Calendar,
   // Add more icon mappings as needed
 };
 

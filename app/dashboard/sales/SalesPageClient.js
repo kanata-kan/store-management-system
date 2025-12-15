@@ -10,9 +10,10 @@
 
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { FormField, Input, Select, Button, AppIcon } from "@/components/ui";
+import { FormField, Input, Select, Button, AppIcon, DatePicker } from "@/components/ui";
 import { SalesTable } from "@/components/domain/sale";
 
 const FiltersForm = styled.form`
@@ -33,6 +34,7 @@ const ActionsGroup = styled.div`
   flex-shrink: 0;
 `;
 
+
 export default function SalesPageClient({
   sales,
   products,
@@ -44,16 +46,16 @@ export default function SalesPageClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Controlled state for form inputs
+  const [productId, setProductId] = useState(currentFilters.productId || "");
+  const [cashierId, setCashierId] = useState(currentFilters.cashierId || "");
+  const [startDate, setStartDate] = useState(currentFilters.startDate || "");
+  const [endDate, setEndDate] = useState(currentFilters.endDate || "");
+
   const handleFilterSubmit = (event) => {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
     const params = new URLSearchParams(searchParams.toString());
-
-    const productId = formData.get("productId") || "";
-    const cashierId = formData.get("cashierId") || "";
-    const startDate = formData.get("startDate") || "";
-    const endDate = formData.get("endDate") || "";
 
     if (productId) params.set("productId", productId);
     else params.delete("productId");
@@ -75,6 +77,11 @@ export default function SalesPageClient({
   };
 
   const handleResetFilters = () => {
+    setProductId("");
+    setCashierId("");
+    setStartDate("");
+    setEndDate("");
+
     const params = new URLSearchParams(searchParams.toString());
     params.delete("productId");
     params.delete("cashierId");
@@ -85,6 +92,23 @@ export default function SalesPageClient({
     router.push(`/dashboard/sales?${params.toString()}`);
     router.refresh();
   };
+
+  // Prepare options for Select components
+  const productOptions = [
+    { value: "", label: "Tous les produits" },
+    ...products.map((product) => ({
+      value: product.id || product._id,
+      label: product.name,
+    })),
+  ];
+
+  const cashierOptions = [
+    { value: "", label: "Tous les caissiers" },
+    ...cashiers.map((user) => ({
+      value: user.id || user._id,
+      label: user.name || user.email,
+    })),
+  ];
 
   return (
     <>
@@ -98,15 +122,10 @@ export default function SalesPageClient({
             <Select
               id="productId"
               name="productId"
-              defaultValue={currentFilters.productId || ""}
-            >
-              <option value="">Tous les produits</option>
-              {products.map((product) => (
-                <option key={product.id || product._id} value={product.id || product._id}>
-                  {product.name}
-                </option>
-              ))}
-            </Select>
+              value={productId}
+              onChange={(e) => setProductId(e.target.value)}
+              options={productOptions}
+            />
           </FormField>
         </FilterGroup>
 
@@ -119,15 +138,10 @@ export default function SalesPageClient({
             <Select
               id="cashierId"
               name="cashierId"
-              defaultValue={currentFilters.cashierId || ""}
-            >
-              <option value="">Tous les caissiers</option>
-              {cashiers.map((user) => (
-                <option key={user.id || user._id} value={user.id || user._id}>
-                  {user.name}
-                </option>
-              ))}
-            </Select>
+              value={cashierId}
+              onChange={(e) => setCashierId(e.target.value)}
+              options={cashierOptions}
+            />
           </FormField>
         </FilterGroup>
 
@@ -137,11 +151,12 @@ export default function SalesPageClient({
             id="startDate"
             helperText="Inclure les ventes à partir de cette date"
           >
-            <Input
+            <DatePicker
               id="startDate"
               name="startDate"
-              type="date"
-              defaultValue={currentFilters.startDate || ""}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              placeholder="Sélectionner une date"
             />
           </FormField>
         </FilterGroup>
@@ -152,11 +167,13 @@ export default function SalesPageClient({
             id="endDate"
             helperText="Inclure les ventes jusqu'à cette date"
           >
-            <Input
+            <DatePicker
               id="endDate"
               name="endDate"
-              type="date"
-              defaultValue={currentFilters.endDate || ""}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              placeholder="Sélectionner une date"
+              min={startDate || undefined}
             />
           </FormField>
         </FilterGroup>
