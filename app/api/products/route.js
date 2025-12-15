@@ -38,6 +38,9 @@ export async function GET(request) {
     if (searchParams.get("stockLevel")) {
       filters.stockLevel = searchParams.get("stockLevel");
     }
+    if (searchParams.get("alertLevel")) {
+      filters.alertLevel = searchParams.get("alertLevel");
+    }
     if (searchParams.get("minPrice")) {
       filters.minPrice = parseFloat(searchParams.get("minPrice"));
     }

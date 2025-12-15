@@ -117,6 +117,21 @@ const UserRole = styled.span`
   text-transform: capitalize;
 `;
 
+const AlertBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 ${(props) => props.theme.spacing.xs};
+  background-color: ${(props) => props.theme.colors.error};
+  color: ${(props) => props.theme.colors.surface};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  margin-left: auto;
+`;
+
 const Overlay = styled.div`
   display: none;
   position: fixed;
@@ -142,10 +157,10 @@ const navigationItems = [
   { href: "/dashboard/brands", label: "Marques", icon: "brand" },
   { href: "/dashboard/suppliers", label: "Fournisseurs", icon: "supplier" },
   { href: "/dashboard/sales", label: "Ventes", icon: "sale" },
-  { href: "/dashboard/alerts", label: "Alertes", icon: "alert" },
+  { href: "/dashboard/alerts", label: "Alertes", icon: "alert", showBadge: true },
 ];
 
-export default function SidebarClient({ user }) {
+export default function SidebarClient({ user, alertsCount = 0 }) {
   const pathname = usePathname();
   const { isOpen, closeSidebar } = useSidebar();
 
@@ -170,6 +185,9 @@ export default function SidebarClient({ user }) {
                       color={isActive ? "primary" : "muted"}
                     />
                     {item.label}
+                    {item.showBadge && alertsCount > 0 && (
+                      <AlertBadge>{alertsCount}</AlertBadge>
+                    )}
                   </NavLink>
                 </NavItem>
               );
