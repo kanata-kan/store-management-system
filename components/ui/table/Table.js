@@ -18,9 +18,30 @@ const TableContainer = styled.div`
   background-color: ${(props) => props.theme.colors.surface};
   box-shadow: ${(props) => props.theme.shadows.card};
   ${fadeIn}
+  
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: thin;
+  scrollbar-color: ${(props) => props.theme.colors.border} transparent;
+  
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.border};
+    border-radius: ${(props) => props.theme.borderRadius.sm};
+    
+    &:hover {
+      background-color: ${(props) => props.theme.colors.muted};
+    }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
-    overflow-x: scroll;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
 `;
@@ -29,6 +50,8 @@ const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
   font-size: ${(props) => props.theme.typography.fontSize.sm};
+  table-layout: auto;
+  min-width: 600px; /* Minimum width to prevent too much compression */
 `;
 
 const TableHead = styled.thead`

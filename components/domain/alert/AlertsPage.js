@@ -15,7 +15,9 @@ export const PageContainer = styled.div`
   width: 100%;
   max-width: ${(props) => props.theme.container?.page || "1400px"};
   margin: 0 auto;
-  padding: ${(props) => props.theme.spacing.xl} 0;
+  padding: ${(props) => props.theme.spacing.xl};
+  box-sizing: border-box;
+  overflow-x: hidden;
 `;
 
 export const PageHeader = styled.div`
@@ -23,6 +25,13 @@ export const PageHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${(props) => props.theme.spacing.xl};
+  flex-wrap: wrap;
+  gap: ${(props) => props.theme.spacing.md};
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 `;
 
 export const PageTitle = styled.h1`
@@ -34,6 +43,11 @@ export const PageTitle = styled.h1`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.sm};
+  flex-wrap: wrap;
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    font-size: ${(props) => props.theme.typography.fontSize.xl};
+  }
 `;
 
 export const AlertBadge = styled.span`

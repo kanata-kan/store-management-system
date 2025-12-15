@@ -123,7 +123,7 @@ function calculateStats(products) {
   };
 }
 
-export default async function AlertsPage({ searchParams = {} }) {
+export default async function AlertsPageRoute({ searchParams = {} }) {
   const alertsQuery = buildAlertsQuery(searchParams || {});
 
   // Fetch data in parallel

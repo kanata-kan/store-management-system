@@ -15,9 +15,13 @@ import StatsCard from "@/components/dashboard/StatsCard.js";
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: ${(props) => props.theme.spacing.md};
   margin-bottom: ${(props) => props.theme.spacing.xl};
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 /**

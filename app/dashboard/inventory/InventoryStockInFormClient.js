@@ -7,19 +7,44 @@
 
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { InventoryStockInForm } from "@/components/domain/inventory";
 
 /**
  * InventoryStockInFormClient Component
  * @param {Object} props
  * @param {Array} props.products - Products array [{ id, name }]
+ * @param {string} [props.initialProductId] - Initial product ID from URL query parameter
  */
-export default function InventoryStockInFormClient({ products = [] }) {
+export default function InventoryStockInFormClient({ products = [], initialProductId = null }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [serverErrors, setServerErrors] = useState({});
+  
+  // Get productId from URL if not provided as prop
+  const productIdFromUrl = initialProductId || (searchParams ? searchParams.get("productId") : null) || null;
+  
+  // Convert productId to string for consistency
+  const normalizedProductId = productIdFromUrl ? productIdFromUrl.toString() : "";
+  
+  // Initialize form with productId from URL
+  const [initialValues, setInitialValues] = useState({
+    productId: normalizedProductId,
+    quantity: "",
+    note: "",
+  });
+
+  // Update initial values when productId changes (e.g., from URL)
+  useEffect(() => {
+    if (normalizedProductId) {
+      setInitialValues((prev) => ({
+        ...prev,
+        productId: normalizedProductId,
+      }));
+    }
+  }, [normalizedProductId]);
 
   const handleSubmit = async (formData) => {
     setIsLoading(true);
@@ -241,6 +266,7 @@ export default function InventoryStockInFormClient({ products = [] }) {
       isLoading={isLoading}
       serverErrors={serverErrors}
       products={products}
+      initialValues={initialValues}
     />
   );
 }

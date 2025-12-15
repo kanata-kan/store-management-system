@@ -166,7 +166,10 @@ export default async function InventoryManagementPage({ searchParams = {} }) {
 
       <StockInSection>
         <SectionTitle>Ajouter au stock</SectionTitle>
-        <InventoryStockInFormClient products={validProducts} />
+        <InventoryStockInFormClient 
+          products={validProducts} 
+          initialProductId={searchParams?.productId || null}
+        />
       </StockInSection>
 
       <LogsSection>

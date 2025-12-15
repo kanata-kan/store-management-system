@@ -17,21 +17,32 @@ import { FormField, Input, Select, Button, AppIcon } from "@/components/ui";
 import { AlertsTable } from "@/components/domain/alert";
 
 const FiltersForm = styled.form`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: ${(props) => props.theme.spacing.md};
   align-items: flex-end;
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const FilterGroup = styled.div`
-  min-width: 220px;
-  flex: 1 1 220px;
+  min-width: 0; /* Prevent overflow */
+  display: flex;
+  flex-direction: column;
 `;
 
 const ActionsGroup = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spacing.sm};
   flex-shrink: 0;
+  align-items: flex-end;
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
 `;
 
 const SearchInputWrapper = styled.div`

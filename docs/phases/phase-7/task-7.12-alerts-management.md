@@ -363,6 +363,9 @@ Manual tests performed:
   - [x] Table shows all low stock products
   - [x] Default sorting is by `stock asc` (lowest stock first)
   - [x] Sidebar badge displays correct alert count
+  - [x] No hydration errors in browser console
+  - [x] No horizontal scroll on page
+  - [x] Layout is responsive and works on different screen sizes
 - **Filters**
   - [x] **Search** filters products by name correctly
   - [x] **Alert Level** filter works for all three levels (outOfStock, critical, low)
@@ -387,6 +390,7 @@ Manual tests performed:
   - [x] Changing filters resets to page 1
 - **Quick Actions**
   - [x] "Approvisionner" button navigates to Inventory-In with productId
+  - [x] Product is pre-selected in Inventory page Select dropdown when coming from Alerts
   - [x] "Modifier" button navigates to product edit page
 - **Statistics**
   - [x] Total alerts count matches actual number of low stock products
@@ -398,9 +402,12 @@ Manual tests performed:
   - [x] All labels and helper texts are in French
   - [x] No business logic or direct DB access in React components
   - [x] No console errors in browser
+  - [x] No hydration errors
+  - [x] No horizontal scroll issues
   - [x] No new linter errors introduced
   - [x] Visual design matches other Phase 7 management pages
   - [x] Empty state displays correctly when no alerts exist
+  - [x] Responsive design works on mobile, tablet, and desktop
 
 ---
 
@@ -477,6 +484,18 @@ All planned features have been implemented and tested:
 - ✅ Sidebar badge with alert count
 - ✅ Full French localization
 - ✅ Complete documentation
+
+**Post-Implementation Fixes:**
+- ✅ Fixed Hydration Error: Corrected Table component usage in AlertsTable (removed nested `<thead>`/`<tbody>`)
+- ✅ Improved Layout: Enhanced responsive design to eliminate horizontal scroll
+  - Updated PageContainer with proper padding and overflow handling
+  - Improved FiltersForm using CSS Grid for better responsiveness
+  - Enhanced Table component with better scrollbar styling
+  - Made TableCell responsive with word-wrap and proper sizing
+- ✅ Product Pre-selection: Fixed "Approvisionner" button to pre-select product in Inventory page
+  - Added `productId` query parameter handling in Inventory page
+  - Implemented initial values support in InventoryStockInForm
+  - Enhanced user experience when navigating from Alerts to Inventory
 
 **Ready for:** Production deployment and Phase 8 (Cashier Panel) development.
 

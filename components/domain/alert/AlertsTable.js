@@ -57,8 +57,16 @@ const TableCell = styled.td`
   padding: ${(props) => props.theme.spacing.md};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.foreground};
-  white-space: nowrap;
+  white-space: normal;
   text-align: ${(props) => props.$align || "left"};
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  min-width: 0; /* Allow flex shrinking */
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    font-size: ${(props) => props.theme.typography.fontSize.xs};
+    padding: ${(props) => props.theme.spacing.sm};
+  }
 `;
 
 const ProductNameCell = styled.div`
@@ -70,6 +78,9 @@ const ProductNameCell = styled.div`
 const ProductName = styled.div`
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   color: ${(props) => props.theme.colors.foreground};
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0;
 `;
 
 const AlertIcon = styled.span`
@@ -139,6 +150,12 @@ const ActionsCell = styled.div`
   gap: ${(props) => props.theme.spacing.sm};
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    flex-direction: column;
+    gap: ${(props) => props.theme.spacing.xs};
+  }
 `;
 
 /**
@@ -205,23 +222,11 @@ export default function AlertsTable({ products, currentSortBy, currentSortOrder 
     router.push(`/dashboard/products/${productId}/edit`);
   };
 
-  if (!products || products.length === 0) {
-    return (
-      <div style={{ textAlign: "center", padding: "3rem", color: "#6b7280" }}>
-        <AppIcon name="alert" size="xl" color="muted" />
-        <p style={{ marginTop: "1rem", fontSize: "1rem" }}>
-          Aucune alerte
-        </p>
-        <p style={{ marginTop: "0.5rem", fontSize: "0.875rem" }}>
-          Tous les produits sont en stock suffisant
-        </p>
-      </div>
-    );
-  }
+  const isEmpty = !products || products.length === 0;
 
   return (
-    <Table>
-      <thead>
+    <Table
+      header={
         <tr>
           <TableHeader
             label="Produit"
@@ -249,9 +254,12 @@ export default function AlertsTable({ products, currentSortBy, currentSortOrder 
           <TableHeader label="Statut" />
           <TableHeader label="Actions" />
         </tr>
-      </thead>
-      <tbody>
-        {products.map((product) => {
+      }
+      isEmpty={isEmpty}
+      emptyMessage="Aucune alerte. Tous les produits sont en stock suffisant."
+    >
+      {!isEmpty &&
+        products.map((product) => {
           const alertLevel = getAlertLevel(product);
           const stockPercentage = product.lowStockThreshold > 0
             ? Math.round((product.stock / product.lowStockThreshold) * 100)
@@ -320,7 +328,6 @@ export default function AlertsTable({ products, currentSortBy, currentSortOrder 
             </TableRow>
           );
         })}
-      </tbody>
     </Table>
   );
 }

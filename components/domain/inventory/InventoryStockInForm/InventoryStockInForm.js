@@ -60,6 +60,7 @@ const GlobalError = styled.div`
  * @param {Object} [props.serverErrors] - Server-side errors { [field]: string }
  * @param {Array} props.products - Products array [{ id, name }]
  * @param {Function} [props.onCancel] - Cancel handler (optional)
+ * @param {Object} [props.initialValues] - Initial form values { productId, quantity, note }
  */
 export default function InventoryStockInForm({
   onSubmit,
@@ -67,13 +68,24 @@ export default function InventoryStockInForm({
   serverErrors = {},
   products = [],
   onCancel,
+  initialValues = {},
 }) {
-  // Form state
+  // Form state - initialize with initialValues if provided
   const [values, setValues] = useState({
-    productId: null,
-    quantity: null,
-    note: "",
+    productId: initialValues.productId || null,
+    quantity: initialValues.quantity || null,
+    note: initialValues.note || "",
   });
+
+  // Update values when initialValues change (e.g., from URL query param)
+  useEffect(() => {
+    if (initialValues.productId) {
+      setValues((prev) => ({
+        ...prev,
+        productId: initialValues.productId,
+      }));
+    }
+  }, [initialValues.productId]);
 
   // Field-level errors (client-side UX validation)
   const [errors, setErrors] = useState({});
