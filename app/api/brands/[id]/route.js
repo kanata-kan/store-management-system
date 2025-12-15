@@ -1,6 +1,7 @@
 /**
  * Brand by ID API Routes
  *
+ * GET /api/brands/[id] - Get brand by ID (Manager only)
  * PATCH /api/brands/[id] - Update brand (Manager only)
  * DELETE /api/brands/[id] - Delete brand (Manager only)
  */
@@ -9,6 +10,25 @@ import { validateUpdateBrand } from "@/lib/validation/brand.validation.js";
 import BrandService from "@/lib/services/BrandService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+
+/**
+ * GET /api/brands/[id]
+ * Get brand by ID
+ * Authorization: Manager only
+ */
+export async function GET(request, { params }) {
+  try {
+    await requireManager(request);
+
+    const { id } = params;
+
+    const brand = await BrandService.getBrandById(id);
+
+    return success(brand);
+  } catch (err) {
+    return error(err);
+  }
+}
 
 /**
  * PATCH /api/brands/[id]
