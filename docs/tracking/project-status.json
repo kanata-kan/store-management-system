@@ -6,7 +6,7 @@
     "status": "in_progress",
     "startDate": "2025-01-11T00:00:00Z",
     "targetEndDate": null,
-    "lastUpdated": "2025-01-12T20:00:00Z",
+    "lastUpdated": "2025-01-15T23:59:59Z",
     "language": {
       "ui": "French",
       "technical": "English"
@@ -837,6 +837,73 @@
       ]
     },
     {
+      "id": "phase-0.5",
+      "name": "User & Access Management",
+      "description": "Infrastructure layer for authentication, authorization, and user lifecycle management",
+      "status": "completed",
+      "progress": 100,
+      "startDate": "2025-01-15T22:00:00Z",
+      "endDate": "2025-01-15T23:59:59Z",
+      "why": "User & Access Management is a missing core system layer, not a simple feature. This infrastructure is required for the system to be usable in production. Managers must be able to create and manage user accounts (both managers and cashiers) before the system can be deployed.",
+      "how": "Create UserService for business logic, user validation schemas, complete User API endpoints (CRUD), User Management Dashboard UI following existing patterns (Brands/Suppliers), and secure First Manager Setup script for production initialization.",
+      "tasks": [
+        {
+          "id": "0.5.1",
+          "name": "UserService",
+          "description": "Create UserService with createUser, updateUser, deleteUser, getUsers methods",
+          "status": "completed",
+          "completedAt": "2025-01-15T22:15:00Z",
+          "notes": "UserService created with all CRUD operations. Email uniqueness validation, role validation (manager/cashier), self-deletion prevention, optional sales history check for deletion protection. Never returns passwordHash.",
+          "dependencies": ["2.8"]
+        },
+        {
+          "id": "0.5.2",
+          "name": "User Validation Schemas",
+          "description": "Create user validation schemas (CreateUserSchema, UpdateUserSchema)",
+          "status": "completed",
+          "completedAt": "2025-01-15T22:20:00Z",
+          "notes": "Created user.validation.js with CreateUserSchema and UpdateUserSchema. Password optional in update schema. All validation rules match User model exactly. French error messages for UI.",
+          "dependencies": ["0.5.1"]
+        },
+        {
+          "id": "0.5.3",
+          "name": "User API Endpoints",
+          "description": "Create/Update User API endpoints (POST, GET, PATCH, DELETE /api/users)",
+          "status": "completed",
+          "completedAt": "2025-01-15T22:30:00Z",
+          "notes": "Created/Updated User API endpoints: POST /api/users (create), GET /api/users (list with pagination/filters), GET /api/users/[id] (get by ID), PATCH /api/users/[id] (update), DELETE /api/users/[id] (delete with self-deletion prevention). All endpoints Manager-only. Consistent error handling with rest of project.",
+          "dependencies": ["0.5.1", "0.5.2", "phase-6"]
+        },
+        {
+          "id": "0.5.4",
+          "name": "User Management Dashboard UI",
+          "description": "Create User Management Dashboard UI (list, create, edit pages)",
+          "status": "completed",
+          "completedAt": "2025-01-15T22:50:00Z",
+          "notes": "Created complete User Management UI following Brands/Suppliers patterns: UserTable component, UserForm (shared for create/edit), UsersPage layout, UsersPageClient (search + delete confirmation), UserCreatePage, UserEditPage. All pages at /dashboard/users. Server-side pagination, sorting, search. French UI labels. Added 'Utilisateurs' link to Sidebar. Added 'user' icon to AppIcon.",
+          "dependencies": ["0.5.3", "7.1"]
+        },
+        {
+          "id": "0.5.5",
+          "name": "First Manager Setup Script",
+          "description": "Create secure First Manager Setup script (scripts/create-first-manager.js)",
+          "status": "completed",
+          "completedAt": "2025-01-15T23:00:00Z",
+          "notes": "Created secure First Manager Setup script. Checks for existing managers to prevent accidental re-running. Uses environment variables (FIRST_MANAGER_NAME, FIRST_MANAGER_EMAIL, FIRST_MANAGER_PASSWORD). Validates email format and password length. Comprehensive error handling and user feedback.",
+          "dependencies": ["0.5.1"]
+        },
+        {
+          "id": "0.5.6",
+          "name": "Phase 0.5 Cleanup & Finalization",
+          "description": "Remove all diagnostic console.log statements and finalize Phase 0.5 documentation",
+          "status": "completed",
+          "completedAt": "2025-01-15T23:59:59Z",
+          "notes": "Removed all diagnostic console.log statements from backend (API routes, services, validation, models) and frontend (components, pages). Created final clean architecture documentation (phase-0.5-architecture.md). Removed all temporary diagnostic documents. Phase 0.5 is now production-ready and fully documented.",
+          "dependencies": ["0.5.1", "0.5.2", "0.5.3", "0.5.4", "0.5.5"]
+        }
+      ]
+    },
+    {
       "id": "phase-7",
       "name": "Manager Dashboard",
       "description": "Build complete manager interface with all management pages",
@@ -1238,15 +1305,15 @@
   ],
   "currentPhase": "phase-7",
   "statistics": {
-    "totalPhases": 10,
-    "totalTasks": 115,
-    "completedPhases": 6,
-    "completedTasks": 84,
-    "inProgressPhases": 1,
+    "totalPhases": 11,
+    "totalTasks": 120,
+    "completedPhases": 8,
+    "completedTasks": 89,
+    "inProgressPhases": 0,
     "inProgressTasks": 0,
     "pendingPhases": 3,
     "pendingTasks": 32,
-    "overallProgress": 73.04
+    "overallProgress": 74.17
   },
   "notes": {
     "general": "All UI text must be in French. All technical documentation, code, and comments must be in English.",

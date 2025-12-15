@@ -31,6 +31,10 @@ import {
   Bell,
   Loader2,
   Calendar,
+  Users,
+  Eye,
+  EyeOff,
+  LogIn,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -59,6 +63,10 @@ const ICONS = {
   alert: Bell,
   loader: Loader2,
   calendar: Calendar,
+  user: Users,
+  eye: Eye,
+  "eye-off": EyeOff,
+  "log-in": LogIn,
   // Add more icon mappings as needed
 };
 

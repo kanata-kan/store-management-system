@@ -1,19 +1,20 @@
 /**
  * Users API Routes
  *
- * GET /api/users - Get users (with optional role filter)
+ * GET /api/users - Get users (with pagination, filters, search)
+ * POST /api/users - Create a new user
  * Authorization: Manager only
  */
 
-import connectDB from "@/lib/db/connect.js";
-import User from "@/lib/models/User.js";
+import { validateCreateUser } from "@/lib/validation/user.validation.js";
+import UserService from "@/lib/services/UserService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/users
- * Get users with optional role filter
- * Query params: role (optional) - filter by role (manager, cashier)
+ * Get users with pagination, sorting, search, and optional role filter
+ * Query params: page, limit, sortBy, sortOrder, search, role
  * Authorization: Manager only
  */
 export async function GET(request) {
@@ -21,30 +22,64 @@ export async function GET(request) {
     await requireManager(request);
 
     const { searchParams } = new URL(request.url);
-    const role = searchParams.get("role");
 
-    await connectDB();
+    const hasPaginationParams =
+      searchParams.has("page") || searchParams.has("limit");
 
-    const query = {};
-    if (role) {
-      query.role = role;
+    if (hasPaginationParams) {
+      const page = parseInt(searchParams.get("page") || "1", 10);
+      const limit = parseInt(searchParams.get("limit") || "20", 10);
+      const sortBy = searchParams.get("sortBy") || "name";
+      const sortOrder = searchParams.get("sortOrder") || "asc";
+      const search = searchParams.get("search") || undefined;
+      const role = searchParams.get("role") || undefined;
+
+      const result = await UserService.getUsers({
+        page,
+        limit,
+        sortBy,
+        sortOrder,
+        search,
+        role,
+      });
+
+      return success(result.data, 200, {
+        pagination: result.pagination,
+      });
     }
 
-    const users = await User.find(query)
-      .select("-passwordHash") // Exclude password hash
-      .sort({ name: 1 })
-      .lean();
+    // Legacy mode: return all users sorted by name, without pagination meta
+    const result = await UserService.getUsers({
+      page: 1,
+      limit: 1000,
+      sortBy: "name",
+      sortOrder: "asc",
+    });
 
-    // Format users for response
-    const formattedUsers = users.map((user) => ({
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
-    }));
+    return success(result.data);
+  } catch (err) {
+    return error(err);
+  }
+}
 
-    return success(formattedUsers);
+/**
+ * POST /api/users
+ * Create a new user
+ * Authorization: Manager only
+ */
+export async function POST(request) {
+  try {
+    await requireManager(request);
+
+    const body = await request.json();
+    
+    // Validate input
+    const validated = validateCreateUser(body);
+
+    // Create user
+    const user = await UserService.createUser(validated);
+
+    return success(user, 201);
   } catch (err) {
     return error(err);
   }

@@ -157,6 +157,7 @@ const navigationItems = [
   { href: "/dashboard/brands", label: "Marques", icon: "brand" },
   { href: "/dashboard/suppliers", label: "Fournisseurs", icon: "supplier" },
   { href: "/dashboard/sales", label: "Ventes", icon: "sale" },
+  { href: "/dashboard/users", label: "Utilisateurs", icon: "user" },
   { href: "/dashboard/alerts", label: "Alertes", icon: "alert", showBadge: true },
 ];
 

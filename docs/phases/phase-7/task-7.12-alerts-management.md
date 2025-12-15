@@ -238,6 +238,16 @@ This keeps imports consistent with how other domain modules are exposed.
 - `components/layout/dashboard/Sidebar.js` (Fetches alerts count)
 - `components/layout/dashboard/SidebarClient.js` (Displays alert badge)
 
+**Post-Implementation Fixes & Enhancements**
+- `components/domain/alert/AlertsTable.js` (Fixed Table component usage, improved responsive design)
+- `components/domain/alert/AlertsPage.js` (Improved responsive layout, added overflow handling)
+- `components/domain/alert/AlertStatsCards.js` (Enhanced grid responsiveness)
+- `app/dashboard/alerts/AlertsPageClient.js` (Improved filters form layout using CSS Grid)
+- `components/ui/table/Table.js` (Enhanced scrollbar styling and responsive behavior)
+- `app/dashboard/inventory/page.js` (Added productId query parameter support)
+- `app/dashboard/inventory/InventoryStockInFormClient.js` (Added initial product selection from URL)
+- `components/domain/inventory/InventoryStockInForm/InventoryStockInForm.js` (Added initialValues support)
+
 **Documentation**
 - `docs/phases/phase-7/task-7.12-alerts-management.md` (this file)
 
@@ -433,7 +443,7 @@ These omissions are intentional: Task 7.12 focuses exclusively on a robust, read
 - Add export to CSV/Excel for reporting
 - Add custom threshold settings per category or brand
 - Add alert history (when did product become low stock, when was it restocked)
-- Add integration with Inventory-In page (pre-fill form when clicking "Approvisionner")
+- Add integration with Inventory-In page (pre-fill form when clicking "Approvisionner") ✅ **COMPLETED** - Product is now pre-selected when navigating from Alerts page
 
 All future improvements should continue using the same server-side query and clean architecture principles established in this task.
 
