@@ -69,10 +69,11 @@ export async function POST(request) {
     const user = await requireCashier(request);
 
     const body = await request.json();
+    
+    // Add cashierId from authenticated user BEFORE validation
+    body.cashierId = user.id;
+    
     const validated = validateSale(body);
-
-    // Add cashierId from authenticated user
-    validated.cashierId = user.id;
 
     const result = await SaleService.registerSale(validated);
 
