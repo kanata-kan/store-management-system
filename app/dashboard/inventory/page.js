@@ -6,7 +6,6 @@
  * URL query parameters are the single source of truth for filters, pagination, and sorting.
  */
 
-import { cookies, headers } from "next/headers";
 import InventoryPage, {
   PageHeader,
   PageTitle,
@@ -21,96 +20,19 @@ import {
 } from "@/components/domain/inventory";
 import { Pagination } from "@/components/ui";
 import InventoryStockInFormClient from "./InventoryStockInFormClient";
-
-/**
- * Helper function to fetch data from API with cookies
- */
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-  
-  // Check if SKIP_AUTH is enabled (development mode)
-  const SKIP_AUTH = process.env.SKIP_AUTH === "true";
-  
-  // Build cookie header
-  let cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-  
-  // In development mode with SKIP_AUTH, ensure we have a session token
-  if (SKIP_AUTH && !cookieHeader.includes("session_token")) {
-    cookieHeader = cookieHeader ? `${cookieHeader}; session_token=dev-token` : "session_token=dev-token";
-  }
-
-  // In Next.js Server Components, we need absolute URL for fetch
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  
-  if (!baseUrl) {
-    // Try to get host from headers
-    const headersList = headers();
-    const host = headersList.get("host");
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-    
-    if (host) {
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      // Fallback to default
-      baseUrl = "http://localhost:3000";
-    }
-  }
-  
-  const apiUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-  
-  const response = await fetch(apiUrl, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    console.error(`API Error: ${response.status} ${response.statusText} for ${apiUrl}`);
-    return null;
-  }
-
-  const result = await response.json();
-  return result.status === "success" ? result : null;
-}
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
+import buildApiQuery from "@/lib/utils/buildApiQuery.js";
 
 /**
  * Build API query string from searchParams for inventory logs
  */
 function buildInventoryLogsQuery(searchParams) {
-  const params = new URLSearchParams();
-
-  // Filters
-  const productId = searchParams?.productId;
-  if (productId) {
-    params.set("productId", productId);
-  }
-
-  const startDate = searchParams?.startDate;
-  if (startDate) {
-    params.set("startDate", startDate);
-  }
-
-  const endDate = searchParams?.endDate;
-  if (endDate) {
-    params.set("endDate", endDate);
-  }
-
-  // Pagination
-  const page = searchParams?.page || "1";
-  params.set("page", page);
-  params.set("limit", "20"); // Default 20 items per page
-
-  // Sorting
-  const sortBy = searchParams?.sortBy || "createdAt";
-  const sortOrder = searchParams?.sortOrder || "desc";
-  params.set("sortBy", sortBy);
-  params.set("sortOrder", sortOrder);
-
-  return params.toString();
+  return buildApiQuery(searchParams, {
+    defaultSortBy: "createdAt",
+    defaultSortOrder: "desc",
+    defaultLimit: 20,
+    filterFields: ["productId", "startDate", "endDate"],
+  });
 }
 
 /**

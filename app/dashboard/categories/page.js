@@ -6,7 +6,6 @@
  * URL query parameters are the single source of truth for pagination and sorting.
  */
 
-import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import CategoriesPage, {
   PageContainer,
@@ -17,95 +16,19 @@ import CategoriesPage, {
 } from "@/components/domain/category/CategoriesPage";
 import CategoriesPageClient from "./CategoriesPageClient";
 import { Pagination, Button, AppIcon } from "@/components/ui";
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
+import buildApiQuery from "@/lib/utils/buildApiQuery.js";
 
 /**
- * Helper function to fetch data from API with cookies
- */
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-
-  const SKIP_AUTH = process.env.SKIP_AUTH === "true";
-
-  let cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  if (SKIP_AUTH && !cookieHeader.includes("session_token")) {
-    cookieHeader = cookieHeader
-      ? `${cookieHeader}; session_token=dev-token`
-      : "session_token=dev-token";
-  }
-
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    const headersList = headers();
-    const host = headersList.get("host");
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-
-    if (host) {
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      // Use port 3002 as default (matching the app port)
-      baseUrl = "http://localhost:3002";
-    }
-  }
-
-  const apiUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
-  
-  // Debug: Log fetch URL
-  if (process.env.NODE_ENV === "development" && url.includes("/api/categories")) {
-    console.log("[fetchWithCookies] Fetching categories from:", apiUrl);
-  }
-
-  const response = await fetch(apiUrl, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    console.error(`API Error: ${response.status} ${response.statusText} for ${apiUrl}`);
-    const errorText = await response.text();
-    console.error(`API Error Response:`, errorText);
-    return null;
-  }
-
-  const result = await response.json();
-  
-  // Debug: Log raw response
-  if (process.env.NODE_ENV === "development" && apiUrl.includes("/api/categories")) {
-    console.log("[fetchWithCookies] Raw API Response for categories:", {
-      status: result.status,
-      hasData: !!result.data,
-      dataType: result.data ? Array.isArray(result.data) ? "array" : typeof result.data : "undefined",
-      dataLength: Array.isArray(result.data) ? result.data.length : 0,
-    });
-  }
-  
-  return result.status === "success" ? result : null;
-}
-
-/**
- * Build API query string from searchParams
+ * Build API query string from searchParams for categories
  */
 function buildCategoriesQuery(searchParams) {
-  const params = new URLSearchParams();
-
-  // Pagination
-  const page = searchParams?.page || "1";
-  params.set("page", page);
-  params.set("limit", "20"); // Default 20 items per page
-
-  // Sorting
-  const sortBy = searchParams?.sortBy || "name";
-  const sortOrder = searchParams?.sortOrder || "asc";
-  params.set("sortBy", sortBy);
-  params.set("sortOrder", sortOrder);
-
-  return params.toString();
+  return buildApiQuery(searchParams, {
+    defaultSortBy: "name",
+    defaultSortOrder: "asc",
+    defaultLimit: 20,
+    filterFields: [], // Categories have no filters, only pagination and sorting
+  });
 }
 
 /**
@@ -117,7 +40,10 @@ export default async function CategoriesManagementPage({ searchParams = {} }) {
 
   // Fetch categories
   const apiUrl = `/api/categories?${categoriesQuery}`;
-  const categoriesData = await fetchWithCookies(apiUrl);
+  // Enable debug logging for categories (matching previous behavior)
+  const categoriesData = await fetchWithCookies(apiUrl, {
+    enableDebugLogging: process.env.NODE_ENV === "development",
+  });
 
   // Debug: Log API response
   if (process.env.NODE_ENV === "development") {

@@ -13,67 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BrandTable } from "@/components/domain/brand";
 import styled from "styled-components";
 import { Button, AppIcon, FormField, Input } from "@/components/ui";
-import { fadeIn } from "@/components/motion";
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  ${fadeIn}
-`;
-
-const ModalContent = styled.div`
-  background-color: ${(props) => props.theme.colors.surface};
-  border-radius: ${(props) => props.theme.borderRadius.lg};
-  padding: ${(props) => props.theme.spacing.xl};
-  max-width: 500px;
-  width: 90%;
-  box-shadow: ${(props) => props.theme.shadows.modal || props.theme.shadows.card};
-  ${fadeIn}
-`;
-
-const ModalTitle = styled.h3`
-  font-size: ${(props) => props.theme.typography.fontSize.lg};
-  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
-  color: ${(props) => props.theme.colors.foreground};
-  margin: 0 0 ${(props) => props.theme.spacing.md} 0;
-  font-family: ${(props) => props.theme.typography.fontFamily.sans};
-`;
-
-const ModalMessage = styled.p`
-  font-size: ${(props) => props.theme.typography.fontSize.base};
-  color: ${(props) => props.theme.colors.foregroundSecondary};
-  margin: 0 0 ${(props) => props.theme.spacing.xl} 0;
-  font-family: ${(props) => props.theme.typography.fontFamily.sans};
-  line-height: 1.5;
-`;
-
-const ModalActions = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.md};
-  justify-content: flex-end;
-`;
-
-const ErrorMessage = styled.div`
-  padding: ${(props) => props.theme.spacing.md};
-  margin-bottom: ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.errorLight};
-  border: 1px solid ${(props) => props.theme.colors.error};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  color: ${(props) => props.theme.colors.error};
-  font-size: ${(props) => props.theme.typography.fontSize.sm};
-  font-family: ${(props) => props.theme.typography.fontFamily.sans};
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.sm};
-`;
+import DeleteConfirmationModal from "@/components/ui/delete-confirmation-modal";
 
 const SearchForm = styled.form`
   max-width: 360px;
@@ -115,8 +55,6 @@ export default function BrandsPageClient({
   const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState(currentSearch || "");
   const [deleteModal, setDeleteModal] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState(null);
 
   const handleEdit = (brandId) => {
     router.push(`/dashboard/brands/${brandId}/edit`);
@@ -124,51 +62,13 @@ export default function BrandsPageClient({
 
   const handleDeleteClick = (brandId, brandName) => {
     setDeleteModal({ brandId, brandName });
-    setDeleteError(null);
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteModal(null);
-    setDeleteError(null);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!deleteModal) return;
-
-    setIsDeleting(true);
-    setDeleteError(null);
-
-    try {
-      const response = await fetch(`/api/brands/${deleteModal.brandId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.status === "success") {
-        // Success: refresh page with success message
-        const params = new URLSearchParams();
-        params.set(
-          "success",
-          encodeURIComponent(
-            `Marque "${deleteModal.brandName}" supprimée avec succès !`
-          )
-        );
-        window.location.href = `/dashboard/brands?${params.toString()}`;
-      } else {
-        // Error: show error message
-        setDeleteError(
-          result.error?.message ||
-            "Impossible de supprimer la marque. Elle est peut-être liée à des produits."
-        );
-      }
-    } catch (err) {
-      console.error("Delete brand error:", err);
-      setDeleteError("Une erreur réseau est survenue. Veuillez réessayer.");
-    } finally {
-      setIsDeleting(false);
-    }
+  const handleDeleteSuccess = (entityId, entityName, successMessage) => {
+    // Success: refresh page with success message
+    const params = new URLSearchParams();
+    params.set("success", encodeURIComponent(successMessage));
+    window.location.href = `/dashboard/brands?${params.toString()}`;
   };
 
   const handleSearchSubmit = (event) => {
@@ -222,53 +122,18 @@ export default function BrandsPageClient({
         onDelete={handleDeleteClick}
       />
 
-      {deleteModal && (
-        <ModalOverlay onClick={handleDeleteCancel}>
-          <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>Confirmer la suppression</ModalTitle>
-            {deleteError && (
-              <ErrorMessage role="alert">
-                <AppIcon name="warning" size="sm" color="error" />
-                <span>{deleteError}</span>
-              </ErrorMessage>
-            )}
-            <ModalMessage>
-              Êtes-vous sûr de vouloir supprimer la marque{" "}
-              <strong>"{deleteModal.brandName}"</strong> ?
-              <br />
-              <br />
-              Cette action est irréversible. Si la marque est liée à des produits,
-              la suppression sera impossible.
-            </ModalMessage>
-            <ModalActions>
-              <Button
-                variant="secondary"
-                onClick={handleDeleteCancel}
-                disabled={isDeleting}
-              >
-                Annuler
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleDeleteConfirm}
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <AppIcon name="loader" size="sm" color="surface" spinning />
-                    Suppression...
-                  </>
-                ) : (
-                  <>
-                    <AppIcon name="delete" size="sm" color="surface" />
-                    Supprimer
-                  </>
-                )}
-              </Button>
-            </ModalActions>
-          </ModalContent>
-        </ModalOverlay>
-      )}
+      <DeleteConfirmationModal
+        isOpen={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        entityId={deleteModal?.brandId}
+        entityName={deleteModal?.brandName}
+        apiEndpoint="/api/brands/{id}"
+        entityType="la marque"
+        successMessage={`Marque "{entityName}" supprimée avec succès !`}
+        errorFallbackMessage="Impossible de supprimer la marque. Elle est peut-être liée à des produits."
+        warningMessage="Cette action est irréversible. Si la marque est liée à des produits, la suppression sera impossible."
+        onSuccess={handleDeleteSuccess}
+      />
     </>
   );
 }

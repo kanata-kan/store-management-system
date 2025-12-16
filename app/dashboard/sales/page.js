@@ -5,7 +5,6 @@
  * Mirrors other management pages (Products, Inventory, Suppliers).
  */
 
-import { cookies, headers } from "next/headers";
 import { SalesPage } from "@/components/domain/sale";
 import {
   PageContainer,
@@ -16,77 +15,19 @@ import {
 } from "@/components/domain/sale/SalesPage";
 import SalesPageClient from "./SalesPageClient";
 import { Pagination } from "@/components/ui";
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
+import buildApiQuery from "@/lib/utils/buildApiQuery.js";
 
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-
-  const SKIP_AUTH = process.env.SKIP_AUTH === "true";
-
-  let cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  if (SKIP_AUTH && !cookieHeader.includes("session_token")) {
-    cookieHeader = cookieHeader
-      ? `${cookieHeader}; session_token=dev-token`
-      : "session_token=dev-token";
-  }
-
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    const headersList = headers();
-    const host = headersList.get("host");
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-
-    if (host) {
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      baseUrl = "http://localhost:3000";
-    }
-  }
-
-  const apiUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
-
-  const response = await fetch(apiUrl, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    console.error(
-      `API Error: ${response.status} ${response.statusText} for ${apiUrl}`
-    );
-    return null;
-  }
-
-  const result = await response.json();
-  return result.status === "success" ? result : null;
-}
-
+/**
+ * Build API query string from searchParams for sales
+ */
 function buildSalesQuery(searchParams) {
-  const params = new URLSearchParams();
-
-  const { productId, cashierId, startDate, endDate } = searchParams || {};
-
-  if (productId) params.set("productId", productId);
-  if (cashierId) params.set("cashierId", cashierId);
-  if (startDate) params.set("startDate", startDate);
-  if (endDate) params.set("endDate", endDate);
-
-  const page = searchParams?.page || "1";
-  params.set("page", page);
-  params.set("limit", "20");
-
-  const sortBy = searchParams?.sortBy || "createdAt";
-  const sortOrder = searchParams?.sortOrder || "desc";
-  params.set("sortBy", sortBy);
-  params.set("sortOrder", sortOrder);
-
-  return params.toString();
+  return buildApiQuery(searchParams, {
+    defaultSortBy: "createdAt",
+    defaultSortOrder: "desc",
+    defaultLimit: 20,
+    filterFields: ["productId", "cashierId", "startDate", "endDate"],
+  });
 }
 
 export default async function SalesRecordsPage({ searchParams = {} }) {

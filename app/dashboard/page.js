@@ -6,7 +6,6 @@
  * All business logic is handled by the backend - this component only displays data.
  */
 
-import { cookies } from "next/headers";
 import DashboardClient, {
   PageTitle,
   StatsGrid,
@@ -15,35 +14,7 @@ import DashboardClient, {
 import StatsCard from "@/components/dashboard/StatsCard.js";
 import { RecentSalesList } from "@/components/domain/sale";
 import { RecentInventoryList } from "@/components/domain/inventory";
-
-/**
- * Helper function to fetch data from API with cookies
- */
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-  const cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-  const response = await fetch(`${baseUrl}${url}`, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const result = await response.json();
-  // API response format: { status: "success", data: [...], meta: {...} }
-  // Return full response object to access both data and meta
-  return result.status === "success" ? result : null;
-}
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
 
 /**
  * Get today's date range in ISO format

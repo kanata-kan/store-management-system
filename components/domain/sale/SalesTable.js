@@ -41,18 +41,7 @@ const SubLabel = styled.div`
   color: ${(props) => props.theme.colors.mutedForeground};
 `;
 
-function formatDateTime(dateString) {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return "-";
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
+import { formatDate as formatDateTime } from "@/lib/utils/dateFormatters.js";
 
 function formatCurrency(value) {
   if (value == null) return "-";

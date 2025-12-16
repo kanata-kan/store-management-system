@@ -5,7 +5,6 @@
  * Mirrors the BrandsManagementPage implementation.
  */
 
-import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import SuppliersPage, {
   PageContainer,
@@ -17,77 +16,19 @@ import SuppliersPage, {
 } from "@/components/domain/supplier/SuppliersPage";
 import SuppliersPageClient from "./SuppliersPageClient";
 import { Pagination, Button, AppIcon } from "@/components/ui";
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
+import buildApiQuery from "@/lib/utils/buildApiQuery.js";
 
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-
-  const SKIP_AUTH = process.env.SKIP_AUTH === "true";
-
-  let cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  if (SKIP_AUTH && !cookieHeader.includes("session_token")) {
-    cookieHeader = cookieHeader
-      ? `${cookieHeader}; session_token=dev-token`
-      : "session_token=dev-token";
-  }
-
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    const headersList = headers();
-    const host = headersList.get("host");
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-
-    if (host) {
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      baseUrl = "http://localhost:3000";
-    }
-  }
-
-  const apiUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
-
-  const response = await fetch(apiUrl, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    console.error(
-      `API Error: ${response.status} ${response.statusText} for ${apiUrl}`
-    );
-    const errorText = await response.text();
-    console.error("API Error Response:", errorText);
-    return null;
-  }
-
-  const result = await response.json();
-  return result.status === "success" ? result : null;
-}
-
+/**
+ * Build API query string from searchParams for suppliers
+ */
 function buildSuppliersQuery(searchParams) {
-  const params = new URLSearchParams();
-
-  const search = searchParams?.search;
-  if (search) {
-    params.set("search", search);
-  }
-
-  const page = searchParams?.page || "1";
-  params.set("page", page);
-  params.set("limit", "20");
-
-  const sortBy = searchParams?.sortBy || "name";
-  const sortOrder = searchParams?.sortOrder || "asc";
-  params.set("sortBy", sortBy);
-  params.set("sortOrder", sortOrder);
-
-  return params.toString();
+  return buildApiQuery(searchParams, {
+    defaultSortBy: "name",
+    defaultSortOrder: "asc",
+    defaultLimit: 20,
+    filterFields: ["search"],
+  });
 }
 
 export default async function SuppliersManagementPage({ searchParams = {} }) {

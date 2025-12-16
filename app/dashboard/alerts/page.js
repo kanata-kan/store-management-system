@@ -5,7 +5,6 @@
  * Mirrors other management pages (Sales, Brands, Suppliers).
  */
 
-import { cookies, headers } from "next/headers";
 import { AlertsPage } from "@/components/domain/alert";
 import {
   PageContainer,
@@ -18,80 +17,34 @@ import {
 import AlertsPageClient from "./AlertsPageClient";
 import { AlertStatsCards } from "@/components/domain/alert";
 import { Pagination } from "@/components/ui";
+import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
+import buildApiQuery from "@/lib/utils/buildApiQuery.js";
 
-async function fetchWithCookies(url) {
-  const cookieStore = cookies();
-
-  const SKIP_AUTH = process.env.SKIP_AUTH === "true";
-
-  let cookieHeader = cookieStore
-    .getAll()
-    .map((c) => `${c.name}=${c.value}`)
-    .join("; ");
-
-  if (SKIP_AUTH && !cookieHeader.includes("session_token")) {
-    cookieHeader = cookieHeader
-      ? `${cookieHeader}; session_token=dev-token`
-      : "session_token=dev-token";
-  }
-
-  let baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-  if (!baseUrl) {
-    const headersList = headers();
-    const host = headersList.get("host");
-    const protocol = headersList.get("x-forwarded-proto") || "http";
-
-    if (host) {
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      baseUrl = "http://localhost:3000";
-    }
-  }
-
-  const apiUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
-
-  const response = await fetch(apiUrl, {
-    headers: {
-      Cookie: cookieHeader,
-    },
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    console.error(
-      `API Error: ${response.status} ${response.statusText} for ${apiUrl}`
-    );
-    return null;
-  }
-
-  const result = await response.json();
-  return result.status === "success" ? result : null;
-}
-
+/**
+ * Build API query string from searchParams for alerts
+ * Note: Always includes stockLevel=lowStock filter
+ */
 function buildAlertsQuery(searchParams) {
-  const params = new URLSearchParams();
+  // Use customFilters to always include stockLevel
+  // Map search param to name param (alerts uses "search" but API expects "name")
+  return buildApiQuery(searchParams, {
+    defaultSortBy: "stock",
+    defaultSortOrder: "asc",
+    defaultLimit: 20,
+    filterFields: ["alertLevel", "brandId", "categoryId"],
+    customFilters: (searchParams) => {
+      const filters = {
+        stockLevel: "lowStock", // Always filter by low stock
+      };
 
-  // Always filter by low stock
-  params.set("stockLevel", "lowStock");
+      // Map "search" to "name" for API
+      if (searchParams?.search) {
+        filters.name = searchParams.search;
+      }
 
-  const { search, alertLevel, brandId, categoryId } = searchParams || {};
-
-  if (search) params.set("name", search);
-  if (alertLevel) params.set("alertLevel", alertLevel);
-  if (brandId) params.set("brandId", brandId);
-  if (categoryId) params.set("categoryId", categoryId);
-
-  const page = searchParams?.page || "1";
-  params.set("page", page);
-  params.set("limit", "20");
-
-  const sortBy = searchParams?.sortBy || "stock";
-  const sortOrder = searchParams?.sortOrder || "asc";
-  params.set("sortBy", sortBy);
-  params.set("sortOrder", sortOrder);
-
-  return params.toString();
+      return filters;
+    },
+  });
 }
 
 /**
