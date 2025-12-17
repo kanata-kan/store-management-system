@@ -10,6 +10,7 @@
 import styled from "styled-components";
 import { formatDate } from "@/lib/utils/dateFormatters.js";
 import { EmptyState } from "@/components/ui/empty-state";
+import { AppIcon } from "@/components/ui/icon";
 
 const PageContainer = styled.div`
   width: 100%;
@@ -49,8 +50,12 @@ const SaleRow = styled.div`
   padding: ${(props) => props.theme.spacing.md};
   border-bottom: 1px solid ${(props) => props.theme.colors.borderLight};
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr;
   gap: ${(props) => props.theme.spacing.md};
+  
+  ${(props) => props.$status !== "active" && `
+    opacity: 0.7;
+  `}
   align-items: center;
   min-height: 44px; /* Touch-friendly */
   background-color: ${(props) => props.theme.colors.surface};
@@ -77,8 +82,12 @@ const SaleHeader = styled.div`
   padding: ${(props) => props.theme.spacing.md};
   border-bottom: 2px solid ${(props) => props.theme.colors.borderLight};
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 1fr;
   gap: ${(props) => props.theme.spacing.md};
+  
+  ${(props) => props.$status !== "active" && `
+    opacity: 0.7;
+  `}
   background-color: ${(props) => props.theme.colors.elevation2};
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
@@ -137,6 +146,30 @@ const TotalAmount = styled.span`
   font-size: ${(props) => props.theme.typography.fontSize.base};
 `;
 
+const StatusBadge = styled.span`
+  display: inline-block;
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  box-shadow: ${(props) => props.theme.shadows.sm};
+  
+  ${(props) => props.$status === "active" && `
+    background-color: ${props.theme.colors.success};
+    color: ${props.theme.colors.surface};
+  `}
+  
+  ${(props) => props.$status === "cancelled" && `
+    background-color: ${props.theme.colors.error};
+    color: ${props.theme.colors.surface};
+  `}
+  
+  ${(props) => props.$status === "returned" && `
+    background-color: ${props.theme.colors.warning};
+    color: ${props.theme.colors.surface};
+  `}
+`;
+
 /**
  * Format currency value (DA)
  */
@@ -176,6 +209,7 @@ export default function RecentSalesList({ sales = [] }) {
           <HeaderCell>Prix unitaire</HeaderCell>
           <HeaderCell>Montant total</HeaderCell>
           <HeaderCell>Date</HeaderCell>
+          <HeaderCell>Statut</HeaderCell>
         </SaleHeader>
         {sales.map((sale) => {
           const productName = sale.product?.name || "Produit inconnu";
@@ -183,9 +217,23 @@ export default function RecentSalesList({ sales = [] }) {
           const sellingPrice = sale.sellingPrice || 0;
           const totalAmount = sale.totalAmount || quantity * sellingPrice;
           const saleDate = sale.createdAt ? formatDate(sale.createdAt) : "-";
+          const saleStatus = sale.status || "active";
+
+          const getStatusLabel = (status) => {
+            switch (status) {
+              case "active":
+                return "Actif";
+              case "cancelled":
+                return "Annulé";
+              case "returned":
+                return "Retourné";
+              default:
+                return "Actif";
+            }
+          };
 
           return (
-            <SaleRow key={sale.id || sale._id}>
+            <SaleRow key={sale.id || sale._id} $status={saleStatus}>
               <div>
                 <ProductName>{productName}</ProductName>
               </div>
@@ -204,6 +252,12 @@ export default function RecentSalesList({ sales = [] }) {
               <SaleDetail>
                 <DetailLabel>Date:</DetailLabel>
                 <DetailValue>{saleDate}</DetailValue>
+              </SaleDetail>
+              <SaleDetail>
+                <DetailLabel>Statut:</DetailLabel>
+                <StatusBadge $status={saleStatus}>
+                  {getStatusLabel(saleStatus)}
+                </StatusBadge>
               </SaleDetail>
             </SaleRow>
           );

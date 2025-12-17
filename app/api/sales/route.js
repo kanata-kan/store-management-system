@@ -35,6 +35,9 @@ export async function GET(request) {
     if (searchParams.get("endDate")) {
       filters.endDate = searchParams.get("endDate");
     }
+    if (searchParams.get("status")) {
+      filters.status = searchParams.get("status");
+    }
 
     // Pagination
     const page = parseInt(searchParams.get("page") || "1", 10);

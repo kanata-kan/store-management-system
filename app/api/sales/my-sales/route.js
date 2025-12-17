@@ -25,8 +25,11 @@ export async function GET(request) {
       parseInt(searchParams.get("limit") || "50", 10),
       50
     );
+    
+    // Status filter (optional, default: "all")
+    const status = searchParams.get("status") || "all";
 
-    const sales = await SaleService.getCashierSales(user.id, limit);
+    const sales = await SaleService.getCashierSales(user.id, limit, status);
 
     return Response.json({
       status: "success",

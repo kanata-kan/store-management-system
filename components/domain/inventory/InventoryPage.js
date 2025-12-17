@@ -29,18 +29,54 @@ export const PageTitle = styled.h1`
   letter-spacing: ${(props) => props.theme.typography.variants.pageTitle.letterSpacing};
   color: ${(props) => props.theme.colors.foreground};
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.md};
+  
+  &::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      ${(props) => props.theme.colors.primary}40,
+      transparent
+    );
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     font-size: ${(props) => props.theme.typography.fontSize.xl};
   }
 `;
 
-export const StockInSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spacing.xl};
-`;
-
-export const LogsSection = styled.div`
+export const TableSection = styled.div`
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.surface} 0%,
+    ${(props) => props.theme.colors.elevation2} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.lg};
+  box-shadow: ${(props) => props.theme.shadows.card};
   margin-bottom: ${(props) => props.theme.spacing.lg};
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      ${(props) => props.theme.colors.primary},
+      ${(props) => props.theme.colors.secondary}
+    );
+    opacity: 0.6;
+  }
 `;
 
 export const SectionTitle = styled.h2`

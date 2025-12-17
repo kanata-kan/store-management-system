@@ -194,13 +194,12 @@ export default function InventoryStockInFormClient({ products = [], initialProdu
         const quantityAdded = formData.quantityAdded;
         const newStock = result.data?.newStock !== undefined ? result.data.newStock : "N/A";
 
-        // Success: redirect to same page with success message
+        // Success: redirect to inventory list page with success message
         const params = new URLSearchParams();
         const successMessage = `✅ Stock ajouté avec succès! ${quantityAdded} unité(s) ajoutée(s) à "${productName}". Nouveau stock: ${newStock} unité(s).`;
         params.set("success", encodeURIComponent(successMessage));
         
-        // Use window.location.href for full page reload to ensure data is refreshed
-        // This ensures the inventory logs table is updated with the new entry
+        // Redirect to inventory list page
         window.location.href = `/dashboard/inventory?${params.toString()}`;
       } else {
         // Error: display errors with clear messages

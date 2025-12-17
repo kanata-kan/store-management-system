@@ -82,6 +82,7 @@ const ICONS = {
   lock: Lock,
   clock: Clock,
   "alert-circle": AlertCircle,
+  package: Package,
   // Add more icon mappings as needed
 };
 

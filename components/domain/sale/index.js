@@ -1,5 +1,6 @@
 export { default as SalesPage } from "./SalesPage.js";
 export { default as SalesTable } from "./SalesTable.js";
+export { default as CancelSaleModal } from "./CancelSaleModal.js";
 
 /**
  * Sale Domain Components
