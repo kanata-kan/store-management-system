@@ -38,30 +38,63 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: ${(props) => props.theme.spacing.md};
   ${fadeIn}
 `;
 
 const ModalContent = styled.div`
-  background-color: ${(props) => props.theme.colors.surface};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.surface} 0%,
+    ${(props) => props.theme.colors.elevation2} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: ${(props) => props.theme.borderRadius.lg};
   padding: ${(props) => props.theme.spacing.xl};
   max-width: 500px;
   width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: ${(props) => props.theme.shadows.modal || props.theme.shadows.card};
+  position: relative;
   ${fadeIn}
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      ${(props) => props.theme.colors.error},
+      ${(props) => props.theme.colors.warning}
+    );
+    opacity: 0.8;
+    border-radius: ${(props) => props.theme.borderRadius.lg} ${(props) => props.theme.borderRadius.lg} 0 0;
+  }
 `;
 
 const ModalTitle = styled.h3`
-  font-size: ${(props) => props.theme.typography.fontSize.lg};
+  font-size: ${(props) => props.theme.typography.fontSize.xl};
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   color: ${(props) => props.theme.colors.foreground};
   margin: 0 0 ${(props) => props.theme.spacing.md} 0;
+  padding-bottom: ${(props) => props.theme.spacing.md};
+  border-bottom: 2px solid ${(props) => props.theme.colors.borderLight};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  position: relative;
+  z-index: 1;
 `;
 
 const ModalMessage = styled.p`
@@ -69,13 +102,20 @@ const ModalMessage = styled.p`
   color: ${(props) => props.theme.colors.foregroundSecondary};
   margin: 0 0 ${(props) => props.theme.spacing.xl} 0;
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
-  line-height: 1.5;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
 `;
 
 const ModalActions = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spacing.md};
   justify-content: flex-end;
+  margin-top: ${(props) => props.theme.spacing.lg};
+  padding-top: ${(props) => props.theme.spacing.md};
+  border-top: 1px solid ${(props) => props.theme.colors.borderLight};
+  position: relative;
+  z-index: 1;
 `;
 
 const ErrorMessage = styled.div`
@@ -86,10 +126,13 @@ const ErrorMessage = styled.div`
   border-radius: ${(props) => props.theme.borderRadius.md};
   color: ${(props) => props.theme.colors.error};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.sm};
+  position: relative;
+  z-index: 1;
 `;
 
 export default function DeleteConfirmationModal({
@@ -182,7 +225,10 @@ export default function DeleteConfirmationModal({
   return (
     <ModalOverlay onClick={handleCancel}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalTitle>Confirmer la suppression</ModalTitle>
+        <ModalTitle>
+          <AppIcon name="alert" size="md" color="error" />
+          Confirmer la suppression
+        </ModalTitle>
 
         {deleteError && (
           <ErrorMessage role="alert">

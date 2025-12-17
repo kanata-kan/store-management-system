@@ -16,11 +16,12 @@ import { AppIcon } from "@/components/ui/icon";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  ${smoothTransition("background-color")}
+  ${smoothTransition("all")}
   ${slideUp}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.surfaceHover};
+    box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.borderLight};
   }
 `;
 
@@ -45,7 +46,7 @@ const UserEmail = styled.div`
 const RoleBadge = styled.span`
   display: inline-block;
   padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  border-radius: ${(props) => props.theme.borderRadius.md};
+  border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   background-color: ${(props) =>
@@ -56,6 +57,7 @@ const RoleBadge = styled.span`
     props.$role === "manager"
       ? props.theme.colors.primary
       : props.theme.colors.info};
+  box-shadow: ${(props) => props.theme.shadows.sm};
 `;
 
 const ActionsCell = styled.div`
@@ -77,21 +79,25 @@ const ActionButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.xs};
+  box-shadow: ${(props) => props.theme.shadows.sm};
   ${smoothTransition("all")}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryHover};
     transform: translateY(-1px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 
   &:active {
     transform: translateY(0);
+    box-shadow: ${(props) => props.theme.shadows.sm};
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -99,8 +105,8 @@ const DeleteButton = styled(ActionButton)`
   background-color: ${(props) => props.theme.colors.error};
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.error};
-    opacity: 0.9;
+    background-color: #dc2626;
+    opacity: 1;
   }
 `;
 

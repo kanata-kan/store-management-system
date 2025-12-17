@@ -43,6 +43,14 @@ export default async function DashboardLayout({ children }) {
       try {
         user = await AuthService.getUserFromSession(tokenCookie.value);
       } catch (error) {
+        // Invalid or expired token - clear the cookie
+        // This ensures the user doesn't have a bad token
+        try {
+          cookieStore.delete("session_token");
+        } catch (deleteError) {
+          // Cookie deletion might fail, but we continue
+          console.error("Failed to delete invalid session token:", deleteError);
+        }
         // Invalid or expired token, user remains null
         user = null;
       }
@@ -50,6 +58,12 @@ export default async function DashboardLayout({ children }) {
 
     // Redirect to login if not authenticated
     if (!user) {
+      redirect("/login");
+    }
+
+    // Validate user object
+    if (!user.role) {
+      // Invalid user object - redirect to login
       redirect("/login");
     }
 

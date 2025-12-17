@@ -35,6 +35,12 @@ import {
   Eye,
   EyeOff,
   LogIn,
+  TrendingUp,
+  Shield,
+  ArrowRight,
+  Lock,
+  Clock,
+  AlertCircle,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -42,12 +48,14 @@ import styled from "styled-components";
 const ICONS = {
   dashboard: LayoutGrid,
   product: Package,
+  package: Package,
   edit: Pencil,
   delete: Trash,
   add: Plus,
   search: Search,
   filter: SlidersHorizontal,
   warning: AlertTriangle,
+  "alert-triangle": AlertTriangle,
   success: CheckCircle,
   close: X,
   menu: Menu,
@@ -60,6 +68,7 @@ const ICONS = {
   brand: Tag,
   supplier: Truck,
   sale: ShoppingCart,
+  "shopping-cart": ShoppingCart,
   alert: Bell,
   loader: Loader2,
   calendar: Calendar,
@@ -67,6 +76,12 @@ const ICONS = {
   eye: Eye,
   "eye-off": EyeOff,
   "log-in": LogIn,
+  "trending-up": TrendingUp,
+  shield: Shield,
+  "arrow-right": ArrowRight,
+  lock: Lock,
+  clock: Clock,
+  "alert-circle": AlertCircle,
   // Add more icon mappings as needed
 };
 

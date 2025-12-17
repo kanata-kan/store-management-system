@@ -10,6 +10,7 @@
 import styled from "styled-components";
 import { Button, Input, FormField } from "@/components/ui";
 import { AppIcon } from "@/components/ui/icon";
+import { fadeIn, smoothTransition } from "@/components/motion";
 
 const FormContainer = styled.div`
   width: 100%;
@@ -19,13 +20,40 @@ const FormContainer = styled.div`
 `;
 
 const ProductInfoCard = styled.div`
-  background-color: ${(props) => props.theme.colors.surface};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primaryLight}10 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
   border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  padding: ${(props) => props.theme.spacing.lg};
+  border-left: 4px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.xl};
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing.md};
+  position: relative;
+  overflow: hidden;
+  box-shadow: ${(props) => props.theme.shadows.card};
+  ${fadeIn}
+  ${smoothTransition("box-shadow")}
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: ${(props) => `${props.theme.colors.primary}08`};
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    pointer-events: none;
+  }
+  
+  &:hover {
+    box-shadow: ${(props) => props.theme.shadows.cardHover};
+  }
 `;
 
 const ProductInfoHeader = styled.div`

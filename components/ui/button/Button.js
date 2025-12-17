@@ -48,8 +48,15 @@ const StyledButton = styled.button`
         return `
           background-color: ${props.theme.colors.primary};
           color: ${props.theme.colors.surface};
+          box-shadow: ${props.theme.shadows.sm};
           &:hover:not(:disabled) {
             background-color: ${props.theme.colors.primaryHover};
+            transform: translateY(-1px);
+            box-shadow: ${props.theme.shadows.md};
+          }
+          &:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: ${props.theme.shadows.sm};
           }
           &:focus-visible {
             outline: 2px solid ${props.theme.colors.primary};
@@ -61,9 +68,16 @@ const StyledButton = styled.button`
           background-color: ${props.theme.colors.surface};
           color: ${props.theme.colors.foreground};
           border: 1px solid ${props.theme.colors.border};
+          box-shadow: ${props.theme.shadows.sm};
           &:hover:not(:disabled) {
             background-color: ${props.theme.colors.surfaceHover};
             border-color: ${props.theme.colors.primary};
+            transform: translateY(-1px);
+            box-shadow: ${props.theme.shadows.md};
+          }
+          &:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: ${props.theme.shadows.sm};
           }
           &:focus-visible {
             outline: 2px solid ${props.theme.colors.primary};
@@ -74,12 +88,37 @@ const StyledButton = styled.button`
         return `
           background-color: ${props.theme.colors.error};
           color: ${props.theme.colors.surface};
+          box-shadow: ${props.theme.shadows.sm};
           &:hover:not(:disabled) {
             background-color: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: ${props.theme.shadows.md};
+          }
+          &:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: ${props.theme.shadows.sm};
           }
           &:focus-visible {
             outline: 2px solid ${props.theme.colors.error};
             outline-offset: 2px;
+          }
+        `;
+      case "ghost":
+        return `
+          background-color: transparent;
+          color: ${props.theme.colors.foreground};
+          border: none;
+          &:hover:not(:disabled) {
+            background-color: ${props.theme.colors.surfaceHover};
+            transform: translateY(-1px);
+          }
+          &:active:not(:disabled) {
+            transform: translateY(0);
+          }
+          &:focus-visible {
+            outline: 2px solid ${props.theme.colors.primary};
+            outline-offset: 2px;
+            background-color: ${props.theme.colors.surfaceHover};
           }
         `;
       default:
@@ -87,6 +126,21 @@ const StyledButton = styled.button`
           background-color: ${props.theme.colors.surface};
           color: ${props.theme.colors.foreground};
           border: 1px solid ${props.theme.colors.border};
+          box-shadow: ${props.theme.shadows.sm};
+          &:hover:not(:disabled) {
+            background-color: ${props.theme.colors.surfaceHover};
+            border-color: ${props.theme.colors.primary};
+            transform: translateY(-1px);
+            box-shadow: ${props.theme.shadows.md};
+          }
+          &:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: ${props.theme.shadows.sm};
+          }
+          &:focus-visible {
+            outline: 2px solid ${props.theme.colors.primary};
+            outline-offset: 2px;
+          }
         `;
     }
   }}
@@ -94,13 +148,15 @@ const StyledButton = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 /**
  * Button Component
  * @param {Object} props
- * @param {string} [props.variant="default"] - Button variant (primary, secondary, danger, default)
+ * @param {string} [props.variant="default"] - Button variant (primary, secondary, danger, ghost, default)
  * @param {string} [props.size="md"] - Button size (sm, md, lg)
  * @param {boolean} [props.disabled] - Whether button is disabled
  * @param {Function} [props.onClick] - Click handler

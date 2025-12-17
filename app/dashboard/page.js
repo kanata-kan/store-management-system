@@ -83,12 +83,22 @@ export default async function DashboardPage() {
           title="Total des produits"
           value={totalProducts}
           unit="produits"
+          variant="primary"
+          icon="product"
         />
-        <StatsCard title="Ventes aujourd'hui" value={salesToday} unit="ventes" />
+        <StatsCard 
+          title="Ventes aujourd'hui" 
+          value={salesToday} 
+          unit="ventes"
+          variant="success"
+          icon="sale"
+        />
         <StatsCard
           title="Produits à stock faible"
           value={lowStockCount}
           unit="produits"
+          variant="warning"
+          icon="alert"
         />
       </StatsGrid>
 

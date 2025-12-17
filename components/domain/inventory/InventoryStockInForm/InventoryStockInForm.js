@@ -22,11 +22,33 @@ const FormContainer = styled.form`
 `;
 
 const FormSection = styled.div`
-  background-color: ${(props) => props.theme.colors.surface};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.surface} 0%,
+    ${(props) => props.theme.colors.elevation2} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: ${(props) => props.theme.borderRadius.lg};
   padding: ${(props) => props.theme.spacing.xl};
   box-shadow: ${(props) => props.theme.shadows.card};
+  position: relative;
+  overflow: hidden;
   ${slideUp}
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      ${(props) => props.theme.colors.primary},
+      ${(props) => props.theme.colors.secondary}
+    );
+    opacity: 0.6;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -34,7 +56,11 @@ const SectionTitle = styled.h2`
   font-weight: ${(props) => props.theme.typography.variants.sectionTitle.fontWeight};
   color: ${(props) => props.theme.colors.foreground};
   margin-bottom: ${(props) => props.theme.spacing.lg};
+  padding-bottom: ${(props) => props.theme.spacing.md};
+  border-bottom: 2px solid ${(props) => props.theme.colors.borderLight};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
+  position: relative;
+  z-index: 1;
 `;
 
 const GlobalError = styled.div`
@@ -43,13 +69,15 @@ const GlobalError = styled.div`
   border: 1px solid ${(props) => props.theme.colors.error};
   border-radius: ${(props) => props.theme.borderRadius.md};
   color: ${(props) => props.theme.colors.error};
-  font-size: ${(props) => props.theme.typography.fontSize.base};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   margin-bottom: ${(props) => props.theme.spacing.lg};
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.sm};
+  position: relative;
+  z-index: 1;
 `;
 
 /**

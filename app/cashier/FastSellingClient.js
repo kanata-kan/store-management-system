@@ -25,6 +25,31 @@ const SearchSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing.md};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary}08 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.primaryLight};
+  border-left: 4px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.xl};
+  box-shadow: ${(props) => props.theme.shadows.card};
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: ${(props) => props.theme.colors.primary}08;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    pointer-events: none;
+  }
 `;
 
 const ResultsSection = styled.div`

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  ${smoothTransition("background-color")}
+  ${smoothTransition("all")}
   ${slideUp}
 
   /* Color coding based on alert level */
@@ -29,6 +29,7 @@ const TableRow = styled.tr`
     
     &:hover {
       background-color: ${props.theme.colors.errorLight}40;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.errorLight};
     }
   `}
 
@@ -39,6 +40,7 @@ const TableRow = styled.tr`
     
     &:hover {
       background-color: ${props.theme.colors.warningLight}50;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
     }
   `}
 
@@ -49,8 +51,17 @@ const TableRow = styled.tr`
     
     &:hover {
       background-color: ${props.theme.colors.warningLight}35;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
     }
   `}
+  
+  /* Default hover for rows without alert level */
+  &:not([$alertLevel]) {
+    &:hover {
+      background-color: ${(props) => props.theme.colors.surfaceHover};
+      box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.borderLight};
+    }
+  }
 `;
 
 const TableCell = styled.td`

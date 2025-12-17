@@ -2,21 +2,28 @@
  * Dashboard Top Bar Client Component
  *
  * Client Component that handles logout functionality and displays user info.
+ * Enhanced professional design with user profile section.
  */
 
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import styled from "styled-components";
-import { theme } from "@/styles/theme.js";
-import { AppIcon } from "@/components/ui/icon";
+import { smoothTransition } from "@/components/motion";
+import { AppIcon } from "@/components/ui";
 import { useSidebar } from "./SidebarContext.js";
 
 const TopBarContainer = styled.header`
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: ${(props) => props.theme.colors.background};
+  background: linear-gradient(
+    to right,
+    ${(props) => props.theme.colors.surface} 0%,
+    ${(props) => props.theme.colors.elevation2} 100%
+  );
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
   padding: ${(props) => props.theme.spacing.md} ${(props) => props.theme.spacing.xl};
   display: flex;
@@ -39,11 +46,13 @@ const MenuToggle = styled.button`
   display: none;
   padding: ${(props) => props.theme.spacing.sm};
   color: ${(props) => props.theme.colors.foreground};
-  background: none;
-  border: none;
+  background: ${(props) => props.theme.colors.elevation2};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.md};
   cursor: pointer;
   align-items: center;
   justify-content: center;
+  ${smoothTransition("all")}
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     display: flex;
@@ -51,6 +60,13 @@ const MenuToggle = styled.button`
 
   &:hover {
     color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.primaryLight};
+    border-color: ${(props) => props.theme.colors.primary};
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -60,25 +76,77 @@ const TopBarRight = styled.div`
   gap: ${(props) => props.theme.spacing.md};
 `;
 
-const UserSection = styled.div`
+const UserProfileSection = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
+  padding-right: ${(props) => props.theme.spacing.lg};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primaryLight}20 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  ${smoothTransition("all")}
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.primary};
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
 `;
 
-const UserName = styled.span`
+const UserAvatar = styled.div`
+  width: 36px;
+  height: 36px;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary} 0%,
+    ${(props) => props.theme.colors.secondary} 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => props.theme.colors.surface};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  color: ${(props) => props.theme.colors.foreground};
+  flex-shrink: 0;
+  box-shadow: ${(props) => props.theme.shadows.sm};
+`;
 
-  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
     display: none;
   }
 `;
 
+const UserName = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) => props.theme.colors.foreground};
+  line-height: 1.2;
+`;
+
+const UserRole = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.muted};
+  text-transform: capitalize;
+  line-height: 1.2;
+`;
+
 const LogoutButton = styled.button`
   padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.error};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.error} 0%,
+    #dc2626 100%
+  );
   color: ${(props) => props.theme.colors.surface};
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -88,20 +156,95 @@ const LogoutButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.xs};
-  transition: all ${(props) => props.theme.motion.duration.fast} ${(props) => props.theme.motion.easing.easeOut};
+  ${smoothTransition("all")}
+  box-shadow: ${(props) => props.theme.shadows.sm};
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.errorLight || props.theme.colors.error};
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: ${(props) => props.theme.shadows.md};
+    filter: brightness(1.1);
   }
 
   &:active {
     transform: translateY(0);
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.sm}) {
+    padding: ${(props) => props.theme.spacing.sm};
+    
+    span {
+      display: none;
+    }
+  }
 `;
 
-export default function TopBarClient({ user }) {
+const AlertsLink = styled(Link)`
+  position: relative;
+  padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.elevation2};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.foreground};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  ${smoothTransition("all")}
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.warningLight};
+    border-color: ${(props) => props.theme.colors.warning};
+    color: ${(props) => props.theme.colors.warning};
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
+`;
+
+const AlertBadge = styled.span`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 ${(props) => props.theme.spacing.xs};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.error} 0%,
+    #dc2626 100%
+  );
+  color: ${(props) => props.theme.colors.surface};
+  border: 2px solid ${(props) => props.theme.colors.surface};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: ${(props) => props.theme.shadows.sm};
+  animation: pulse 2s infinite;
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+`;
+
+/**
+ * Get user initials for avatar
+ */
+function getUserInitials(name) {
+  if (!name) return "U";
+  const parts = name.trim().split(" ");
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+}
+
+export default function TopBarClient({ user, alertsCount = 0 }) {
   const router = useRouter();
   const { isOpen, toggleSidebar } = useSidebar();
 
@@ -118,10 +261,11 @@ export default function TopBarClient({ user }) {
       }
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if logout fails, redirect to login
       router.push("/login");
     }
   };
+
+  const userInitials = getUserInitials(user?.name || "");
 
   return (
     <TopBarContainer>
@@ -132,13 +276,26 @@ export default function TopBarClient({ user }) {
         {/* Page title will be set by individual pages */}
       </TopBarLeft>
       <TopBarRight>
-        <UserSection>
-          <UserName>{user.name}</UserName>
-          <LogoutButton onClick={handleLogout}>
-            <AppIcon name="close" size="sm" color="surface" />
-            Déconnexion
-          </LogoutButton>
-        </UserSection>
+        {/* Alerts Link with Badge */}
+        {alertsCount > 0 && (
+          <AlertsLink href="/dashboard/alerts" title="Voir les alertes">
+            <AppIcon name="alert" size="md" color="foreground" />
+            {alertsCount > 0 && <AlertBadge>{alertsCount > 99 ? "99+" : alertsCount}</AlertBadge>}
+          </AlertsLink>
+        )}
+
+        <UserProfileSection>
+          <UserAvatar>{userInitials}</UserAvatar>
+          <UserInfo>
+            <UserName>{user?.name || "Utilisateur"}</UserName>
+            <UserRole>{user?.role === "manager" ? "Gestionnaire" : user?.role || "Utilisateur"}</UserRole>
+          </UserInfo>
+        </UserProfileSection>
+
+        <LogoutButton onClick={handleLogout} title="Déconnexion">
+          <AppIcon name="close" size="sm" color="surface" />
+          <span>Déconnexion</span>
+        </LogoutButton>
       </TopBarRight>
     </TopBarContainer>
   );

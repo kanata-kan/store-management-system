@@ -68,6 +68,8 @@ export default function TableHeader({
   currentSortOrder,
   onSort,
   align = "left",
+  style,
+  ...props
 }) {
   const isSortable = !!sortKey && !!onSort;
   const isActive = currentSortBy === sortKey;
@@ -101,6 +103,7 @@ export default function TableHeader({
             : "descending"
           : "none"
       }
+      style={style}
     >
       <HeaderContent>
         <span>{label}</span>

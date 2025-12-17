@@ -10,7 +10,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styled from "styled-components";
-import { theme } from "@/styles/theme.js";
+import { smoothTransition } from "@/components/motion";
 import { AppIcon } from "@/components/ui/icon";
 import { useSidebar } from "./SidebarContext.js";
 
@@ -20,12 +20,16 @@ const SidebarContainer = styled.aside`
   left: 0;
   width: 280px;
   height: 100vh;
-  background-color: ${(props) => props.theme.colors.background};
+  background: linear-gradient(
+    to bottom,
+    ${(props) => props.theme.colors.surface} 0%,
+    ${(props) => props.theme.colors.elevation2} 100%
+  );
   border-right: 1px solid ${(props) => props.theme.colors.border};
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  box-shadow: ${(props) => props.theme.shadows.md};
+  box-shadow: ${(props) => props.theme.shadows.lg};
 
   @media (max-width: ${(props) => props.theme.breakpoints.lg}) {
     transform: translateX(${(props) => (props.$isOpen ? "0" : "-100%")});
@@ -35,16 +39,30 @@ const SidebarContainer = styled.aside`
 
 const SidebarHeader = styled.div`
   padding: ${(props) => props.theme.spacing.xl};
-  border-bottom: 1px solid ${(props) => props.theme.colors.border};
+  border-bottom: 2px solid ${(props) => props.theme.colors.border};
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary}10 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
 `;
 
 const Logo = styled.h1`
   font-size: ${(props) => props.theme.typography.fontSize.xl};
   font-weight: ${(props) => props.theme.typography.fontWeight.bold};
-  color: ${(props) => props.theme.colors.foreground};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary} 0%,
+    ${(props) => props.theme.colors.secondary} 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: -0.02em;
 `;
 
 
@@ -72,43 +90,109 @@ const NavLink = styled(Link)`
   color: ${(props) =>
     props.$isActive
       ? props.theme.colors.primary
-      : props.theme.colors.foreground};
+      : props.theme.colors.foregroundSecondary};
   text-decoration: none;
   font-size: ${(props) => props.theme.typography.fontSize.base};
   font-weight: ${(props) =>
     props.$isActive
       ? props.theme.typography.fontWeight.semibold
-      : props.theme.typography.fontWeight.normal};
-  background-color: ${(props) =>
-    props.$isActive ? props.theme.colors.primaryLight : "transparent"};
-  border-left: 3px solid
+      : props.theme.typography.fontWeight.medium};
+  background: ${(props) =>
+    props.$isActive
+      ? `linear-gradient(90deg, ${props.theme.colors.primaryLight} 0%, transparent 100%)`
+      : "transparent"};
+  border-left: 4px solid
     ${(props) => (props.$isActive ? props.theme.colors.primary : "transparent")};
-  transition: all 0.2s ease;
+  position: relative;
+  ${smoothTransition("all")}
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: ${(props) => props.theme.colors.primary};
+    opacity: ${(props) => (props.$isActive ? 1 : 0)};
+    ${smoothTransition("opacity")}
+  }
 
   &:hover {
-    background-color: ${(props) =>
+    background: ${(props) =>
       props.$isActive
-        ? props.theme.colors.primaryLight
-        : props.theme.colors.surfaceHover};
+        ? `linear-gradient(90deg, ${props.theme.colors.primaryLight} 0%, transparent 100%)`
+        : `linear-gradient(90deg, ${props.theme.colors.elevation2} 0%, transparent 100%)`};
     color: ${(props) => props.theme.colors.primary};
+    transform: translateX(4px);
+    padding-left: ${(props) => props.theme.spacing.lg};
   }
 `;
 
 const SidebarFooter = styled.div`
   padding: ${(props) => props.theme.spacing.xl};
-  border-top: 1px solid ${(props) => props.theme.colors.border};
+  border-top: 2px solid ${(props) => props.theme.colors.border};
+  background: linear-gradient(
+    to top,
+    ${(props) => props.theme.colors.elevation2} 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
 `;
 
 const UserInfo = styled.div`
   display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.md};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primaryLight}20 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  ${smoothTransition("all")}
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.primary};
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
+`;
+
+const UserAvatar = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary} 0%,
+    ${(props) => props.theme.colors.secondary} 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => props.theme.colors.surface};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  flex-shrink: 0;
+  box-shadow: ${(props) => props.theme.shadows.sm};
+`;
+
+const UserDetails = styled.div`
+  display: flex;
   flex-direction: column;
-  gap: ${(props) => props.theme.spacing.xs};
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
 `;
 
 const UserName = styled.span`
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   color: ${(props) => props.theme.colors.foreground};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const UserRole = styled.span`
@@ -121,15 +205,32 @@ const AlertBadge = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   padding: 0 ${(props) => props.theme.spacing.xs};
-  background-color: ${(props) => props.theme.colors.error};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.error} 0%,
+    #dc2626 100%
+  );
   color: ${(props) => props.theme.colors.surface};
   border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
   margin-left: auto;
+  box-shadow: ${(props) => props.theme.shadows.sm};
+  animation: ${(props) => (props.$count > 0 ? "pulse 2s infinite" : "none")};
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.9;
+    }
+  }
 `;
 
 const Overlay = styled.div`
@@ -161,6 +262,18 @@ const navigationItems = [
   { href: "/dashboard/alerts", label: "Alertes", icon: "alert", showBadge: true },
 ];
 
+/**
+ * Get user initials for avatar
+ */
+function getUserInitials(name) {
+  if (!name) return "U";
+  const parts = name.trim().split(" ");
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+}
+
 export default function SidebarClient({ user, alertsCount = 0 }) {
   const pathname = usePathname();
   const { isOpen, closeSidebar } = useSidebar();
@@ -187,7 +300,9 @@ export default function SidebarClient({ user, alertsCount = 0 }) {
                     />
                     {item.label}
                     {item.showBadge && alertsCount > 0 && (
-                      <AlertBadge>{alertsCount}</AlertBadge>
+                      <AlertBadge $count={alertsCount}>
+                        {alertsCount > 99 ? "99+" : alertsCount}
+                      </AlertBadge>
                     )}
                   </NavLink>
                 </NavItem>
@@ -198,8 +313,13 @@ export default function SidebarClient({ user, alertsCount = 0 }) {
 
         <SidebarFooter>
           <UserInfo>
-            <UserName>{user.name}</UserName>
-            <UserRole>{user.role === "manager" ? "Gestionnaire" : user.role}</UserRole>
+            <UserAvatar>
+              {getUserInitials(user?.name || "")}
+            </UserAvatar>
+            <UserDetails>
+              <UserName>{user?.name || "Utilisateur"}</UserName>
+              <UserRole>{user?.role === "manager" ? "Gestionnaire" : user?.role || "Utilisateur"}</UserRole>
+            </UserDetails>
           </UserInfo>
         </SidebarFooter>
       </SidebarContainer>

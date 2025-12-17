@@ -18,20 +18,50 @@ const PageContainer = styled.div`
 `;
 
 const SalesList = styled.div`
-  background-color: ${(props) => props.theme.colors.surface};
-  border: 1px solid ${(props) => props.theme.colors.border};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary}08 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.primaryLight};
+  border-left: 4px solid ${(props) => props.theme.colors.primary};
   border-radius: ${(props) => props.theme.borderRadius.lg};
   overflow: hidden;
+  box-shadow: ${(props) => props.theme.shadows.card};
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: ${(props) => props.theme.colors.primary}08;
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    pointer-events: none;
+    z-index: 0;
+  }
 `;
 
 const SaleRow = styled.div`
   padding: ${(props) => props.theme.spacing.md};
-  border-bottom: 1px solid ${(props) => props.theme.colors.border};
+  border-bottom: 1px solid ${(props) => props.theme.colors.borderLight};
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
   gap: ${(props) => props.theme.spacing.md};
   align-items: center;
   min-height: 44px; /* Touch-friendly */
+  background-color: ${(props) => props.theme.colors.surface};
+  position: relative;
+  z-index: 1;
+  transition: all ${(props) => props.theme.motion?.duration?.normal || "200ms"} ${(props) => props.theme.motion?.easing?.easeInOut || "ease-in-out"};
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.surfaceHover};
+    box-shadow: inset 0 0 0 2px ${(props) => props.theme.colors.primary}40;
+  }
 
   &:last-child {
     border-bottom: none;
@@ -45,7 +75,7 @@ const SaleRow = styled.div`
 
 const SaleHeader = styled.div`
   padding: ${(props) => props.theme.spacing.md};
-  border-bottom: 2px solid ${(props) => props.theme.colors.border};
+  border-bottom: 2px solid ${(props) => props.theme.colors.borderLight};
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
   gap: ${(props) => props.theme.spacing.md};
@@ -53,6 +83,10 @@ const SaleHeader = styled.div`
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.foregroundSecondary};
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 
   @media (max-width: ${(props) => props.theme.breakpoints.md}) {
     display: none;

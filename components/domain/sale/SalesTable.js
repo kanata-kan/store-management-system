@@ -15,11 +15,12 @@ import { slideUp, smoothTransition } from "@/components/motion";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  ${smoothTransition("background-color")}
+  ${smoothTransition("all")}
   ${slideUp}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.surfaceHover};
+    box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.borderLight};
   }
 `;
 

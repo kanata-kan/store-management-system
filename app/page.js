@@ -1,9 +1,17 @@
-export default function Home() {
-  return (
-    <main>
-      <h1>Store Management System</h1>
-      <p>Inventory Management System for Home Appliances Store</p>
-      <p>Phase 1: Project Setup - In Progress</p>
-    </main>
-  );
+/**
+ * Home Page
+ * 
+ * Professional landing page for Store Management System.
+ * Server component wrapper for HomePageClient.
+ */
+
+import HomePageClient from "@/components/landing/HomePageClient.js";
+
+export const metadata = {
+  title: "Système de Gestion de Magasin",
+  description: "Système de gestion d'inventaire pour magasin d'électroménager",
+};
+
+export default function HomePage() {
+  return <HomePageClient />;
 }

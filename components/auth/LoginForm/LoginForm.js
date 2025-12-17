@@ -14,10 +14,13 @@ import { fadeIn, slideUp } from "@/components/motion";
 import { AppIcon } from "@/components/ui/icon";
 import { Button } from "@/components/ui";
 import LoginFormFields from "./LoginFormFields.js";
+import { RateLimitError, AccountLockedError, AttemptCounter } from "../errors";
 
 const FormContainer = styled.form`
   ${fadeIn}
   width: 100%;
+  position: relative;
+  z-index: 1;
 `;
 
 const GlobalError = styled.div`
@@ -46,9 +49,10 @@ const SubmitButton = styled(Button)`
  * @param {Object} props
  * @param {Function} props.onSubmit - Submit handler (formData: { email, password }) => Promise<void>
  * @param {boolean} props.isLoading - Whether form is submitting
- * @param {Object} props.serverErrors - Server-side errors { email?: string, password?: string, global?: string }
+ * @param {Object} props.serverErrors - Server-side errors { email?: string, password?: string, global?: string, errorCode?: string, rateLimit?: Object, accountLocked?: Object, attemptsRemaining?: number }
+ * @param {number} props.failedAttempts - Number of failed login attempts
  */
-export default function LoginForm({ onSubmit, isLoading = false, serverErrors = {} }) {
+export default function LoginForm({ onSubmit, isLoading = false, serverErrors = {}, failedAttempts = 0 }) {
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -132,25 +136,60 @@ export default function LoginForm({ onSubmit, isLoading = false, serverErrors = 
     setShowPassword((prev) => !prev);
   };
 
+  // Determine error type and render appropriate component
+  const errorCode = serverErrors.errorCode;
+  const isRateLimited = errorCode === "RATE_LIMIT_EXCEEDED";
+  const isAccountLocked = errorCode === "ACCOUNT_LOCKED";
+  const isInvalidCredentials = errorCode === "INVALID_CREDENTIALS";
+  const attemptsRemaining = serverErrors.attemptsRemaining !== undefined 
+    ? serverErrors.attemptsRemaining 
+    : (5 - failedAttempts);
+  
+  // Disable form if rate limited or account locked
+  const isFormDisabled = isRateLimited || isAccountLocked || isLoading;
+
   return (
     <FormContainer onSubmit={handleSubmit}>
-      {globalError && (
+      {/* Rate Limit Error */}
+      {isRateLimited && serverErrors.rateLimit && (
+        <RateLimitError
+          message={globalError || "Trop de tentatives de connexion. Veuillez réessayer plus tard."}
+          retryAfter={serverErrors.rateLimit.retryAfter}
+          remaining={serverErrors.rateLimit.remaining}
+        />
+      )}
+
+      {/* Account Locked Error */}
+      {isAccountLocked && serverErrors.accountLocked && (
+        <AccountLockedError
+          message={globalError || "Compte temporairement verrouillé."}
+          minutesRemaining={serverErrors.accountLocked.minutesRemaining}
+        />
+      )}
+
+      {/* Generic Error (for non-security errors) */}
+      {globalError && !isRateLimited && !isAccountLocked && (
         <GlobalError role="alert">
           <AppIcon name="warning" size="sm" color="error" />
           <span>{globalError}</span>
         </GlobalError>
       )}
 
+      {/* Attempt Counter (show when invalid credentials but not locked/rate limited) */}
+      {isInvalidCredentials && attemptsRemaining > 0 && attemptsRemaining < 5 && (
+        <AttemptCounter attemptsRemaining={attemptsRemaining} maxAttempts={5} />
+      )}
+
       <LoginFormFields
         values={values}
         onChange={handleFieldChange}
         errors={errors}
-        disabled={isLoading}
+        disabled={isFormDisabled}
         showPassword={showPassword}
         onTogglePassword={handleTogglePassword}
       />
 
-      <SubmitButton type="submit" variant="primary" size="lg" disabled={isLoading}>
+      <SubmitButton type="submit" variant="primary" size="lg" disabled={isFormDisabled}>
         {isLoading ? (
           <>
             <AppIcon name="loader" size="sm" color="surface" spinning />

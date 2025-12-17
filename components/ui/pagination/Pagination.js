@@ -54,11 +54,19 @@ const PageButton = styled.button`
     background-color: ${(props) => props.theme.colors.surfaceHover};
     border-color: ${(props) => props.theme.colors.primary};
     transform: translateY(-1px);
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 
   ${(props) =>

@@ -15,11 +15,12 @@ import { AppIcon } from "@/components/ui/icon";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  ${smoothTransition("background-color")}
+  ${smoothTransition("all")}
   ${slideUp}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.surfaceHover};
+    box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.borderLight};
   }
 `;
 
@@ -55,21 +56,25 @@ const ActionButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.xs};
+  box-shadow: ${(props) => props.theme.shadows.sm};
   ${smoothTransition("all")}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryHover};
     transform: translateY(-1px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 
   &:active {
     transform: translateY(0);
+    box-shadow: ${(props) => props.theme.shadows.sm};
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -77,8 +82,8 @@ const DeleteButton = styled(ActionButton)`
   background-color: ${(props) => props.theme.colors.error};
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.error};
-    opacity: 0.9;
+    background-color: #dc2626;
+    opacity: 1;
   }
 `;
 

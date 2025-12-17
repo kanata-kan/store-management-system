@@ -35,16 +35,26 @@ const PasswordToggle = styled.button`
   align-items: center;
   justify-content: center;
   color: ${(props) => props.theme.colors.muted};
-  ${(props) => props.theme.motion && `transition: color ${props.theme.motion.duration.fast} ${props.theme.motion.easing.easeOut};`}
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  transition: all ${(props) => props.theme.motion?.duration?.normal || "200ms"} ${(props) => props.theme.motion?.easing?.easeInOut || "ease-in-out"};
 
   &:hover {
-    color: ${(props) => props.theme.colors.foreground};
+    color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.primaryLight}40;
   }
 
-  &:focus {
+  &:focus-visible {
     outline: 2px solid ${(props) => props.theme.colors.primary};
     outline-offset: 2px;
-    border-radius: ${(props) => props.theme.borderRadius.sm};
+  }
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 

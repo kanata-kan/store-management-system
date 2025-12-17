@@ -48,21 +48,24 @@ const ProductItem = styled.li`
   border-radius: ${(props) => props.theme.borderRadius.md};
   padding: ${(props) => props.theme.spacing.md};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all ${(props) => props.theme.motion?.duration?.normal || "200ms"} ${(props) => props.theme.motion?.easing?.easeInOut || "ease-in-out"};
   min-height: 44px; /* Touch-friendly */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: ${(props) => props.theme.spacing.md};
+  box-shadow: ${(props) => props.theme.shadows.sm};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.surfaceHover};
     border-color: ${(props) => props.theme.colors.primary};
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: ${(props) => props.theme.shadows.md};
+    transform: translateY(-2px);
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: translateY(0);
+    box-shadow: ${(props) => props.theme.shadows.sm};
   }
 
   ${(props) =>
@@ -120,6 +123,7 @@ const StockBadge = styled.span`
   border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  box-shadow: ${(props) => props.theme.shadows.xs};
 
   ${(props) =>
     props.$outOfStock &&

@@ -29,10 +29,14 @@ const StyledTextarea = styled.textarea`
     border-color: ${(props) => props.theme.colors.primary};
   }
 
-  &:focus {
+  &:focus-visible {
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
     box-shadow: 0 0 0 3px ${(props) => props.theme.colors.primary}33;
+  }
+  
+  &:focus:not(:focus-visible) {
+    outline: none;
   }
 
   &:disabled {

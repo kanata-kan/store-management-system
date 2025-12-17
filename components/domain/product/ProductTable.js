@@ -7,6 +7,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import styled from "styled-components";
@@ -14,27 +15,51 @@ import { Table, TableHeader } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
 import { AppIcon } from "@/components/ui/icon";
+import DeleteConfirmationModal from "@/components/ui/delete-confirmation-modal";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
-  ${smoothTransition("background-color")}
+  ${smoothTransition("all")}
   ${slideUp}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.surfaceHover};
+    box-shadow: inset 0 0 0 1px ${(props) => props.theme.colors.borderLight};
   }
+
+  ${(props) =>
+    props.$critical &&
+    `
+    background-color: ${props.theme.colors.warningLight}30;
+    
+    &:hover {
+      background-color: ${props.theme.colors.warningLight}50;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
+    }
+  `}
 
   ${(props) =>
     props.$lowStock &&
     `
-    background-color: ${props.theme.colors.warning}11;
+    background-color: ${props.theme.colors.warningLight}20;
+    
+    &:hover {
+      background-color: ${props.theme.colors.warningLight}40;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
+    }
   `}
 
   ${(props) =>
     props.$outOfStock &&
     `
-    opacity: 0.6;
-    background-color: ${props.theme.colors.error}11;
+    opacity: 0.7;
+    background-color: ${props.theme.colors.errorLight}20;
+    
+    &:hover {
+      background-color: ${props.theme.colors.errorLight}40;
+      opacity: 0.85;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.errorLight};
+    }
   `}
 `;
 
@@ -42,8 +67,18 @@ const TableCell = styled.td`
   padding: ${(props) => props.theme.spacing.md};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.foreground};
-  white-space: nowrap;
   text-align: ${(props) => props.$align || "left"};
+  
+  /* Prevent wrapping for most cells by default */
+  white-space: nowrap;
+  
+  /* Allow wrapping for product name column */
+  ${(props) => props.$wrap && `
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 250px;
+  `}
 `;
 
 const ProductName = styled.div`
@@ -57,32 +92,47 @@ const StockBadge = styled.span`
   border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-
-  ${(props) =>
-    props.$lowStock &&
-    `
-    background-color: ${props.theme.colors.warning};
-    color: ${props.theme.colors.background};
-  `}
+  box-shadow: ${(props) => props.theme.shadows.sm};
 
   ${(props) =>
     props.$outOfStock &&
     `
     background-color: ${props.theme.colors.error};
-    color: ${props.theme.colors.background};
+    color: ${props.theme.colors.surface};
+  `}
+
+  ${(props) =>
+    props.$critical &&
+    `
+    background-color: ${props.theme.colors.error};
+    color: ${props.theme.colors.surface};
+  `}
+
+  ${(props) =>
+    props.$lowStock &&
+    `
+    background-color: ${props.theme.colors.warning};
+    color: ${props.theme.colors.surface};
   `}
 
   ${(props) =>
     props.$inStock &&
     `
     background-color: ${props.theme.colors.success};
-    color: ${props.theme.colors.background};
+    color: ${props.theme.colors.surface};
   `}
 `;
 
 const PriceCell = styled.span`
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   color: ${(props) => props.theme.colors.foreground};
+`;
+
+const ActionsCell = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.spacing.sm};
+  align-items: center;
+  justify-content: ${(props) => props.$align || "center"};
 `;
 
 const ActionLink = styled(Link)`
@@ -96,15 +146,53 @@ const ActionLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.xs};
+  box-shadow: ${(props) => props.theme.shadows.sm};
   ${smoothTransition("all")}
 
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryHover};
     transform: translateY(-1px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 
   &:active {
     transform: translateY(0);
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
+`;
+
+const DeleteButton = styled.button`
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.error};
+  color: ${(props) => props.theme.colors.surface};
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  box-shadow: ${(props) => props.theme.shadows.sm};
+  ${smoothTransition("all")}
+
+  &:hover {
+    background-color: #dc2626;
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: ${(props) => props.theme.shadows.md};
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: ${(props) => props.theme.shadows.sm};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -120,16 +208,31 @@ function formatPrice(price) {
 }
 
 /**
- * Get stock status
+ * Get stock status with proper levels (same logic as AlertsTable)
+ * @param {Object} product - Product object with stock and lowStockThreshold
+ * @returns {Object} { type: string, label: string }
  */
 function getStockStatus(product) {
-  if (product.stock === 0) {
+  const { stock, lowStockThreshold } = product;
+  
+  // Rupture de stock (0)
+  if (stock === 0) {
     return { type: "outOfStock", label: "Rupture" };
   }
-  if (product.isLowStock) {
+  
+  // Stock critique (0 < stock <= 50% threshold)
+  const criticalThreshold = lowStockThreshold * 0.5;
+  if (stock > 0 && stock <= criticalThreshold) {
+    return { type: "critical", label: "Stock critique" };
+  }
+  
+  // Stock faible (50% < stock <= threshold)
+  if (stock > criticalThreshold && stock <= lowStockThreshold) {
     return { type: "lowStock", label: "Stock faible" };
   }
-  return { type: "inStock", label: product.stock.toString() };
+  
+  // En stock (stock > threshold)
+  return { type: "inStock", label: stock.toString() };
 }
 
 /**
@@ -146,6 +249,7 @@ export default function ProductsTable({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [deleteModal, setDeleteModal] = useState(null);
 
   const handleSort = (sortBy, sortOrder) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -154,6 +258,40 @@ export default function ProductsTable({
     params.set("page", "1"); // Reset to page 1 on sort
     router.push(`/dashboard/products?${params.toString()}`);
     router.refresh(); // Force server component to re-fetch data
+  };
+
+  const handleDeleteClick = (productId, productName) => {
+    setDeleteModal({ productId, productName });
+  };
+
+  const handleDeleteSuccess = (entityId, entityName, successMessage) => {
+    // Success: refresh page with success message
+    const params = new URLSearchParams(searchParams.toString());
+    if (successMessage) {
+      params.set("success", encodeURIComponent(successMessage));
+    }
+    window.location.href = `/dashboard/products?${params.toString()}`;
+  };
+
+  // Custom error handler for product deletion
+  const handleDeleteError = (result) => {
+    // Handle specific error codes with clear French messages
+    if (result.error?.code === "PRODUCT_IN_USE") {
+      return "Ce produit ne peut pas être supprimé car il est associé à des ventes existantes. Pour supprimer ce produit, vous devez d'abord supprimer toutes ses ventes associées.";
+    }
+    
+    // Handle other error codes
+    if (result.error?.code === "PRODUCT_NOT_FOUND") {
+      return "Ce produit n'existe pas ou a déjà été supprimé.";
+    }
+
+    // Handle validation errors
+    if (result.error?.code === "VALIDATION_ERROR") {
+      return result.error?.message || "Erreur de validation. Veuillez vérifier les données.";
+    }
+
+    // Use API error message if available, otherwise fallback
+    return result.error?.message || "Impossible de supprimer le produit. Veuillez réessayer.";
   };
 
   const isEmpty = !products || products.length === 0;
@@ -203,16 +341,20 @@ export default function ProductsTable({
     >
       {products.map((product) => {
         const stockStatus = getStockStatus(product);
-        const isLowStock = stockStatus.type === "lowStock";
         const isOutOfStock = stockStatus.type === "outOfStock";
+        const isCritical = stockStatus.type === "critical";
+        const isLowStock = stockStatus.type === "lowStock";
+        const isInStock = stockStatus.type === "inStock";
+        const productId = product.id || product._id;
 
         return (
           <TableRow
-            key={product.id || product._id}
-            $lowStock={isLowStock}
+            key={productId}
             $outOfStock={isOutOfStock}
+            $critical={isCritical}
+            $lowStock={isLowStock}
           >
-            <TableCell>
+            <TableCell $wrap>
               <ProductName>{product.name}</ProductName>
             </TableCell>
             <TableCell>{product.brand?.name || "-"}</TableCell>
@@ -222,9 +364,10 @@ export default function ProductsTable({
             <TableCell>{product.subCategory?.name || "-"}</TableCell>
             <TableCell $align="center">
               <StockBadge
-                $lowStock={isLowStock}
                 $outOfStock={isOutOfStock}
-                $inStock={stockStatus.type === "inStock"}
+                $critical={isCritical}
+                $lowStock={isLowStock}
+                $inStock={isInStock}
               >
                 {stockStatus.label}
               </StockBadge>
@@ -233,14 +376,38 @@ export default function ProductsTable({
               <PriceCell>{formatPrice(product.purchasePrice)} DA</PriceCell>
             </TableCell>
             <TableCell $align="center">
-              <ActionLink href={`/dashboard/products/${product.id || product._id}/edit`}>
-                <AppIcon name="edit" size="xs" color="surface" />
-                Modifier
-              </ActionLink>
+              <ActionsCell>
+                <ActionLink href={`/dashboard/products/${productId}/edit`}>
+                  <AppIcon name="edit" size="xs" color="surface" />
+                  Modifier
+                </ActionLink>
+                <DeleteButton
+                  type="button"
+                  onClick={() => handleDeleteClick(productId, product.name)}
+                  title="Supprimer le produit"
+                >
+                  <AppIcon name="delete" size="xs" color="surface" />
+                  Supprimer
+                </DeleteButton>
+              </ActionsCell>
             </TableCell>
           </TableRow>
         );
       })}
+
+      <DeleteConfirmationModal
+        isOpen={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        entityId={deleteModal?.productId}
+        entityName={deleteModal?.productName}
+        apiEndpoint="/api/products/{id}"
+        entityType="le produit"
+        successMessage={`Produit "{entityName}" supprimé avec succès !`}
+        errorFallbackMessage="Une erreur est survenue lors de la suppression. Veuillez réessayer."
+        warningMessage="Cette action est irréversible. Si le produit a des ventes associées, la suppression sera impossible."
+        onSuccess={handleDeleteSuccess}
+        customErrorHandler={handleDeleteError}
+      />
     </Table>
   );
 }

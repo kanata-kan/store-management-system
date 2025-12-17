@@ -25,7 +25,7 @@ const StatsGrid = styled.div`
 `;
 
 /**
- * AlertStatsCards Component
+ * AlertStatsCards Component - Enhanced with variants and icons
  * @param {Object} props
  * @param {number} props.total - Total number of low stock products
  * @param {number} props.outOfStock - Number of out of stock products (stock === 0)
@@ -38,18 +38,26 @@ export default function AlertStatsCards({ total, outOfStock, critical, low }) {
       <StatsCard
         title="Total des alertes"
         value={total}
+        variant="warning"
+        icon="alert"
       />
       <StatsCard
         title="Rupture de stock"
         value={outOfStock}
+        variant="error"
+        icon="alert"
       />
       <StatsCard
         title="Stock critique"
         value={critical}
+        variant="warning"
+        icon="alert"
       />
       <StatsCard
         title="Stock faible"
         value={low}
+        variant="warning"
+        icon="warning"
       />
     </StatsGrid>
   );

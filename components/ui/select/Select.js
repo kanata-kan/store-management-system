@@ -12,7 +12,7 @@ import { smoothTransition } from "@/components/motion";
 
 const StyledSelect = styled.select`
   width: 100%;
-  padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.md};
   border: 1px solid
     ${(props) => (props.$hasError ? props.theme.colors.error : props.theme.colors.border)};
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -27,10 +27,14 @@ const StyledSelect = styled.select`
     border-color: ${(props) => props.theme.colors.primary};
   }
 
-  &:focus {
+  &:focus-visible {
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
     box-shadow: 0 0 0 3px ${(props) => props.theme.colors.primary}33;
+  }
+  
+  &:focus:not(:focus-visible) {
+    outline: none;
   }
 
   &:disabled {
