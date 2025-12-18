@@ -45,14 +45,9 @@ export default async function CashierLayout({ children }) {
       try {
         user = await AuthService.getUserFromSession(tokenCookie.value);
       } catch (error) {
-        // Invalid or expired token - clear the cookie
-        // This ensures the user doesn't have a bad token
-        try {
-          cookieStore.delete("session_token");
-        } catch (deleteError) {
-          // Cookie deletion might fail, but we continue
-          console.error("Failed to delete invalid session token:", deleteError);
-        }
+        // Invalid or expired token - ignore it
+        // The cookie will be cleared by the logout route handler if user explicitly logs out
+        // For now, we just ignore invalid tokens and redirect to login
         // Invalid or expired token, user remains null
         user = null;
       }
@@ -73,12 +68,19 @@ export default async function CashierLayout({ children }) {
     if (user.role !== "cashier" && user.role !== "manager") {
       redirect("/dashboard");
     }
+
+    // Check if cashier account is suspended (only for cashiers, not managers)
+    if (user.role === "cashier" && user.isSuspended) {
+      // Don't redirect, but show suspension message in the UI
+      // The suspension check will also happen in the API when trying to make a sale
+    }
   }
 
   return (
     <CashierLayoutClient
       header={<CashierHeader user={user} />}
       navigation={<CashierNavigation />}
+      user={user}
     >
       {children}
     </CashierLayoutClient>

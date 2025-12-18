@@ -166,16 +166,7 @@ const FormActions = styled.div`
   gap: ${(props) => props.theme.spacing.md};
 `;
 
-/**
- * Format number as currency (DA)
- */
-function formatPrice(price) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(price);
-}
+import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
  * Get stock badge props
@@ -241,7 +232,7 @@ export default function SaleForm({
               <BrandName>{brandName}</BrandName>
             </ProductMeta>
           </ProductInfoDetails>
-          <PurchasePrice>{formatPrice(purchasePrice)} DA</PurchasePrice>
+          <PurchasePrice>{formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}</PurchasePrice>
         </ProductInfoHeader>
 
         <StockInfo>
@@ -290,7 +281,7 @@ export default function SaleForm({
           />
         </FormField>
 
-        <FormField label="Prix de vente (DA)" id="sellingPrice" required>
+        <FormField label={`Prix de vente (${getCurrencySymbol()})`} id="sellingPrice" required>
           <Input
             id="sellingPrice"
             type="number"

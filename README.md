@@ -6,12 +6,30 @@ A comprehensive inventory management system designed for managing home appliance
 
 ---
 
+## 📐 Architecture Principles
+
+**📌 IMPORTANT:** All code modifications must respect the architectural principles defined in **[ARCHITECTURE.md](./ARCHITECTURE.md)**.
+
+This document is the **Single Source of Truth** for architectural decisions and must be followed for any feature, refactor, or modification.
+
+Key principles:
+- Service-Oriented Architecture (business logic in Services)
+- Layered Architecture (clear separation of concerns)
+- Server Components First (Next.js App Router)
+- No business logic in Frontend
+- French UI / English Code
+- Database Transactions for atomic operations
+- Server-Side Authorization (RBAC)
+
+---
+
 ## 📚 Documentation
 
-All project documentation is organized in the [`docs/`](./docs/) directory. See [`docs/README.md`](./docs/README.md) for a complete index.
+All project documentation is organized in the [`docs/`](./docs/) directory. See [`docs/README.md](./docs/README.md) for a complete index.
 
 ### Quick Links:
 
+- **[🏗️ Architecture Principles](./ARCHITECTURE.md)** ⭐ **START HERE**
 - [Requirements Specification](./docs/requirements/SRS.md)
 - [Design Specification](./docs/design/SDS.md)
 - [Architecture Blueprint](./docs/design/ARCHITECTURE_BLUEPRINT.md)

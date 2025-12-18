@@ -9,6 +9,7 @@
 
 import styled from "styled-components";
 import { fadeIn, smoothTransition } from "@/components/motion";
+import { getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 const Section = styled.section`
   background-color: ${(props) => props.theme.colors.surface};
@@ -136,7 +137,7 @@ export default function RecentSalesList({ sales = [] }) {
             <Details>
               <QuantityPrice>
                 {sale.quantity} × {sale.sellingPrice?.toLocaleString("fr-FR")}{" "}
-                DA
+                {getCurrencySymbol()}
               </QuantityPrice>
               <Amount>
                 {sale.totalAmount
@@ -144,7 +145,7 @@ export default function RecentSalesList({ sales = [] }) {
                   : (sale.quantity * (sale.sellingPrice || 0)).toLocaleString(
                       "fr-FR"
                     )}{" "}
-                DA
+                {getCurrencySymbol()}
               </Amount>
             </Details>
           </ListItem>

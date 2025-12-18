@@ -10,6 +10,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { FilterDropdown, FilterPriceRange } from "@/components/ui";
+import { getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 const FiltersContainer = styled.div`
   display: flex;
@@ -183,7 +184,6 @@ export default function ProductFilters({ brands, categories, subCategories }) {
         minValue={currentMinPrice}
         maxValue={currentMaxPrice}
         onChange={handlePriceRangeChange}
-        currency="DA"
       />
     </FiltersContainer>
   );

@@ -68,6 +68,9 @@ export default function CashierNavigation() {
       <NavLink href="/cashier" $isActive={pathname === "/cashier"}>
         Vente rapide
       </NavLink>
+      <NavLink href="/cashier/daily-summary" $isActive={pathname === "/cashier/daily-summary"}>
+        Résumé quotidien
+      </NavLink>
       <NavLink href="/cashier/sales" $isActive={pathname === "/cashier/sales"}>
         Mes ventes
       </NavLink>

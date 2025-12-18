@@ -1,33 +1,102 @@
 /**
- * Recent Sales Page
+ * Cashier Sales Page
  *
- * Server Component for displaying cashier's recent sales.
- * READ-ONLY page - no filters, pagination, or mutations.
+ * Server Component for displaying cashier's sales with filters, statistics, and pagination.
+ * Fetches sales data and statistics server-side based on URL query parameters.
  */
 
 import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
-import RecentSalesList from "./RecentSalesList.js";
+import CashierSalesPageClient from "./CashierSalesPageClient.js";
 
 /**
- * Recent Sales Page
+ * Build API query string from searchParams for cashier sales
  */
-export default async function RecentSalesPage() {
-  // Fetch sales data server-side
-  const result = await fetchWithCookies("/api/sales/my-sales?limit=50", {
-    enableDebugLogging: process.env.NODE_ENV === "development",
-  });
-  const sales = result?.data || [];
+function buildCashierSalesQuery(searchParams) {
+  const params = new URLSearchParams();
 
-  // Debug logging in development
-  if (process.env.NODE_ENV === "development") {
-    console.log("Recent Sales API result:", {
-      status: result?.status,
-      dataLength: Array.isArray(result?.data) ? result.data.length : 0,
-      hasError: !!result?.error,
-      error: result?.error,
-    });
+  // Pagination
+  const page = searchParams?.page || "1";
+  const limit = searchParams?.limit || "20";
+  params.set("page", page);
+  params.set("limit", limit);
+
+  // Sorting
+  const sortBy = searchParams?.sortBy || "createdAt";
+  const sortOrder = searchParams?.sortOrder || "desc";
+  params.set("sortBy", sortBy);
+  params.set("sortOrder", sortOrder);
+
+  // Filters
+  if (searchParams?.startDate) {
+    params.set("startDate", searchParams.startDate);
+  }
+  if (searchParams?.endDate) {
+    params.set("endDate", searchParams.endDate);
+  }
+  if (searchParams?.status && searchParams.status !== "all") {
+    params.set("status", searchParams.status);
   }
 
-  return <RecentSalesList sales={sales} />;
+  return params.toString();
+}
+
+/**
+ * Cashier Sales Page
+ */
+export default async function CashierSalesPage({ searchParams = {} }) {
+  // Build query strings
+  const salesQuery = buildCashierSalesQuery(searchParams);
+  const statisticsQuery = new URLSearchParams();
+  if (searchParams?.startDate) {
+    statisticsQuery.set("startDate", searchParams.startDate);
+  }
+  if (searchParams?.endDate) {
+    statisticsQuery.set("endDate", searchParams.endDate);
+  }
+
+  // Fetch sales and statistics in parallel
+  const [salesResult, statisticsResult] = await Promise.all([
+    fetchWithCookies(`/api/sales/my-sales?${salesQuery}`, {
+      enableDebugLogging: process.env.NODE_ENV === "development",
+    }),
+    fetchWithCookies(
+      `/api/sales/my-sales/statistics?${statisticsQuery.toString()}`,
+      {
+        enableDebugLogging: process.env.NODE_ENV === "development",
+      }
+    ),
+  ]);
+
+  // Extract data
+  const salesData = salesResult?.data || {};
+  const sales = Array.isArray(salesData?.items) ? salesData.items : [];
+  const pagination = salesData?.pagination || {
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 1,
+  };
+
+  const statistics = statisticsResult?.data || null;
+
+  // Current filters and sorting
+  const currentSortBy = searchParams?.sortBy || "createdAt";
+  const currentSortOrder = searchParams?.sortOrder || "desc";
+  const currentFilters = {
+    startDate: searchParams?.startDate || "",
+    endDate: searchParams?.endDate || "",
+    status: searchParams?.status || "all",
+  };
+
+  return (
+    <CashierSalesPageClient
+      sales={sales}
+      statistics={statistics}
+      pagination={pagination}
+      currentSortBy={currentSortBy}
+      currentSortOrder={currentSortOrder}
+      currentFilters={currentFilters}
+    />
+  );
 }
 

@@ -86,52 +86,46 @@ export default function InventoryLogsTable({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSort = (sortBy) => {
+  const isEmpty = !logs || logs.length === 0;
+
+  const handleSortClick = (sortKey, sortOrder) => {
     const params = new URLSearchParams(searchParams.toString());
-    const newSortOrder =
-      currentSortBy === sortBy && currentSortOrder === "asc" ? "desc" : "asc";
-    params.set("sortBy", sortBy);
-    params.set("sortOrder", newSortOrder);
+    params.set("sortBy", sortKey);
+    params.set("sortOrder", sortOrder);
     params.set("page", "1"); // Reset to first page on sort
     router.push(`/dashboard/inventory?${params.toString()}`);
+    router.refresh();
   };
-
-  const isEmpty = !logs || logs.length === 0;
 
   return (
     <Table
       header={
         <tr>
           <TableHeader
-            sortable
-            sortDirection={
-              currentSortBy === "createdAt" ? currentSortOrder : null
-            }
-            onSort={() => handleSort("createdAt")}
-          >
-            Date
-          </TableHeader>
+            label="Date / heure"
+            sortKey="createdAt"
+            currentSortBy={currentSortBy}
+            currentSortOrder={currentSortOrder}
+            onSort={handleSortClick}
+          />
           <TableHeader
-            sortable
-            sortDirection={
-              currentSortBy === "product.name" ? currentSortOrder : null
-            }
-            onSort={() => handleSort("product.name")}
-          >
-            Produit
-          </TableHeader>
+            label="Produit"
+            sortKey="product.name"
+            currentSortBy={currentSortBy}
+            currentSortOrder={currentSortOrder}
+            onSort={handleSortClick}
+          />
           <TableHeader
-            sortable
-            sortDirection={
-              currentSortBy === "quantityAdded" ? currentSortOrder : null
-            }
-            onSort={() => handleSort("quantityAdded")}
-          >
-            Quantité
-          </TableHeader>
-          <TableHeader>Type d'action</TableHeader>
-          <TableHeader>Note</TableHeader>
-          <TableHeader>Créé par</TableHeader>
+            label="Quantité"
+            sortKey="quantityAdded"
+            currentSortBy={currentSortBy}
+            currentSortOrder={currentSortOrder}
+            onSort={handleSortClick}
+            align="center"
+          />
+          <TableHeader label="Type d'action" />
+          <TableHeader label="Note" />
+          <TableHeader label="Créé par" />
         </tr>
       }
       isEmpty={isEmpty}

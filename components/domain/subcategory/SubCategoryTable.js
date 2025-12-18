@@ -10,11 +10,9 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Table, TableHeader } from "@/components/ui/table";
+import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { AppIcon } from "@/components/ui/icon";
-import { Button } from "@/components/ui";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
@@ -45,55 +43,6 @@ const CategoryName = styled.div`
   font-size: ${(props) => props.theme.typography.fontSize.sm};
 `;
 
-const ActionsCell = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.sm};
-  align-items: center;
-  justify-content: ${(props) => props.$align || "center"};
-`;
-
-const ActionButton = styled.button`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.surface};
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryHover};
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-const DeleteButton = styled(ActionButton)`
-  background-color: ${(props) => props.theme.colors.error};
-
-  &:hover {
-    background-color: #dc2626;
-    opacity: 1;
-  }
-`;
 
 import { formatDate } from "@/lib/utils/dateFormatters.js";
 
@@ -167,24 +116,11 @@ export default function SubCategoryTable({
               </TableCell>
               <TableCell>{formatDate(subCategory.createdAt)}</TableCell>
               <TableCell $align="center">
-                <ActionsCell>
-                  <ActionButton
-                    type="button"
-                    onClick={() => onEdit && onEdit(subCategoryId)}
-                    title="Modifier la sous-catégorie"
-                  >
-                    <AppIcon name="edit" size="xs" color="surface" />
-                    Modifier
-                  </ActionButton>
-                  <DeleteButton
-                    type="button"
-                    onClick={() => onDelete && onDelete(subCategoryId, subCategory.name)}
-                    title="Supprimer la sous-catégorie"
-                  >
-                    <AppIcon name="delete" size="xs" color="surface" />
-                    Supprimer
-                  </DeleteButton>
-                </ActionsCell>
+                <TableActionButtons
+                  onEdit={() => onEdit && onEdit(subCategoryId)}
+                  onDelete={() => onDelete && onDelete(subCategoryId, subCategory.name)}
+                  align="center"
+                />
               </TableCell>
             </TableRow>
           );

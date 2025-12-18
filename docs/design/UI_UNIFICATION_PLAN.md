@@ -225,7 +225,7 @@
 **1. Hover Effects:**
 - توحيد hover effects على جميع العناصر التفاعلية
 - تحسين transform animations (translateY، scale)
-- توحيد transition durations
+   - توحيد transition durations
 
 **2. Focus States:**
 - تحسين focus indicators (outline، box-shadow)

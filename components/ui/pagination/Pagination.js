@@ -239,7 +239,7 @@ export default function Pagination({
       </ButtonGroup>
 
       <PaginationInfo>
-        Page {currentPage} sur {totalPages} ({totalItems} produits)
+        Page {currentPage} sur {totalPages} ({totalItems} {totalItems === 1 ? "élément" : "éléments"})
       </PaginationInfo>
     </PaginationContainer>
   );

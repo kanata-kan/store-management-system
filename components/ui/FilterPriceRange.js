@@ -9,6 +9,7 @@
 
 import styled from "styled-components";
 import { useState } from "react";
+import { getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 const FilterContainer = styled.div`
   display: flex;
@@ -84,15 +85,18 @@ const ApplyButton = styled.button`
  * @param {number|null} props.minValue - Current min value
  * @param {number|null} props.maxValue - Current max value
  * @param {Function} props.onChange - Callback when applied (min: number | null, max: number | null) => void
- * @param {string} [props.currency="DA"] - Currency symbol
+ * @param {string} [props.currency] - Currency symbol (defaults to currency from config)
  */
 export default function FilterPriceRange({
   label,
   minValue,
   maxValue,
   onChange,
-  currency = "DA",
+  currency,
 }) {
+  // Use currency from config if not provided
+  const displayCurrency = currency || getCurrencySymbol();
+  
   const [localMin, setLocalMin] = useState(minValue?.toString() || "");
   const [localMax, setLocalMax] = useState(maxValue?.toString() || "");
 
@@ -129,7 +133,7 @@ export default function FilterPriceRange({
       <InputsContainer>
         <Input
           type="number"
-          placeholder={`Min (${currency})`}
+          placeholder={`Min (${displayCurrency})`}
           value={localMin}
           onChange={(e) => setLocalMin(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -139,7 +143,7 @@ export default function FilterPriceRange({
         <Separator>à</Separator>
         <Input
           type="number"
-          placeholder={`Max (${currency})`}
+          placeholder={`Max (${displayCurrency})`}
           value={localMax}
           onChange={(e) => setLocalMax(e.target.value)}
           onKeyDown={handleKeyDown}

@@ -9,12 +9,10 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import styled from "styled-components";
-import { Table, TableHeader } from "@/components/ui/table";
+import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { AppIcon } from "@/components/ui/icon";
 import DeleteConfirmationModal from "@/components/ui/delete-confirmation-modal";
 
 const TableRow = styled.tr`
@@ -128,84 +126,8 @@ const PriceCell = styled.span`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
-const ActionsCell = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.sm};
-  align-items: center;
-  justify-content: ${(props) => props.$align || "center"};
-`;
 
-const ActionLink = styled(Link)`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.surface};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryHover};
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-`;
-
-const DeleteButton = styled.button`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.error};
-  color: ${(props) => props.theme.colors.surface};
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-
-  &:hover {
-    background-color: #dc2626;
-    opacity: 1;
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-/**
- * Format number as currency (DA)
- */
-function formatPrice(price) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(price);
-}
+import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
  * Get stock status with proper levels (same logic as AlertsTable)
@@ -373,23 +295,14 @@ export default function ProductsTable({
               </StockBadge>
             </TableCell>
             <TableCell $align="right">
-              <PriceCell>{formatPrice(product.purchasePrice)} DA</PriceCell>
+              <PriceCell>{formatCurrencyValue(product.purchasePrice)} {getCurrencySymbol()}</PriceCell>
             </TableCell>
             <TableCell $align="center">
-              <ActionsCell>
-                <ActionLink href={`/dashboard/products/${productId}/edit`}>
-                  <AppIcon name="edit" size="xs" color="surface" />
-                  Modifier
-                </ActionLink>
-                <DeleteButton
-                  type="button"
-                  onClick={() => handleDeleteClick(productId, product.name)}
-                  title="Supprimer le produit"
-                >
-                  <AppIcon name="delete" size="xs" color="surface" />
-                  Supprimer
-                </DeleteButton>
-              </ActionsCell>
+              <TableActionButtons
+                onEdit={`/dashboard/products/${productId}/edit`}
+                onDelete={() => handleDeleteClick(productId, product.name)}
+                align="center"
+              />
             </TableCell>
           </TableRow>
         );

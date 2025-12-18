@@ -51,7 +51,7 @@ const StyledTable = styled.table`
   border-collapse: collapse;
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   table-layout: auto; /* Auto layout for flexible column widths */
-  min-width: 800px; /* Minimum width to prevent excessive compression */
+  min-width: ${(props) => props.$minWidth || "800px"}; /* Minimum width to prevent excessive compression */
 `;
 
 const TableHead = styled.thead`
@@ -68,10 +68,10 @@ const TableBody = styled.tbody``;
  * @param {string} [props.emptyMessage] - Message to show when no data
  * @param {boolean} [props.isEmpty] - Whether table is empty
  */
-export default function Table({ header, children, emptyMessage, isEmpty }) {
+export default function Table({ header, children, emptyMessage, isEmpty, minWidth }) {
   return (
     <TableContainer>
-      <StyledTable>
+      <StyledTable $minWidth={minWidth}>
         {header && <TableHead>{header}</TableHead>}
         <TableBody>{isEmpty ? null : children}</TableBody>
       </StyledTable>

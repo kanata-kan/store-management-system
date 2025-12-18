@@ -9,6 +9,7 @@
 
 import styled from "styled-components";
 import { fadeIn, smoothTransition } from "@/components/motion";
+import { getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 const Section = styled.section`
   background-color: ${(props) => props.theme.colors.surface};
@@ -140,7 +141,7 @@ export default function RecentInventoryList({ inventoryEntries = [] }) {
                 {entry.purchasePrice
                   ? entry.purchasePrice.toLocaleString("fr-FR")
                   : 0}{" "}
-                DA
+                {getCurrencySymbol()}
               </Price>
             </Details>
           </ListItem>

@@ -6,12 +6,14 @@
 
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const SidebarContext = createContext({
   isOpen: false,
   toggleSidebar: () => {},
   closeSidebar: () => {},
+  isCollapsed: false,
+  toggleCollapse: () => {},
 });
 
 /**
@@ -20,6 +22,16 @@ const SidebarContext = createContext({
  */
 export function SidebarProvider({ children }) {
   const [isOpen, setIsOpen] = useState(false);
+  // Initialize collapsed state from localStorage, default to false (expanded)
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Load collapsed state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    if (saved !== null) {
+      setIsCollapsed(saved === "true");
+    }
+  }, []);
 
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
@@ -29,8 +41,19 @@ export function SidebarProvider({ children }) {
     setIsOpen(false);
   };
 
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const newState = !prev;
+      // Save to localStorage
+      localStorage.setItem("sidebarCollapsed", String(newState));
+      return newState;
+    });
+  };
+
   return (
-    <SidebarContext.Provider value={{ isOpen, toggleSidebar, closeSidebar }}>
+    <SidebarContext.Provider
+      value={{ isOpen, toggleSidebar, closeSidebar, isCollapsed, toggleCollapse }}
+    >
       {children}
     </SidebarContext.Provider>
   );

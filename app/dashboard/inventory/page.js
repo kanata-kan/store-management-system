@@ -11,8 +11,10 @@ import InventoryPage, {
   PageTitle,
   TableSection,
   SectionTitle,
+  FiltersSection,
 } from "@/components/domain/inventory/InventoryPage";
-import { InventoryLogsTable, InventorySuccessMessage } from "@/components/domain/inventory";
+import { InventorySuccessMessage } from "@/components/domain/inventory";
+import InventoryPageClient from "./InventoryPageClient";
 import { Pagination, Button, AppIcon } from "@/components/ui";
 import Link from "next/link";
 import fetchWithCookies from "@/lib/utils/fetchWithCookies.js";
@@ -55,6 +57,17 @@ export default async function InventoryManagementPage({ searchParams = {} }) {
   const currentPage = parseInt(searchParams?.page || "1", 10);
   const successMessage = searchParams?.success ? decodeURIComponent(searchParams.success) : null;
 
+  // Fetch products for filter dropdown
+  const productsData = await fetchWithCookies("/api/products?limit=1000");
+  const products = Array.isArray(productsData?.data) ? productsData.data : [];
+
+  // Extract current filter values from URL
+  const currentFilters = {
+    productId: searchParams?.productId || "",
+    startDate: searchParams?.startDate || "",
+    endDate: searchParams?.endDate || "",
+  };
+
   return (
     <InventoryPage>
       <InventorySuccessMessage message={successMessage} />
@@ -69,11 +82,15 @@ export default async function InventoryManagementPage({ searchParams = {} }) {
 
       <TableSection>
         <SectionTitle>Historique des mouvements</SectionTitle>
-        <InventoryLogsTable
-          logs={logs}
-          currentSortBy={currentSortBy}
-          currentSortOrder={currentSortOrder}
-        />
+        <FiltersSection>
+          <InventoryPageClient
+            logs={logs}
+            products={products}
+            currentSortBy={currentSortBy}
+            currentSortOrder={currentSortOrder}
+            currentFilters={currentFilters}
+          />
+        </FiltersSection>
       </TableSection>
 
       {pagination.totalPages > 1 && (

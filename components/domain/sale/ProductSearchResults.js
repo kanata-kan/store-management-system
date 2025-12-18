@@ -153,16 +153,7 @@ const PriceText = styled.span`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
-/**
- * Format number as currency (DA)
- */
-function formatPrice(price) {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(price);
-}
+import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
  * Get stock badge props
@@ -246,7 +237,7 @@ export default function ProductSearchResults({
               </ProductInfo>
               <ProductDetails>
                 <StockBadge {...stockBadgeProps}>{stockBadgeProps.label}</StockBadge>
-                <PriceText>{formatPrice(product.purchasePrice || 0)} DA</PriceText>
+                <PriceText>{formatCurrencyValue(product.purchasePrice || 0)} {getCurrencySymbol()}</PriceText>
               </ProductDetails>
             </ProductItem>
           );

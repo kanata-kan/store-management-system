@@ -55,6 +55,7 @@ export default function UsersPageClient({
   const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState(currentSearch || "");
   const [deleteModal, setDeleteModal] = useState(null);
+  const [isSuspending, setIsSuspending] = useState(false);
 
   const handleEdit = (userId) => {
     router.push(`/dashboard/users/${userId}/edit`);
@@ -69,6 +70,39 @@ export default function UsersPageClient({
     const params = new URLSearchParams();
     params.set("success", encodeURIComponent(successMessage));
     window.location.href = `/dashboard/users?${params.toString()}`;
+  };
+
+  const handleSuspend = async (userId, isSuspended) => {
+    if (isSuspending) return;
+
+    setIsSuspending(true);
+    try {
+      const response = await fetch(`/api/users/${userId}/suspend`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ isSuspended }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        const action = isSuspended ? "suspendu" : "réactivé";
+        const params = new URLSearchParams();
+        params.set("success", encodeURIComponent(`Compte ${action} avec succès !`));
+        window.location.href = `/dashboard/users?${params.toString()}`;
+      } else {
+        const errorMsg = result.error?.message || "Une erreur est survenue";
+        alert(errorMsg);
+      }
+    } catch (error) {
+      console.error("Suspend error:", error);
+      alert("Erreur réseau. Veuillez réessayer.");
+    } finally {
+      setIsSuspending(false);
+    }
   };
 
   const handleSearchSubmit = (event) => {
@@ -120,6 +154,7 @@ export default function UsersPageClient({
         currentSortOrder={currentSortOrder}
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
+        onSuspend={handleSuspend}
       />
 
       <DeleteConfirmationModal

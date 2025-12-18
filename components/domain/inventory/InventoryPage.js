@@ -87,6 +87,10 @@ export const SectionTitle = styled.h2`
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
 `;
 
+export const FiltersSection = styled.section`
+  margin-bottom: ${(props) => props.theme.spacing.lg};
+`;
+
 export default function InventoryPage({ children }) {
   return <>{children}</>;
 }

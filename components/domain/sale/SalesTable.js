@@ -11,8 +11,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Table, TableHeader } from "@/components/ui/table";
-import { AppIcon } from "@/components/ui/icon";
+import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { slideUp, smoothTransition } from "@/components/motion";
 import CancelSaleModal from "./CancelSaleModal";
 
@@ -73,73 +72,9 @@ const StatusBadge = styled.span`
   `}
 `;
 
-const ActionsCell = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.xs};
-  align-items: center;
-  justify-content: center;
-`;
-
-const ActionButton = styled.button`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  &:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-  
-  &:not(:disabled):active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-`;
-
-const CancelButton = styled(ActionButton)`
-  background-color: ${(props) => props.theme.colors.error};
-  color: ${(props) => props.theme.colors.surface};
-  
-  &:not(:disabled):hover {
-    background-color: #dc2626;
-    opacity: 1;
-  }
-`;
-
-const ReturnButton = styled(ActionButton)`
-  background-color: ${(props) => props.theme.colors.warning};
-  color: ${(props) => props.theme.colors.surface};
-  
-  &:not(:disabled):hover {
-    background-color: #d97706;
-    opacity: 1;
-  }
-`;
 
 import { formatDate as formatDateTime } from "@/lib/utils/dateFormatters.js";
-
-function formatCurrency(value) {
-  if (value == null) return "-";
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "MAD",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
+import { formatCurrency } from "@/lib/utils/currencyConfig.js";
 
 export default function SalesTable({
   sales,
@@ -210,6 +145,7 @@ export default function SalesTable({
 
   return (
     <Table
+      minWidth="1200px"
       header={
         <tr>
           <TableHeader
@@ -278,32 +214,18 @@ export default function SalesTable({
               </TableCell>
               {showActions && (
                 <TableCell $align="center">
-                  <ActionsCell>
-                    {isActive ? (
-                      <>
-                        <CancelButton
-                          type="button"
-                          onClick={() => handleCancelClick(sale)}
-                          title="Annuler la vente"
-                        >
-                          <AppIcon name="x" size="xs" color="surface" />
-                          Annuler
-                        </CancelButton>
-                        <ReturnButton
-                          type="button"
-                          onClick={() => handleReturnClick(sale)}
-                          title="Retourner la vente"
-                        >
-                          <AppIcon name="package" size="xs" color="surface" />
-                          Retourner
-                        </ReturnButton>
-                      </>
-                    ) : (
-                      <span style={{ color: "var(--muted-foreground)", fontSize: "0.75rem" }}>
-                        {saleStatus === "cancelled" ? "Annulée" : "Retournée"}
-                      </span>
-                    )}
-                  </ActionsCell>
+                  {isActive ? (
+                    <TableActionButtons
+                      onCancel={() => handleCancelClick(sale)}
+                      onReturn={() => handleReturnClick(sale)}
+                      status={saleStatus}
+                      align="center"
+                    />
+                  ) : (
+                    <StatusBadge $status={saleStatus}>
+                      {saleStatus === "cancelled" ? "Annulée" : "Retournée"}
+                    </StatusBadge>
+                  )}
                 </TableCell>
               )}
             </TableRow>

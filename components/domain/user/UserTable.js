@@ -10,9 +10,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Table, TableHeader } from "@/components/ui/table";
+import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { AppIcon } from "@/components/ui/icon";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
@@ -60,54 +59,17 @@ const RoleBadge = styled.span`
   box-shadow: ${(props) => props.theme.shadows.sm};
 `;
 
-const ActionsCell = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.sm};
-  align-items: center;
-  justify-content: ${(props) => props.$align || "center"};
-`;
 
-const ActionButton = styled.button`
+const SuspendedBadge = styled.span`
+  display: inline-block;
   padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.surface};
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
+  border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
+  background-color: ${(props) => props.theme.colors.errorLight};
+  color: ${(props) => props.theme.colors.error};
   box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryHover};
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-const DeleteButton = styled(ActionButton)`
-  background-color: ${(props) => props.theme.colors.error};
-
-  &:hover {
-    background-color: #dc2626;
-    opacity: 1;
-  }
+  margin-right: ${(props) => props.theme.spacing.sm};
 `;
 
 import { formatDate } from "@/lib/utils/dateFormatters.js";
@@ -127,6 +89,7 @@ function formatRole(role) {
  * @param {string} props.currentSortOrder - Current sort order from URL
  * @param {Function} props.onEdit - Edit handler (userId: string) => void
  * @param {Function} props.onDelete - Delete handler (userId: string, userName: string) => void
+ * @param {Function} props.onSuspend - Suspend handler (userId: string, isSuspended: boolean) => void
  */
 export default function UserTable({
   users,
@@ -134,6 +97,7 @@ export default function UserTable({
   currentSortOrder,
   onEdit,
   onDelete,
+  onSuspend,
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -200,30 +164,24 @@ export default function UserTable({
                 <UserEmail>{user.email || "-"}</UserEmail>
               </TableCell>
               <TableCell>
-                <RoleBadge $role={user.role}>
-                  {formatRole(user.role)}
-                </RoleBadge>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <RoleBadge $role={user.role}>
+                    {formatRole(user.role)}
+                  </RoleBadge>
+                  {user.isSuspended && (
+                    <SuspendedBadge>Suspendu</SuspendedBadge>
+                  )}
+                </div>
               </TableCell>
               <TableCell>{formatDate(user.createdAt)}</TableCell>
               <TableCell $align="center">
-                <ActionsCell>
-                  <ActionButton
-                    type="button"
-                    onClick={() => onEdit && onEdit(userId)}
-                    title="Modifier l'utilisateur"
-                  >
-                    <AppIcon name="edit" size="xs" color="surface" />
-                    Modifier
-                  </ActionButton>
-                  <DeleteButton
-                    type="button"
-                    onClick={() => onDelete && onDelete(userId, user.name)}
-                    title="Supprimer l'utilisateur"
-                  >
-                    <AppIcon name="delete" size="xs" color="surface" />
-                    Supprimer
-                  </DeleteButton>
-                </ActionsCell>
+                <TableActionButtons
+                  onEdit={() => onEdit && onEdit(userId)}
+                  onDelete={() => onDelete && onDelete(userId, user.name)}
+                  onSuspend={user.role === "cashier" ? () => onSuspend && onSuspend(userId, !user.isSuspended) : undefined}
+                  isSuspended={user.isSuspended}
+                  align="center"
+                />
               </TableCell>
             </TableRow>
           );

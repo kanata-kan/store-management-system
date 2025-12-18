@@ -1,16 +1,19 @@
 /**
  * Recent Sales List Component
  *
- * Client Component for displaying cashier's recent sales.
+ * Client Component for displaying cashier's sales with pagination and sorting.
  * Pure presentational component - receives data as props.
  */
 
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { formatDate } from "@/lib/utils/dateFormatters.js";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AppIcon } from "@/components/ui/icon";
+import { Pagination } from "@/components/ui";
+import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 const PageContainer = styled.div`
   width: 100%;
@@ -103,7 +106,23 @@ const SaleHeader = styled.div`
 `;
 
 const HeaderCell = styled.div`
-  /* Header cell styling is handled by SaleHeader */
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.primary};
+  }
+`;
+
+const SortIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  opacity: ${(props) => (props.$active ? 1 : 0.3)};
+  transition: opacity 0.2s ease;
 `;
 
 const ProductName = styled.div`
@@ -170,30 +189,41 @@ const StatusBadge = styled.span`
   `}
 `;
 
-/**
- * Format currency value (DA)
- */
-function formatCurrency(value) {
-  if (value == null) return "-";
-  return new Intl.NumberFormat("fr-FR", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(value);
-}
 
 /**
  * Recent Sales List Component
  * @param {Object} props
  * @param {Array} props.sales - Array of sales data
+ * @param {Object} props.pagination - Pagination metadata
+ * @param {string} props.currentSortBy - Current sort field
+ * @param {string} props.currentSortOrder - Current sort order
  */
-export default function RecentSalesList({ sales = [] }) {
+export default function RecentSalesList({
+  sales = [],
+  pagination,
+  currentSortBy = "createdAt",
+  currentSortOrder = "desc",
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleSort = (sortBy) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const newSortOrder =
+      currentSortBy === sortBy && currentSortOrder === "desc" ? "asc" : "desc";
+    params.set("sortBy", sortBy);
+    params.set("sortOrder", newSortOrder);
+    params.set("page", "1");
+    router.push(`/cashier/sales?${params.toString()}`);
+    router.refresh();
+  };
+
   // Empty state
   if (!sales || sales.length === 0) {
     return (
       <PageContainer>
         <SalesList>
-          <EmptyState title="Aucune vente récente" />
+          <EmptyState title="Aucune vente trouvée" />
         </SalesList>
       </PageContainer>
     );
@@ -204,11 +234,76 @@ export default function RecentSalesList({ sales = [] }) {
     <PageContainer>
       <SalesList>
         <SaleHeader>
-          <HeaderCell>Produit</HeaderCell>
-          <HeaderCell>Quantité</HeaderCell>
-          <HeaderCell>Prix unitaire</HeaderCell>
-          <HeaderCell>Montant total</HeaderCell>
-          <HeaderCell>Date</HeaderCell>
+          <HeaderCell onClick={() => handleSort("product.name")}>
+            Produit
+            <SortIcon $active={currentSortBy === "product.name"}>
+              <AppIcon
+                name={
+                  currentSortBy === "product.name" && currentSortOrder === "asc"
+                    ? "chevronUp"
+                    : "chevronDown"
+                }
+                size="xs"
+                color="muted"
+              />
+            </SortIcon>
+          </HeaderCell>
+          <HeaderCell onClick={() => handleSort("quantity")}>
+            Quantité
+            <SortIcon $active={currentSortBy === "quantity"}>
+              <AppIcon
+                name={
+                  currentSortBy === "quantity" && currentSortOrder === "asc"
+                    ? "chevronUp"
+                    : "chevronDown"
+                }
+                size="xs"
+                color="muted"
+              />
+            </SortIcon>
+          </HeaderCell>
+          <HeaderCell onClick={() => handleSort("sellingPrice")}>
+            Prix unitaire
+            <SortIcon $active={currentSortBy === "sellingPrice"}>
+              <AppIcon
+                name={
+                  currentSortBy === "sellingPrice" && currentSortOrder === "asc"
+                    ? "chevronUp"
+                    : "chevronDown"
+                }
+                size="xs"
+                color="muted"
+              />
+            </SortIcon>
+          </HeaderCell>
+          <HeaderCell onClick={() => handleSort("totalAmount")}>
+            Montant total
+            <SortIcon $active={currentSortBy === "totalAmount"}>
+              <AppIcon
+                name={
+                  currentSortBy === "totalAmount" && currentSortOrder === "asc"
+                    ? "chevronUp"
+                    : "chevronDown"
+                }
+                size="xs"
+                color="muted"
+              />
+            </SortIcon>
+          </HeaderCell>
+          <HeaderCell onClick={() => handleSort("createdAt")}>
+            Date
+            <SortIcon $active={currentSortBy === "createdAt"}>
+              <AppIcon
+                name={
+                  currentSortBy === "createdAt" && currentSortOrder === "asc"
+                    ? "chevronUp"
+                    : "chevronDown"
+                }
+                size="xs"
+                color="muted"
+              />
+            </SortIcon>
+          </HeaderCell>
           <HeaderCell>Statut</HeaderCell>
         </SaleHeader>
         {sales.map((sale) => {
@@ -243,11 +338,11 @@ export default function RecentSalesList({ sales = [] }) {
               </SaleDetail>
               <SaleDetail>
                 <DetailLabel>Prix unitaire:</DetailLabel>
-                <DetailValue>{formatCurrency(sellingPrice)} DA</DetailValue>
+                <DetailValue>{formatCurrencyValue(sellingPrice)} {getCurrencySymbol()}</DetailValue>
               </SaleDetail>
               <SaleDetail>
                 <DetailLabel>Montant total:</DetailLabel>
-                <TotalAmount>{formatCurrency(totalAmount)} DA</TotalAmount>
+                <TotalAmount>{formatCurrencyValue(totalAmount)} {getCurrencySymbol()}</TotalAmount>
               </SaleDetail>
               <SaleDetail>
                 <DetailLabel>Date:</DetailLabel>
@@ -263,6 +358,14 @@ export default function RecentSalesList({ sales = [] }) {
           );
         })}
       </SalesList>
+      {pagination && pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          itemsPerPage={pagination.limit}
+        />
+      )}
     </PageContainer>
   );
 }

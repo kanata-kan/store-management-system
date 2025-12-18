@@ -48,7 +48,8 @@ const Card = styled.div`
   flex-direction: column;
   gap: ${(props) => props.theme.spacing.md};
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  min-width: 0;
   ${fadeIn}
   ${subtleHover}
   
@@ -69,6 +70,7 @@ const Card = styled.div`
     border-radius: 50%;
     transform: translate(30%, -30%);
     pointer-events: none;
+    z-index: 0;
   }
 `;
 
@@ -123,14 +125,23 @@ const ValueContainer = styled.div`
   gap: ${(props) => props.theme.spacing.xs};
   position: relative;
   z-index: 1;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
 `;
 
 const Value = styled.div`
   font-size: ${(props) => props.theme.typography.fontSize["4xl"]};
   font-weight: ${(props) => props.theme.typography.fontWeight.bold};
   color: ${(props) => props.theme.colors.foreground};
-  line-height: 1.1;
+  line-height: 1.2;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  min-width: 0;
+  flex-shrink: 1;
+  flex-grow: 0;
 `;
 
 const Unit = styled.span`
@@ -138,6 +149,8 @@ const Unit = styled.span`
   font-weight: ${(props) => props.theme.typography.fontWeight.normal};
   color: ${(props) => props.theme.colors.muted};
   margin-left: ${(props) => props.theme.spacing.xs};
+  flex-shrink: 0;
+  white-space: nowrap;
 `;
 
 /**

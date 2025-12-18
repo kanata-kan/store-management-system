@@ -9,9 +9,8 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { Table, TableHeader } from "@/components/ui/table";
+import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { AppIcon } from "@/components/ui/icon";
 
 const TableRow = styled.tr`
   border-bottom: 1px solid ${(props) => props.theme.colors.border};
@@ -37,55 +36,6 @@ const SupplierName = styled.div`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
-const ActionsCell = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.sm};
-  align-items: center;
-  justify-content: ${(props) => props.$align || "center"};
-`;
-
-const ActionButton = styled.button`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.surface};
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.xs};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  ${smoothTransition("all")}
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryHover};
-    transform: translateY(-1px);
-    box-shadow: ${(props) => props.theme.shadows.md};
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
-`;
-
-const DeleteButton = styled(ActionButton)`
-  background-color: ${(props) => props.theme.colors.error};
-
-  &:hover {
-    background-color: #dc2626;
-    opacity: 1;
-  }
-`;
 
 import { formatDate } from "@/lib/utils/dateFormatters.js";
 
@@ -155,26 +105,11 @@ export default function SupplierTable({
               <TableCell>{supplier.phone || "-"}</TableCell>
               <TableCell>{formatDate(supplier.createdAt)}</TableCell>
               <TableCell $align="center">
-                <ActionsCell>
-                  <ActionButton
-                    type="button"
-                    onClick={() => onEdit && onEdit(supplierId)}
-                    title="Modifier le fournisseur"
-                  >
-                    <AppIcon name="edit" size="xs" color="surface" />
-                    Modifier
-                  </ActionButton>
-                  <DeleteButton
-                    type="button"
-                    onClick={() =>
-                      onDelete && onDelete(supplierId, supplier.name)
-                    }
-                    title="Supprimer le fournisseur"
-                  >
-                    <AppIcon name="delete" size="xs" color="surface" />
-                    Supprimer
-                  </DeleteButton>
-                </ActionsCell>
+                <TableActionButtons
+                  onEdit={() => onEdit && onEdit(supplierId)}
+                  onDelete={() => onDelete && onDelete(supplierId, supplier.name)}
+                  align="center"
+                />
               </TableCell>
             </TableRow>
           );

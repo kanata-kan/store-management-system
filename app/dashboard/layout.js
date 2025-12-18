@@ -43,14 +43,9 @@ export default async function DashboardLayout({ children }) {
       try {
         user = await AuthService.getUserFromSession(tokenCookie.value);
       } catch (error) {
-        // Invalid or expired token - clear the cookie
-        // This ensures the user doesn't have a bad token
-        try {
-          cookieStore.delete("session_token");
-        } catch (deleteError) {
-          // Cookie deletion might fail, but we continue
-          console.error("Failed to delete invalid session token:", deleteError);
-        }
+        // Invalid or expired token - ignore it
+        // The cookie will be cleared by the logout route handler if user explicitly logs out
+        // For now, we just ignore invalid tokens and redirect to login
         // Invalid or expired token, user remains null
         user = null;
       }
