@@ -110,6 +110,13 @@ const StockBadge = styled.span`
   `}
 
   ${(props) =>
+    props.$critical &&
+    `
+    background-color: ${props.theme.colors.critical};
+    color: ${props.theme.colors.surface};
+  `}
+
+  ${(props) =>
     props.$lowStock &&
     `
     background-color: ${props.theme.colors.warning};
@@ -169,13 +176,38 @@ const FormActions = styled.div`
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
- * Get stock badge props
+ * Get stock badge props (uses backend stockStatus if available)
+ * @param {Object} product - Product object with stockStatus from backend
+ * @returns {Object} Badge props for styling
  */
-function getStockBadgeProps(stock) {
+function getStockBadgeProps(product) {
+  // ✅ Use stockStatus from backend (business logic in backend)
+  if (product.stockStatus) {
+    const { stockStatus } = product;
+    if (stockStatus.isOutOfStock) {
+      return { $outOfStock: true, label: stockStatus.label };
+    }
+    if (stockStatus.isCritical) {
+      return { $critical: true, label: stockStatus.label };
+    }
+    if (stockStatus.isLowStock) {
+      return { $lowStock: true, label: stockStatus.label };
+    }
+    return { $inStock: true, label: `Stock: ${product.stock || 0}` };
+  }
+  
+  // ⚠️ Fallback for backward compatibility
+  const stock = product.stock || 0;
   if (stock === 0) {
     return { $outOfStock: true, label: "Rupture" };
   }
-  if (stock <= 5) {
+  // Use lowStockThreshold from product instead of hard-coded 5
+  const lowStockThreshold = product.lowStockThreshold || 3;
+  const criticalThreshold = lowStockThreshold * 0.5;
+  if (stock > 0 && stock <= criticalThreshold) {
+    return { $critical: true, label: "Stock critique" };
+  }
+  if (stock <= lowStockThreshold) {
     return { $lowStock: true, label: `Stock: ${stock}` };
   }
   return { $inStock: true, label: `Stock: ${stock}` };
@@ -208,19 +240,20 @@ export default function SaleForm({
   }
 
   const stock = product.stock || 0;
-  const stockBadgeProps = getStockBadgeProps(stock);
+  const stockBadgeProps = getStockBadgeProps(product); // ✅ Pass product instead of stock
   const brandName = product.brand?.name || "Marque inconnue";
   const purchasePrice = product.purchasePrice || 0;
 
   // Determine if form should be disabled
-  const isOutOfStock = stock === 0;
+  // ✅ Use stockStatus from backend if available
+  const isOutOfStock = product.stockStatus?.isOutOfStock || stock === 0;
   const isQuantityInvalid = quantity > stock || quantity < 1;
   const isPriceInvalid = sellingPrice === null || sellingPrice <= 0;
   const isFormDisabled =
     isLoading || isOutOfStock || isQuantityInvalid || isPriceInvalid;
 
-  // Check if stock is low
-  const isLowStock = stock > 0 && stock <= 5;
+  // ✅ Use stockStatus from backend if available, fallback to lowStockThreshold
+  const isLowStock = product.stockStatus?.isLowStock || (stock > 0 && stock <= (product.lowStockThreshold || 3));
 
   return (
     <FormContainer>

@@ -90,7 +90,8 @@ const StyledButton = styled.button`
           color: ${props.theme.colors.surface};
           box-shadow: ${props.theme.shadows.sm};
           &:hover:not(:disabled) {
-            background-color: #dc2626;
+            background-color: ${props.theme.colors.error};
+            opacity: 0.9;
             transform: translateY(-1px);
             box-shadow: ${props.theme.shadows.md};
           }

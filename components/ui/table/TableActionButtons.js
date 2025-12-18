@@ -102,8 +102,8 @@ const DeleteButton = styled(ActionButton)`
   color: ${(props) => props.theme.colors.surface};
   
   &:not(:disabled):hover {
-    background-color: #dc2626;
-    opacity: 1;
+    background-color: ${(props) => props.theme.colors.error};
+    opacity: 0.9;
   }
 `;
 
@@ -112,8 +112,8 @@ const SuspendButton = styled(ActionButton)`
   color: ${(props) => props.theme.colors.surface};
   
   &:not(:disabled):hover {
-    background-color: #d97706;
-    opacity: 1;
+    background-color: ${(props) => props.theme.colors.warning};
+    opacity: 0.9;
   }
 `;
 
@@ -122,8 +122,8 @@ const CancelButton = styled(ActionButton)`
   color: ${(props) => props.theme.colors.surface};
   
   &:not(:disabled):hover {
-    background-color: #dc2626;
-    opacity: 1;
+    background-color: ${(props) => props.theme.colors.error};
+    opacity: 0.9;
   }
 `;
 
@@ -132,8 +132,8 @@ const ReturnButton = styled(ActionButton)`
   color: ${(props) => props.theme.colors.surface};
   
   &:not(:disabled):hover {
-    background-color: #d97706;
-    opacity: 1;
+    background-color: ${(props) => props.theme.colors.warning};
+    opacity: 0.9;
   }
 `;
 

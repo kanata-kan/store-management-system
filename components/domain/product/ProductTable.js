@@ -28,11 +28,11 @@ const TableRow = styled.tr`
   ${(props) =>
     props.$critical &&
     `
-    background-color: ${props.theme.colors.warningLight}30;
+    background-color: ${props.theme.colors.criticalLight}30;
     
     &:hover {
-      background-color: ${props.theme.colors.warningLight}50;
-      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
+      background-color: ${props.theme.colors.criticalLight}50;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.criticalLight};
     }
   `}
 
@@ -102,7 +102,7 @@ const StockBadge = styled.span`
   ${(props) =>
     props.$critical &&
     `
-    background-color: ${props.theme.colors.error};
+    background-color: ${props.theme.colors.critical};
     color: ${props.theme.colors.surface};
   `}
 
@@ -130,30 +130,31 @@ const PriceCell = styled.span`
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
- * Get stock status with proper levels (same logic as AlertsTable)
- * @param {Object} product - Product object with stock and lowStockThreshold
+ * Get stock status (uses backend calculation if available, fallback for compatibility)
+ * @param {Object} product - Product object with stockStatus from backend
  * @returns {Object} { type: string, label: string }
  */
 function getStockStatus(product) {
-  const { stock, lowStockThreshold } = product;
+  // ✅ Use stockStatus from backend (business logic in backend)
+  if (product.stockStatus) {
+    return {
+      type: product.stockStatus.type,
+      label: product.stockStatus.label,
+    };
+  }
   
-  // Rupture de stock (0)
+  // ⚠️ Fallback for backward compatibility (should not be needed after migration)
+  const { stock, lowStockThreshold } = product;
   if (stock === 0) {
     return { type: "outOfStock", label: "Rupture" };
   }
-  
-  // Stock critique (0 < stock <= 50% threshold)
   const criticalThreshold = lowStockThreshold * 0.5;
   if (stock > 0 && stock <= criticalThreshold) {
     return { type: "critical", label: "Stock critique" };
   }
-  
-  // Stock faible (50% < stock <= threshold)
   if (stock > criticalThreshold && stock <= lowStockThreshold) {
     return { type: "lowStock", label: "Stock faible" };
   }
-  
-  // En stock (stock > threshold)
   return { type: "inStock", label: stock.toString() };
 }
 

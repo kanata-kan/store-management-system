@@ -363,7 +363,7 @@ const AlertBadge = styled.span`
   background: linear-gradient(
     135deg,
     ${(props) => props.theme.colors.error} 0%,
-    #dc2626 100%
+    ${(props) => props.theme.colors.error} 100%
   );
   color: ${(props) => props.theme.colors.surface};
   border-radius: ${(props) => props.theme.borderRadius.full};

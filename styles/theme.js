@@ -21,6 +21,10 @@ export const theme = {
     warningLight: "#fef3c7",
     error: "#ef4444",
     errorLight: "#fee2e2",
+    // Critical stock color (between warning and error)
+    // Used for "Stock critique" (0 < stock <= 50% threshold)
+    critical: "#ea580c", // Orange-red, more urgent than warning but less than error
+    criticalLight: "#fed7aa", // Light orange for backgrounds
     info: "#3b82f6",
     infoLight: "#dbeafe",
     

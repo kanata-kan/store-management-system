@@ -12,10 +12,10 @@ import { AppIcon } from "@/components/ui/icon";
 const SuccessMessage = styled.div`
   padding: ${(props) => props.theme.spacing.md};
   margin-bottom: ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.successLight || "#d1fae5"};
-  border: 1px solid ${(props) => props.theme.colors.success || "#10b981"};
+  background-color: ${(props) => props.theme.colors.successLight};
+  border: 1px solid ${(props) => props.theme.colors.success};
   border-radius: ${(props) => props.theme.borderRadius.md};
-  color: ${(props) => props.theme.colors.success || "#065f46"};
+  color: ${(props) => props.theme.colors.success};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
   display: flex;

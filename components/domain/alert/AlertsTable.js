@@ -36,11 +36,11 @@ const TableRow = styled.tr`
   ${(props) =>
     props.$alertLevel === "critical" &&
     `
-    background-color: ${props.theme.colors.warningLight}30;
+    background-color: ${props.theme.colors.criticalLight}30;
     
     &:hover {
-      background-color: ${props.theme.colors.warningLight}50;
-      box-shadow: inset 0 0 0 1px ${props.theme.colors.warningLight};
+      background-color: ${props.theme.colors.criticalLight}50;
+      box-shadow: inset 0 0 0 1px ${props.theme.colors.criticalLight};
     }
   `}
 
@@ -99,7 +99,7 @@ const AlertIcon = styled.span`
   align-items: center;
   color: ${(props) => {
     if (props.$level === "outOfStock") return props.theme.colors.error;
-    if (props.$level === "critical") return props.theme.colors.warning;
+    if (props.$level === "critical") return props.theme.colors.critical;
     return props.theme.colors.info;
   }};
 `;
@@ -120,7 +120,7 @@ const StockValue = styled.div`
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   color: ${(props) => {
     if (props.$level === "outOfStock") return props.theme.colors.error;
-    if (props.$level === "critical") return props.theme.colors.warning;
+    if (props.$level === "critical") return props.theme.colors.critical;
     return props.theme.colors.info;
   }};
 `;
@@ -146,12 +146,12 @@ const AlertStatus = styled.span`
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   background-color: ${(props) => {
     if (props.$level === "outOfStock") return props.theme.colors.errorLight;
-    if (props.$level === "critical") return props.theme.colors.warningLight;
+    if (props.$level === "critical") return props.theme.colors.criticalLight;
     return props.theme.colors.infoLight;
   }};
   color: ${(props) => {
     if (props.$level === "outOfStock") return props.theme.colors.error;
-    if (props.$level === "critical") return props.theme.colors.warning;
+    if (props.$level === "critical") return props.theme.colors.critical;
     return props.theme.colors.info;
   }};
 `;
@@ -170,22 +170,25 @@ const ActionsCell = styled.div`
 `;
 
 /**
- * Determine alert level for a product
- * @param {Object} product - Product object with stock and lowStockThreshold
+ * Determine alert level for a product (uses backend stockStatus if available)
+ * @param {Object} product - Product object with stockStatus from backend
  * @returns {string} Alert level: 'outOfStock', 'critical', or 'low'
  */
 function getAlertLevel(product) {
-  const { stock, lowStockThreshold } = product;
+  // ✅ Use stockStatus from backend (business logic in backend)
+  if (product.stockStatus) {
+    return product.stockStatus.level;
+  }
   
+  // ⚠️ Fallback for backward compatibility
+  const { stock, lowStockThreshold } = product;
   if (stock === 0) {
     return "outOfStock";
   }
-  
   const criticalThreshold = lowStockThreshold * 0.5;
   if (stock > 0 && stock <= criticalThreshold) {
     return "critical";
   }
-  
   return "low";
 }
 
