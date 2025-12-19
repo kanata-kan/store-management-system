@@ -8,6 +8,7 @@
 
 "use client";
 
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
 import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
@@ -58,38 +59,101 @@ const SubLabel = styled.div`
 `;
 
 const WarrantyBadge = styled.span`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
   padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
   border-radius: ${(props) => props.theme.borderRadius.full};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   box-shadow: ${(props) => props.theme.shadows.sm};
+  cursor: ${(props) => (props.$hasTooltip ? "help" : "default")};
+  position: relative;
 
   ${(props) =>
     props.$status === "active" &&
     `
-    background-color: ${props.theme.colors.success};
-    color: ${props.theme.colors.surface};
+    background-color: ${props.theme.colors.successLight};
+    color: ${props.theme.colors.success};
+    border: 1px solid ${props.theme.colors.success};
   `}
 
   ${(props) =>
     props.$status === "expired" &&
     `
-    background-color: ${props.theme.colors.error};
-    color: ${props.theme.colors.surface};
+    background-color: ${props.theme.colors.errorLight};
+    color: ${props.theme.colors.error};
+    border: 1px solid ${props.theme.colors.error};
   `}
 
   ${(props) =>
     props.$status === "none" &&
     `
-    background-color: ${props.theme.colors.muted};
-    color: ${props.theme.colors.foreground};
+    background-color: ${props.theme.colors.mutedLight || props.theme.colors.elevation1};
+    color: ${props.theme.colors.mutedForeground || props.theme.colors.foregroundSecondary};
+    border: 1px solid ${props.theme.colors.border};
+  `}
+`;
+
+const WarrantyTooltip = styled.div`
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+  padding: ${(props) => props.theme.spacing.sm};
+  background-color: ${(props) => props.theme.colors.elevation2};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.foreground};
+  white-space: nowrap;
+  box-shadow: ${(props) => props.theme.shadows.md};
+  z-index: 1000;
+  opacity: ${(props) => (props.$show ? 1 : 0)};
+  pointer-events: ${(props) => (props.$show ? "auto" : "none")};
+  transition: opacity ${(props) => props.theme.motion?.duration?.fast || "200ms"};
+`;
+
+const StatusBadge = styled.span`
+  display: inline-block;
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+
+  ${(props) =>
+    props.$status === "active" &&
+    `
+    background-color: ${props.theme.colors.successLight};
+    color: ${props.theme.colors.success};
+  `}
+
+  ${(props) =>
+    props.$status === "cancelled" &&
+    `
+    background-color: ${props.theme.colors.errorLight};
+    color: ${props.theme.colors.error};
+    border: 1px solid ${props.theme.colors.error};
+  `}
+
+  ${(props) =>
+    props.$status === "returned" &&
+    `
+    background-color: ${props.theme.colors.warningLight};
+    color: ${props.theme.colors.warning};
+    border: 1px solid ${props.theme.colors.warning};
   `}
 `;
 
 const ActionButton = styled(Button)`
   padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
   font-size: ${(props) => props.theme.typography.fontSize.xs};
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 export default function CashierInvoiceTable({
@@ -99,6 +163,8 @@ export default function CashierInvoiceTable({
   onViewInvoice,
   onDownloadPDF,
   onPrintInvoice,
+  printingInvoiceId = null,
+  downloadingInvoiceId = null,
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -113,6 +179,8 @@ export default function CashierInvoiceTable({
     router.refresh();
   };
 
+  const [hoveredWarrantyIndex, setHoveredWarrantyIndex] = useState(null);
+
   const getWarrantyStatusLabel = (status) => {
     switch (status) {
       case "active":
@@ -124,6 +192,40 @@ export default function CashierInvoiceTable({
       default:
         return status;
     }
+  };
+
+  const getWarrantyTooltipText = (invoice) => {
+    if (!invoice.hasWarranty || invoice.warrantyStatus === "none") {
+      return null;
+    }
+
+    // Find first item with warranty
+    const itemWithWarranty = invoice.items?.find((item) => item.warranty?.hasWarranty);
+    if (!itemWithWarranty) {
+      return null;
+    }
+
+    const warranty = itemWithWarranty.warranty;
+    const durationMonths = warranty.durationMonths;
+    const expirationDate = warranty.expirationDate;
+
+    let tooltipText = `Garantie: ${durationMonths} mois`;
+    if (expirationDate) {
+      const expDate = new Date(expirationDate);
+      const formattedDate = expDate.toLocaleDateString("fr-FR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      tooltipText += `\nExpire le: ${formattedDate}`;
+    }
+
+    return tooltipText;
+  };
+
+  // Check if invoice can be printed (not cancelled or returned)
+  const canPrintInvoice = (invoice) => {
+    return invoice.status === "active";
   };
 
   if (!invoices || invoices.length === 0) {
@@ -167,6 +269,14 @@ export default function CashierInvoiceTable({
             align="right"
           />
           <TableHeader
+            label="État"
+            sortKey="status"
+            currentSortBy={currentSortBy}
+            currentSortOrder={currentSortOrder}
+            onSort={handleSort}
+            align="center"
+          />
+          <TableHeader
             label="Date"
             sortKey="createdAt"
             currentSortBy={currentSortBy}
@@ -193,12 +303,41 @@ export default function CashierInvoiceTable({
               <SubLabel>{invoice.customer.phone}</SubLabel>
             </TableCell>
             <TableCell $align="center">
-              <WarrantyBadge $status={invoice.warrantyStatus}>
-                {getWarrantyStatusLabel(invoice.warrantyStatus)}
-              </WarrantyBadge>
+              <div
+                style={{ position: "relative", display: "inline-block" }}
+                onMouseEnter={() => setHoveredWarrantyIndex(invoice._id || invoice.id)}
+                onMouseLeave={() => setHoveredWarrantyIndex(null)}
+              >
+                <WarrantyBadge 
+                  $status={invoice.warrantyStatus}
+                  $hasTooltip={!!getWarrantyTooltipText(invoice)}
+                >
+                  {invoice.warrantyStatus === "active" && <AppIcon name="shield" size="xs" color="success" />}
+                  {invoice.warrantyStatus === "expired" && <AppIcon name="shield" size="xs" color="error" />}
+                  {getWarrantyStatusLabel(invoice.warrantyStatus)}
+                </WarrantyBadge>
+                {hoveredWarrantyIndex === (invoice._id || invoice.id) && getWarrantyTooltipText(invoice) && (
+                  <WarrantyTooltip $show={true}>
+                    {getWarrantyTooltipText(invoice).split("\n").map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </WarrantyTooltip>
+                )}
+              </div>
             </TableCell>
             <TableCell $align="right">
               <strong>{formatCurrency(invoice.totalAmount)}</strong>
+            </TableCell>
+            <TableCell $align="center">
+              {invoice.status === "active" ? (
+                <StatusBadge $status="active">Active</StatusBadge>
+              ) : invoice.status === "cancelled" ? (
+                <StatusBadge $status="cancelled">Annulée</StatusBadge>
+              ) : invoice.status === "returned" ? (
+                <StatusBadge $status="returned">Retournée</StatusBadge>
+              ) : (
+                <StatusBadge $status="active">{invoice.status}</StatusBadge>
+              )}
             </TableCell>
             <TableCell>
               <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
@@ -218,19 +357,49 @@ export default function CashierInvoiceTable({
                   variant="ghost"
                   size="sm"
                   onClick={() => onPrintInvoice(invoice._id || invoice.id)}
-                  title="Imprimer"
+                  disabled={!canPrintInvoice(invoice) || printingInvoiceId === (invoice._id || invoice.id)}
+                  title={
+                    !canPrintInvoice(invoice)
+                      ? invoice.status === "cancelled"
+                        ? "Cette facture est annulée. Elle ne peut pas être imprimée."
+                        : invoice.status === "returned"
+                        ? "Cette facture est retournée. Elle ne peut pas être imprimée."
+                        : "Cette facture ne peut pas être imprimée."
+                      : printingInvoiceId === (invoice._id || invoice.id)
+                      ? "Impression en cours..."
+                      : "Imprimer"
+                  }
                 >
-                  <AppIcon name="printer" size="sm" />
-                  Imprimer
+                  {printingInvoiceId === (invoice._id || invoice.id) ? (
+                    <AppIcon name="loader" size="sm" spinning />
+                  ) : (
+                    <AppIcon name="printer" size="sm" />
+                  )}
+                  {printingInvoiceId === (invoice._id || invoice.id) ? "Impression..." : "Imprimer"}
                 </ActionButton>
                 <ActionButton
                   variant="ghost"
                   size="sm"
                   onClick={() => onDownloadPDF(invoice._id || invoice.id)}
-                  title="Télécharger PDF"
+                  disabled={!canPrintInvoice(invoice) || downloadingInvoiceId === (invoice._id || invoice.id)}
+                  title={
+                    !canPrintInvoice(invoice)
+                      ? invoice.status === "cancelled"
+                        ? "Cette facture est annulée. Elle ne peut pas être téléchargée."
+                        : invoice.status === "returned"
+                        ? "Cette facture est retournée. Elle ne peut pas être téléchargée."
+                        : "Cette facture ne peut pas être téléchargée."
+                      : downloadingInvoiceId === (invoice._id || invoice.id)
+                      ? "Téléchargement en cours..."
+                      : "Télécharger PDF"
+                  }
                 >
-                  <AppIcon name="download" size="sm" />
-                  PDF
+                  {downloadingInvoiceId === (invoice._id || invoice.id) ? (
+                    <AppIcon name="loader" size="sm" spinning />
+                  ) : (
+                    <AppIcon name="download" size="sm" />
+                  )}
+                  {downloadingInvoiceId === (invoice._id || invoice.id) ? "Téléchargement..." : "PDF"}
                 </ActionButton>
               </TableActionButtons>
             </TableCell>

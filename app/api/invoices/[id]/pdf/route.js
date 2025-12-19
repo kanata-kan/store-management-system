@@ -1,21 +1,25 @@
 /**
  * Invoice PDF API Route
  *
- * GET /api/invoices/[id]/pdf - Generate PDF for invoice (Manager only)
+ * GET /api/invoices/[id]/pdf - Generate PDF for invoice
+ * Authorization: Manager (all invoices) or Cashier (own invoices only)
  */
 
 import InvoiceService from "@/lib/services/InvoiceService.js";
-import { requireManager } from "@/lib/auth/middleware.js";
+import { requireCashier } from "@/lib/auth/middleware.js";
 import { error } from "@/lib/api/response.js";
 
 /**
  * GET /api/invoices/[id]/pdf
  * Generate PDF for invoice
- * Authorization: Manager only
+ * Authorization: Manager (all invoices) or Cashier (own invoices only)
+ * The InvoiceService.getInvoiceById method (called by generatePDF) handles the ownership check:
+ * - Managers can access any invoice
+ * - Cashiers can only access invoices where invoice.cashier === user.id
  */
 export async function GET(request, { params }) {
   try {
-    const user = await requireManager(request);
+    const user = await requireCashier(request);
 
     const { id } = params;
 

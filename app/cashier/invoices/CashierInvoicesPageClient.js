@@ -13,7 +13,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styled from "styled-components";
-import { FormField, Input, Select, Button, AppIcon, DatePicker } from "@/components/ui";
+import { FormField, Input, AppIcon } from "@/components/ui";
 import CashierInvoiceTable from "./CashierInvoiceTable";
 import InvoiceDetailModal from "../../dashboard/invoices/InvoiceDetailModal";
 import { Pagination } from "@/components/ui";
@@ -60,32 +60,6 @@ const MainSearchField = styled.div`
   max-width: 600px;
 `;
 
-const FiltersSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spacing.xl};
-  padding: ${(props) => props.theme.spacing.lg};
-  background-color: ${(props) => props.theme.colors.elevation1};
-  border-radius: ${(props) => props.theme.borderRadius.lg};
-  border: 1px solid ${(props) => props.theme.colors.border};
-`;
-
-const FiltersForm = styled.form`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${(props) => props.theme.spacing.md};
-  align-items: flex-end;
-`;
-
-const FilterGroup = styled.div`
-  min-width: 200px;
-  flex: 1 1 200px;
-`;
-
-const ActionsGroup = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.sm};
-  flex-shrink: 0;
-  align-self: flex-end;
-`;
 
 export default function CashierInvoicesPageClient({
   invoices,
@@ -99,14 +73,8 @@ export default function CashierInvoicesPageClient({
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Controlled state for form inputs
+  // Controlled state for search input only
   const [q, setQ] = useState(currentFilters.q || "");
-  const [warrantyFilter, setWarrantyFilter] = useState(
-    currentFilters.warrantyStatus || "all"
-  );
-  const [startDate, setStartDate] = useState(currentFilters.startDate || "");
-  const [endDate, setEndDate] = useState(currentFilters.endDate || "");
-  const [status, setStatus] = useState(currentFilters.status || "all");
 
   // Handle main search (immediate, no form submit needed)
   const handleSearchChange = (value) => {
@@ -124,53 +92,6 @@ export default function CashierInvoicesPageClient({
     router.refresh();
   };
 
-  const handleFilterSubmit = (event) => {
-    event.preventDefault();
-
-    const params = new URLSearchParams(searchParams.toString());
-
-    // Keep search query
-    if (q) params.set("q", q);
-    else params.delete("q");
-
-    // Warranty filter (simplified)
-    if (warrantyFilter && warrantyFilter !== "all") {
-      params.set("warrantyStatus", warrantyFilter);
-    } else {
-      params.delete("warrantyStatus");
-    }
-
-    // Date range
-    if (startDate) params.set("startDate", startDate);
-    else params.delete("startDate");
-
-    if (endDate) params.set("endDate", endDate);
-    else params.delete("endDate");
-
-    // Status
-    if (status && status !== "all") params.set("status", status);
-    else params.delete("status");
-
-    // Reset to first page on filter change
-    params.set("page", "1");
-
-    router.push(`/cashier/invoices?${params.toString()}`);
-    router.refresh();
-  };
-
-  const handleResetFilters = () => {
-    setQ("");
-    setWarrantyFilter("all");
-    setStartDate("");
-    setEndDate("");
-    setStatus("all");
-
-    const params = new URLSearchParams();
-    params.set("page", "1");
-
-    router.push(`/cashier/invoices?${params.toString()}`);
-    router.refresh();
-  };
 
   const handleViewInvoice = async (invoice) => {
     try {
@@ -188,33 +109,90 @@ export default function CashierInvoicesPageClient({
     }
   };
 
-  const handleDownloadPDF = (invoiceId) => {
-    window.open(`/api/invoices/${invoiceId}/pdf`, "_blank");
-  };
+  const [printingInvoiceId, setPrintingInvoiceId] = useState(null);
+  const [downloadingInvoiceId, setDownloadingInvoiceId] = useState(null);
 
-  const handlePrintInvoice = (invoiceId) => {
-    const printWindow = window.open(`/api/invoices/${invoiceId}/pdf`, "_blank");
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print();
-      };
+  const handleDownloadPDF = async (invoiceId) => {
+    if (downloadingInvoiceId) return; // Prevent multiple clicks
+    
+    setDownloadingInvoiceId(invoiceId);
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          alert("❌ Vous n'êtes pas autorisé à télécharger cette facture.");
+        } else if (response.status === 404) {
+          alert("❌ Facture introuvable.");
+        } else {
+          alert("❌ Erreur lors du téléchargement de la facture. Veuillez réessayer.");
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `facture-${invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert("❌ Erreur réseau lors du téléchargement. Veuillez réessayer.");
+    } finally {
+      setDownloadingInvoiceId(null);
     }
   };
 
-  // Prepare options for Select components (simplified)
-  // "Avec garantie" means active warranty, "Garantie expirée" means expired
-  const warrantyFilterOptions = [
-    { value: "all", label: "Tous" },
-    { value: "active", label: "Avec garantie" },
-    { value: "expired", label: "Garantie expirée" },
-  ];
+  const handlePrintInvoice = async (invoiceId) => {
+    if (printingInvoiceId) return; // Prevent multiple clicks
+    
+    setPrintingInvoiceId(invoiceId);
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          alert("❌ Vous n'êtes pas autorisé à imprimer cette facture.");
+        } else if (response.status === 404) {
+          alert("❌ Facture introuvable.");
+        } else {
+          alert("❌ Erreur lors de l'impression de la facture. Veuillez réessayer.");
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const printWindow = window.open(url, "_blank");
+      
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+          // Clean up after printing
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+        };
+      } else {
+        alert("❌ Veuillez autoriser les fenêtres pop-up pour imprimer.");
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      alert("❌ Erreur réseau lors de l'impression. Veuillez réessayer.");
+    } finally {
+      setPrintingInvoiceId(null);
+    }
+  };
 
-  const statusOptions = [
-    { value: "all", label: "Tous" },
-    { value: "active", label: "Active" },
-    { value: "cancelled", label: "Annulée" },
-    { value: "returned", label: "Retournée" },
-  ];
 
   return (
     <PageContainer>
@@ -243,74 +221,6 @@ export default function CashierInvoicesPageClient({
         </MainSearchField>
       </SearchSection>
 
-      {/* Minimal Filters */}
-      <FiltersSection>
-        <FiltersForm onSubmit={handleFilterSubmit}>
-          <FilterGroup>
-            <FormField label="Garantie" id="warrantyFilter">
-              <Select
-                id="warrantyFilter"
-                name="warrantyFilter"
-                value={warrantyFilter}
-                onChange={(e) => setWarrantyFilter(e.target.value)}
-                options={warrantyFilterOptions}
-              />
-            </FormField>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FormField label="Statut" id="status">
-              <Select
-                id="status"
-                name="status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                options={statusOptions}
-              />
-            </FormField>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FormField label="Date de début" id="startDate">
-              <DatePicker
-                id="startDate"
-                name="startDate"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                placeholder="Sélectionner une date"
-              />
-            </FormField>
-          </FilterGroup>
-
-          <FilterGroup>
-            <FormField label="Date de fin" id="endDate">
-              <DatePicker
-                id="endDate"
-                name="endDate"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                placeholder="Sélectionner une date"
-                min={startDate || undefined}
-              />
-            </FormField>
-          </FilterGroup>
-
-          <ActionsGroup>
-            <Button type="submit" variant="primary" size="sm">
-              <AppIcon name="filter" size="sm" color="surface" />
-              Appliquer
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleResetFilters}
-            >
-              Réinitialiser
-            </Button>
-          </ActionsGroup>
-        </FiltersForm>
-      </FiltersSection>
 
       <CashierInvoiceTable
         invoices={invoices}
@@ -319,6 +229,8 @@ export default function CashierInvoicesPageClient({
         onViewInvoice={handleViewInvoice}
         onDownloadPDF={handleDownloadPDF}
         onPrintInvoice={handlePrintInvoice}
+        printingInvoiceId={printingInvoiceId}
+        downloadingInvoiceId={downloadingInvoiceId}
       />
 
       {pagination.totalPages > 1 && (

@@ -93,6 +93,7 @@ export default function FastSellingClient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [successData, setSuccessData] = useState(null); // invoiceId, invoiceNumber, totalAmount
 
   // Debounce timer ref
   const debounceTimerRef = useRef(null);
@@ -244,21 +245,29 @@ export default function FastSellingClient() {
       const result = await response.json();
 
       if (response.ok && result.status === "success") {
-        // Success
+        // Success - save invoice data for success message
         const productName = selectedProduct.name || "Produit";
-        setSuccessMessage(
-          `Vente enregistrée avec succès: ${quantityInt} × ${productName}`
-        );
+        const successMsg = `${quantityInt} × ${productName}`;
+        
+        // Check if stock is low after sale
+        const newStock = result.data?.newStock || null;
+        const isLowStock = result.data?.isLowStock || false;
+        let successMsgWithStock = successMsg;
+        if (newStock !== null && isLowStock) {
+          successMsgWithStock += ` (⚠️ Stock faible: ${newStock} unité${newStock !== 1 ? "s" : ""} restante${newStock !== 1 ? "s" : ""})`;
+        }
 
-        // Clear form
-        setSelectedProduct(null);
-        setQuantity(1);
-        setSellingPrice(null);
-        setCustomerName("");
-        setCustomerPhone("");
-        setSearchQuery("");
-        setDebouncedQuery("");
-        setSearchResults([]);
+        setSuccessMessage(successMsgWithStock);
+        setSuccessData({
+          invoiceId: result.data?.invoiceId || null,
+          invoiceNumber: result.data?.invoiceNumber || null,
+          totalAmount: result.data?.totalAmount || quantityInt * price,
+          newStock: newStock,
+          isLowStock: isLowStock,
+        });
+
+        // Clear form (but keep it for "new sale" button to reset)
+        // Don't clear selectedProduct yet - wait for user to click "new sale"
       } else {
         // Error from API - improved error handling
         let errorMsg = "Une erreur est survenue lors de l'enregistrement de la vente.";
@@ -304,6 +313,74 @@ export default function FastSellingClient() {
   // Handle success message dismiss
   const handleDismissSuccess = () => {
     setSuccessMessage(null);
+    setSuccessData(null);
+    // Clear form when dismissing
+    setSelectedProduct(null);
+    setQuantity(1);
+    setSellingPrice(null);
+    setCustomerName("");
+    setCustomerPhone("");
+    setSearchQuery("");
+    setDebouncedQuery("");
+    setSearchResults([]);
+  };
+
+  // Handle new sale (from success message)
+  const handleNewSale = () => {
+    setSuccessMessage(null);
+    setSuccessData(null);
+    // Clear form
+    setSelectedProduct(null);
+    setQuantity(1);
+    setSellingPrice(null);
+    setCustomerName("");
+    setCustomerPhone("");
+    setSearchQuery("");
+    setDebouncedQuery("");
+    setSearchResults([]);
+    // Focus search input (will be handled by autoFocus)
+  };
+
+  // Handle print invoice
+  const handlePrintInvoice = async (invoiceId) => {
+    if (!invoiceId) return;
+    
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          alert("❌ Vous n'êtes pas autorisé à imprimer cette facture.");
+        } else if (response.status === 404) {
+          alert("❌ Facture introuvable.");
+        } else {
+          alert("❌ Erreur lors de l'impression de la facture. Veuillez réessayer.");
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const printWindow = window.open(url, "_blank");
+      
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+          // Clean up after printing
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+        };
+      } else {
+        alert("❌ Veuillez autoriser les fenêtres pop-up pour imprimer.");
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      alert("❌ Erreur réseau lors de l'impression. Veuillez réessayer.");
+    }
   };
 
   return (
@@ -351,9 +428,17 @@ export default function FastSellingClient() {
         </FormSection>
       )}
 
-      {successMessage && (
+      {successMessage && successData && (
         <SuccessSection>
-          <SaleSuccessMessage message={successMessage} onDismiss={handleDismissSuccess} />
+          <SaleSuccessMessage 
+            message={successMessage} 
+            onDismiss={handleDismissSuccess}
+            invoiceNumber={successData.invoiceNumber}
+            totalAmount={successData.totalAmount}
+            invoiceId={successData.invoiceId}
+            onPrintInvoice={handlePrintInvoice}
+            onNewSale={handleNewSale}
+          />
         </SuccessSection>
       )}
     </PageContainer>

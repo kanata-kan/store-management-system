@@ -1,21 +1,25 @@
 /**
  * Invoice Detail API Route
  *
- * GET /api/invoices/[id] - Get single invoice by ID (Manager only)
+ * GET /api/invoices/[id] - Get single invoice by ID
+ * Authorization: Manager (all invoices) or Cashier (own invoices only)
  */
 
 import InvoiceService from "@/lib/services/InvoiceService.js";
-import { requireManager } from "@/lib/auth/middleware.js";
+import { requireCashier } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
 
 /**
  * GET /api/invoices/[id]
  * Get single invoice by ID
- * Authorization: Manager only
+ * Authorization: Manager (all invoices) or Cashier (own invoices only)
+ * The InvoiceService.getInvoiceById method handles the ownership check:
+ * - Managers can access any invoice
+ * - Cashiers can only access invoices where invoice.cashier === user.id
  */
 export async function GET(request, { params }) {
   try {
-    const user = await requireManager(request);
+    const user = await requireCashier(request);
 
     const { id } = params;
 

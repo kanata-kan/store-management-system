@@ -137,6 +137,29 @@ const PurchasePrice = styled.div`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
+const TotalAmountDisplay = styled.div`
+  padding: ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.primaryLight};
+  border: 2px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  text-align: center;
+  margin-top: ${(props) => props.theme.spacing.md};
+`;
+
+const TotalAmountLabel = styled.div`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+`;
+
+const TotalAmountValue = styled.div`
+  font-size: ${(props) => props.theme.typography.fontSize["2xl"]};
+  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
+  color: ${(props) => props.theme.colors.primary};
+  font-variant-numeric: tabular-nums;
+`;
+
 const WarningMessage = styled.div`
   display: flex;
   align-items: center;
@@ -339,6 +362,14 @@ export default function SaleForm({
     });
   };
 
+  // Calculate total amount automatically
+  const calculatedTotal = quantity && sellingPrice && sellingPrice > 0 
+    ? quantity * sellingPrice 
+    : 0;
+
+  // Check if selling price is less than purchase price
+  const isSellingPriceBelowPurchase = sellingPrice !== null && sellingPrice > 0 && purchasePrice > 0 && sellingPrice < purchasePrice;
+
   return (
     <FormContainer>
       <ProductInfoCard>
@@ -354,6 +385,9 @@ export default function SaleForm({
 
         <StockInfo>
           <StockBadge {...stockBadgeProps}>{stockBadgeProps.label}</StockBadge>
+          <span style={{ fontSize: "0.875rem", color: "inherit", marginLeft: "8px" }}>
+            Stock disponible: {stock} unité{stock !== 1 ? "s" : ""}
+          </span>
         </StockInfo>
 
         {isLowStock && !isOutOfStock && (
@@ -369,6 +403,10 @@ export default function SaleForm({
             <span>Produit en rupture de stock.</span>
           </WarningMessage>
         )}
+
+        <PurchasePrice style={{ marginTop: "8px", fontSize: "0.875rem", color: "inherit" }}>
+          Prix d'achat (référence): {formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}
+        </PurchasePrice>
       </ProductInfoCard>
 
       {/* Warranty Information Block (if product has warranty) */}
@@ -376,20 +414,28 @@ export default function SaleForm({
         <WarrantyBlock>
           <WarrantyHeader>
             <AppIcon name="shield" size="sm" color="success" />
-            <span>Produit avec garantie</span>
+            <span>Ce produit a une garantie</span>
           </WarrantyHeader>
           <WarrantyDetails>
             <WarrantyDetailRow>
-              <WarrantyLabel>Durée de garantie:</WarrantyLabel>
+              <WarrantyLabel>Durée:</WarrantyLabel>
               <span>{warrantyDurationMonths} mois</span>
+            </WarrantyDetailRow>
+            <WarrantyDetailRow>
+              <WarrantyLabel>Commence à:</WarrantyLabel>
+              <span>la date de vente</span>
             </WarrantyDetailRow>
             {warrantyExpirationDate && (
               <WarrantyDetailRow>
-                <WarrantyLabel>Date d'expiration:</WarrantyLabel>
+                <WarrantyLabel>Expire le:</WarrantyLabel>
                 <span>{formatWarrantyDate(warrantyExpirationDate)}</span>
               </WarrantyDetailRow>
             )}
           </WarrantyDetails>
+          <WarningMessage style={{ marginTop: "8px", marginLeft: "0" }}>
+            <AppIcon name="warning" size="sm" color="warning" />
+            <span>Assurez-vous que le client connaît la garantie de {warrantyDurationMonths} mois</span>
+          </WarningMessage>
         </WarrantyBlock>
       )}
 
@@ -405,7 +451,7 @@ export default function SaleForm({
           label="Quantité"
           id="quantity"
           required
-          helperText={`Maximum disponible: ${stock} unité(s)`}
+          helperText={isQuantityInvalid && quantity > stock ? `La quantité ne peut pas dépasser ${stock} unité(s) disponible(s)` : `Maximum disponible: ${stock} unité(s)`}
         >
           <Input
             id="quantity"
@@ -413,7 +459,17 @@ export default function SaleForm({
             min={1}
             max={stock}
             value={quantity}
-            onChange={(e) => onQuantityChange && onQuantityChange(Number(e.target.value))}
+            onChange={(e) => {
+              const newQuantity = Number(e.target.value);
+              // Prevent quantity greater than stock
+              if (newQuantity > stock) {
+                onQuantityChange && onQuantityChange(stock);
+              } else if (newQuantity >= 1) {
+                onQuantityChange && onQuantityChange(newQuantity);
+              } else if (newQuantity === 0 || isNaN(newQuantity)) {
+                onQuantityChange && onQuantityChange(1);
+              }
+            }}
             disabled={isLoading || isOutOfStock}
             hasError={isQuantityInvalid && !isOutOfStock}
             placeholder="Quantité"
@@ -436,12 +492,30 @@ export default function SaleForm({
           />
         </FormField>
 
+        {/* Warning if selling price is below purchase price */}
+        {isSellingPriceBelowPurchase && (
+          <WarningMessage>
+            <AppIcon name="warning" size="sm" color="warning" />
+            <span>Prix de vente inférieur au prix d'achat ({formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}). Êtes-vous sûr?</span>
+          </WarningMessage>
+        )}
+
+        {/* Total Amount Display (Auto-calculated) */}
+        {calculatedTotal > 0 && (
+          <TotalAmountDisplay>
+            <TotalAmountLabel>Montant total</TotalAmountLabel>
+            <TotalAmountValue>
+              {formatCurrencyValue(calculatedTotal)} {getCurrencySymbol()}
+            </TotalAmountValue>
+          </TotalAmountDisplay>
+        )}
+
         {/* Customer Information (Required for Invoice) */}
         <FormField 
           label="Nom du client *" 
           id="customerName" 
           required
-          helperText="Requis pour générer la facture"
+          helperText={isCustomerNameInvalid ? "Le nom du client est requis" : "Requis pour générer la facture"}
         >
           <Input
             id="customerName"
@@ -449,6 +523,7 @@ export default function SaleForm({
             value={customerName}
             onChange={(e) => onCustomerNameChange && onCustomerNameChange(e.target.value)}
             disabled={isLoading}
+            hasError={isCustomerNameInvalid && !isLoading}
             placeholder="Nom complet du client"
           />
         </FormField>
@@ -457,7 +532,7 @@ export default function SaleForm({
           label="Téléphone du client *" 
           id="customerPhone" 
           required
-          helperText="Requis pour générer la facture"
+          helperText={isCustomerPhoneInvalid ? "Le téléphone du client est requis" : "Requis pour générer la facture"}
         >
           <Input
             id="customerPhone"
@@ -465,6 +540,7 @@ export default function SaleForm({
             value={customerPhone}
             onChange={(e) => onCustomerPhoneChange && onCustomerPhoneChange(e.target.value)}
             disabled={isLoading}
+            hasError={isCustomerPhoneInvalid && !isLoading}
             placeholder="Numéro de téléphone"
           />
         </FormField>

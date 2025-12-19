@@ -2,7 +2,7 @@
  * Cashier Navigation
  *
  * Client Component that provides minimal navigation for cashier panel.
- * Two links only: Fast Selling and Recent Sales.
+ * Three links: Fast Selling, Daily Summary, and Invoices.
  */
 
 "use client";
@@ -70,9 +70,6 @@ export default function CashierNavigation() {
       </NavLink>
       <NavLink href="/cashier/daily-summary" $isActive={pathname === "/cashier/daily-summary"}>
         Résumé quotidien
-      </NavLink>
-      <NavLink href="/cashier/sales" $isActive={pathname === "/cashier/sales"}>
-        Mes ventes
       </NavLink>
       <NavLink href="/cashier/invoices" $isActive={pathname === "/cashier/invoices"}>
         Mes factures

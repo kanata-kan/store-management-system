@@ -167,6 +167,20 @@ const PriceText = styled.span`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
+const WarrantyBadge = styled.span`
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  background-color: ${(props) => props.theme.colors.successLight};
+  color: ${(props) => props.theme.colors.success};
+  border: 1px solid ${(props) => props.theme.colors.success};
+  box-shadow: ${(props) => props.theme.shadows.xs};
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+`;
+
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
@@ -262,6 +276,10 @@ export default function ProductSearchResults({
           const isLowStock = product.stockStatus?.isLowStock || (stock > 0 && stock <= (product.lowStockThreshold || 3));
           const brandName = product.brand?.name || "Marque inconnue";
 
+          // Check if product has warranty
+          const hasWarranty = product.warranty?.enabled === true;
+          const warrantyDurationMonths = product.warranty?.durationMonths || null;
+
           return (
             <ProductItem
               key={product.id || product._id}
@@ -274,11 +292,17 @@ export default function ProductSearchResults({
                 <ProductName>{product.name}</ProductName>
                 <ProductMeta>
                   <BrandName>{brandName}</BrandName>
+                  {hasWarranty && warrantyDurationMonths && (
+                    <WarrantyBadge>
+                      <AppIcon name="shield" size="xs" color="success" />
+                      Garantie: {warrantyDurationMonths} mois
+                    </WarrantyBadge>
+                  )}
                 </ProductMeta>
               </ProductInfo>
               <ProductDetails>
                 <StockBadge {...getStockBadgeProps(product)}>{getStockBadgeProps(product).label}</StockBadge>
-                <PriceText>{formatCurrencyValue(product.purchasePrice || 0)} {getCurrencySymbol()}</PriceText>
+                <PriceText>Prix (réf.): {formatCurrencyValue(product.purchasePrice || 0)} {getCurrencySymbol()}</PriceText>
               </ProductDetails>
             </ProductItem>
           );

@@ -208,6 +208,32 @@ const ModalActions = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.borderLight};
 `;
 
+const WarningMessage = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  padding: ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.warningLight};
+  border: 1px solid ${(props) => props.theme.colors.warning};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  margin-bottom: ${(props) => props.theme.spacing.md};
+`;
+
+const ErrorAlert = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  padding: ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.errorLight};
+  border: 1px solid ${(props) => props.theme.colors.error};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.error};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  margin-bottom: ${(props) => props.theme.spacing.md};
+`;
+
 export default function InvoiceDetailModal({
   invoice,
   isOpen,
@@ -237,6 +263,9 @@ export default function InvoiceDetailModal({
     return new Date(date).toLocaleDateString("fr-FR");
   };
 
+  // Check if invoice can be printed (not cancelled or returned)
+  const canPrintInvoice = invoice.status === "active";
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
@@ -246,6 +275,20 @@ export default function InvoiceDetailModal({
             <AppIcon name="x" size="sm" />
           </CloseButton>
         </ModalHeader>
+
+        {/* Status Warning */}
+        {invoice.status === "cancelled" && (
+          <ErrorAlert role="alert">
+            <AppIcon name="warning" size="sm" color="error" />
+            <span>❌ Cette facture est annulée. Elle ne peut pas être imprimée.</span>
+          </ErrorAlert>
+        )}
+        {invoice.status === "returned" && (
+          <WarningMessage role="alert">
+            <AppIcon name="warning" size="sm" color="warning" />
+            <span>⚠️ Cette facture est retournée. Elle ne peut pas être imprimée.</span>
+          </WarningMessage>
+        )}
 
         {/* Invoice Info */}
         <Section>
@@ -374,6 +417,8 @@ export default function InvoiceDetailModal({
           <Button
             variant="primary"
             onClick={() => onDownloadPDF(invoice._id || invoice.id)}
+            disabled={!canPrintInvoice}
+            title={!canPrintInvoice ? "Cette facture ne peut pas être téléchargée" : "Télécharger PDF"}
           >
             <AppIcon name="download" size="sm" color="surface" />
             Télécharger PDF
@@ -381,6 +426,8 @@ export default function InvoiceDetailModal({
           <Button
             variant="primary"
             onClick={() => onPrintInvoice(invoice._id || invoice.id)}
+            disabled={!canPrintInvoice}
+            title={!canPrintInvoice ? "Cette facture ne peut pas être imprimée" : "Imprimer"}
           >
             <AppIcon name="printer" size="sm" color="surface" />
             Imprimer

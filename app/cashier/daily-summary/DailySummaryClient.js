@@ -8,6 +8,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
 import { formatDateOnly } from "@/lib/utils/dateFormatters.js";
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
@@ -66,6 +67,68 @@ const SummaryUnit = styled.span`
   font-weight: ${(props) => props.theme.typography.fontWeight.normal};
   color: ${(props) => props.theme.colors.muted};
   margin-left: ${(props) => props.theme.spacing.xs};
+`;
+
+const SummaryNote = styled.div`
+  margin-top: ${(props) => props.theme.spacing.md};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+  font-style: italic;
+`;
+
+const RefreshButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  background-color: ${(props) => props.theme.colors.surface};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  cursor: pointer;
+  transition: all ${(props) => props.theme.motion?.duration?.fast || "200ms"};
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.surfaceHover};
+    border-color: ${(props) => props.theme.colors.primary};
+  }
+`;
+
+const PrintButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  padding: ${(props) => props.theme.spacing.md} ${(props) => props.theme.spacing.lg};
+  background-color: ${(props) => props.theme.colors.primary};
+  border: 1px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.surface};
+  font-size: ${(props) => props.theme.typography.fontSize.base};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${(props) => props.theme.motion?.duration?.fast || "200ms"};
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primaryDark};
+    border-color: ${(props) => props.theme.colors.primaryDark};
+  }
+`;
+
+const InvoiceLink = styled.button`
+  background: none;
+  border: none;
+  color: ${(props) => props.theme.colors.primary};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin: 0;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.primaryDark};
+  }
 `;
 
 const SalesList = styled.div`
@@ -189,6 +252,7 @@ function formatTime(date) {
 }
 
 export default function DailySummaryClient({ sales = [], statistics, date }) {
+  const router = useRouter();
   const totalActive = statistics?.totalActive || { count: 0, amount: 0 };
   
   // Format date
@@ -198,6 +262,95 @@ export default function DailySummaryClient({ sales = [], statistics, date }) {
   
   // Current time state (updates every minute)
   const [currentTime, setCurrentTime] = useState(() => formatTime(new Date()));
+  
+  // Handle refresh
+  const handleRefresh = () => {
+    router.refresh();
+  };
+  
+  // Handle print summary (generate PDF)
+  const handlePrintSummary = async () => {
+    try {
+      // For now, open a print-friendly version
+      // In future, we can create a dedicated PDF endpoint
+      const printWindow = window.open("", "_blank");
+      if (printWindow) {
+        const printContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Résumé quotidien - ${formattedDate}</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { color: #333; }
+                .summary { margin: 20px 0; padding: 20px; border: 2px solid #333; text-align: center; }
+                .amount { font-size: 32px; font-weight: bold; color: #007bff; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { background-color: #f5f5f5; font-weight: bold; }
+                .total-row { font-weight: bold; }
+              </style>
+            </head>
+            <body>
+              <h1>Résumé quotidien</h1>
+              <p>Date: ${dayName}, ${formattedDate} - ${currentTime}</p>
+              <div class="summary">
+                <div>Montant total à remettre aujourd'hui</div>
+                <div class="amount">${formatCurrencyValue(totalActive.amount)} ${getCurrencySymbol()}</div>
+                <div style="margin-top: 10px; font-size: 12px; color: #666;">(Opérations réussies uniquement)</div>
+              </div>
+              <h2>Liste des ventes (${sales.length})</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produit</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire</th>
+                    <th>Montant</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sales.map((sale) => {
+                    const totalAmount = sale.totalAmount || sale.quantity * (sale.sellingPrice || 0);
+                    return `
+                      <tr>
+                        <td>${sale.product?.name || "Produit inconnu"}</td>
+                        <td>${sale.quantity}</td>
+                        <td>${formatCurrencyValue(sale.sellingPrice || 0)} ${getCurrencySymbol()}</td>
+                        <td>${formatCurrencyValue(totalAmount)} ${getCurrencySymbol()}</td>
+                      </tr>
+                    `;
+                  }).join("")}
+                  <tr class="total-row">
+                    <td colspan="3">Total</td>
+                    <td>${formatCurrencyValue(totalActive.amount)} ${getCurrencySymbol()}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p style="margin-top: 30px; font-size: 12px; color: #666;">
+                Ce résumé exclut les ventes annulées et retournées.
+              </p>
+            </body>
+          </html>
+        `;
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    } catch (error) {
+      console.error("Error printing summary:", error);
+      alert("Erreur lors de l'impression du résumé.");
+    }
+  };
+  
+  // Handle view invoice - redirect to invoices page
+  // Since we don't have invoice ID directly, we'll just redirect to invoices page
+  // User can search for the invoice using the sale date/time or product name
+  const handleViewInvoice = () => {
+    router.push("/cashier/invoices");
+  };
 
   // Update time every minute
   useEffect(() => {
@@ -211,18 +364,33 @@ export default function DailySummaryClient({ sales = [], statistics, date }) {
   return (
     <PageContainer>
       <Header>
-        <Title>Résumé quotidien</Title>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <Title>Résumé quotidien</Title>
+          <RefreshButton onClick={handleRefresh} title="Actualiser les données">
+            <AppIcon name="refresh" size="sm" color="foreground" />
+            Actualiser
+          </RefreshButton>
+        </div>
         <DateText>
           {dayName}, {formattedDate} - {currentTime}
         </DateText>
       </Header>
 
       <SummaryCard>
-        <SummaryLabel>Montant total à remettre</SummaryLabel>
+        <SummaryLabel>Montant total à remettre aujourd'hui</SummaryLabel>
         <SummaryAmount>
           {formatCurrencyValue(totalActive.amount)}
           <SummaryUnit>{getCurrencySymbol()}</SummaryUnit>
         </SummaryAmount>
+        <SummaryNote>
+          (Opérations réussies uniquement - exclut les ventes annulées et retournées)
+        </SummaryNote>
+        <div style={{ marginTop: "24px" }}>
+          <PrintButton onClick={handlePrintSummary}>
+            <AppIcon name="printer" size="sm" color="surface" />
+            Imprimer le résumé
+          </PrintButton>
+        </div>
       </SummaryCard>
 
       <SalesList>
@@ -246,11 +414,13 @@ export default function DailySummaryClient({ sales = [], statistics, date }) {
                 <TableHeaderCell>Quantité</TableHeaderCell>
                 <TableHeaderCell>Prix unitaire</TableHeaderCell>
                 <TableHeaderCell>Montant</TableHeaderCell>
+                <TableHeaderCell style={{ textAlign: "center" }}>Actions</TableHeaderCell>
               </TableHeaderRow>
             </TableHeader>
             <TableBody>
               {sales.map((sale) => {
                 const totalAmount = sale.totalAmount || sale.quantity * (sale.sellingPrice || 0);
+                
                 return (
                   <TableRow key={sale.id || sale._id}>
                     <TableCell>
@@ -264,6 +434,11 @@ export default function DailySummaryClient({ sales = [], statistics, date }) {
                     </TableCell>
                     <TableCell>
                       {formatCurrencyValue(totalAmount)} {getCurrencySymbol()}
+                    </TableCell>
+                    <TableCell style={{ textAlign: "center" }}>
+                      <InvoiceLink onClick={handleViewInvoice} title="Aller à la page des factures">
+                        Voir facture
+                      </InvoiceLink>
                     </TableCell>
                   </TableRow>
                 );
