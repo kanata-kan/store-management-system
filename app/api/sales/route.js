@@ -80,6 +80,7 @@ export async function POST(request) {
 
     const result = await SaleService.registerSale(validated);
 
+    // Phase 2: Include invoice information in response
     return success(
       {
         saleId: result.sale._id,
@@ -91,6 +92,10 @@ export async function POST(request) {
         isLowStock: result.isLowStock,
         cashier: result.sale.cashier,
         createdAt: result.sale.createdAt,
+        // Phase 2: Invoice information
+        invoiceId: result.invoice?.invoiceId || null,
+        invoiceNumber: result.invoice?.invoiceNumber || null,
+        invoiceError: result.invoiceError || null,
       },
       201
     );

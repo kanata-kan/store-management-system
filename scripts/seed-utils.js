@@ -88,3 +88,22 @@ export function generateProductName(baseName, brand, specs) {
   return `${brand} ${baseName}${variationStr}`;
 }
 
+/**
+ * Generate realistic customer name (Algerian/Moroccan names)
+ */
+export function generateCustomerName() {
+  const firstNames = [
+    "Ahmed", "Mohamed", "Ali", "Omar", "Youssef", "Hassan", "Karim", "Bilal",
+    "Fatima", "Aicha", "Sara", "Layla", "Nour", "Salma", "Zineb", "Khadija",
+    "Amine", "Mehdi", "Said", "Rachid", "Nabil", "Samir", "Tarek", "Walid",
+    "Nadia", "Samira", "Leila", "Houda", "Siham", "Nabila", "Rania", "Yasmine"
+  ];
+  const lastNames = [
+    "Benali", "Alaoui", "Amrani", "Bennani", "Chraibi", "El Fassi", "Idrissi",
+    "Kadiri", "Lamrani", "Mansouri", "Naciri", "Ouazzani", "Rahmani", "Saadi",
+    "Tazi", "Zahiri", "Bouazza", "Cherkaoui", "Dahmani", "Fassi", "Ghazi",
+    "Hajji", "Jazouli", "Kettani", "Lahlou", "Mekouar", "Naciri", "Ouali"
+  ];
+  return `${randomChoice(firstNames)} ${randomChoice(lastNames)}`;
+}
+

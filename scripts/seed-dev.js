@@ -4,15 +4,20 @@
  * ⚠️ WARNING: This script completely clears the database and re-populates it.
  * This is DEV ONLY and will NOT run in production.
  *
- * This script generates realistic store data for testing:
- * - Users (manager + cashiers)
+ * This script generates realistic store data for testing (3 months of operation):
+ * - Users (1 manager + 3 cashiers)
  * - Categories and SubCategories
  * - Brands and Suppliers
- * - Products (100+)
+ * - Products (100+) with warranty data
  * - Inventory Logs (300+)
- * - Sales (200+)
+ * - Sales (400+) with diverse statuses (active, cancelled, returned)
+ * - Invoices (400+) automatically created for all sales
+ * - Realistic customer data
+ * - Dates spanning 3 months
  *
- * Usage: node scripts/seed-dev.js
+ * Updated: Phase 6 - Includes invoice system and warranty management
+ *
+ * Usage: npm run seed
  */
 
 // Load environment variables from .env file
@@ -56,6 +61,11 @@ import Supplier from "../lib/models/Supplier.js";
 import Product from "../lib/models/Product.js";
 import InventoryLog from "../lib/models/InventoryLog.js";
 import Sale from "../lib/models/Sale.js";
+import Invoice from "../lib/models/Invoice.js";
+
+// Import services
+import SaleService from "../lib/services/SaleService.js";
+import InvoiceService from "../lib/services/InvoiceService.js";
 
 // Import utilities
 import {
@@ -66,6 +76,7 @@ import {
   randomPhone,
   randomEmail,
   generateProductName,
+  generateCustomerName,
 } from "./seed-utils.js";
 
 // Check environment
@@ -99,6 +110,7 @@ async function clearDatabase() {
   await Product.deleteMany({});
   await InventoryLog.deleteMany({});
   await Sale.deleteMany({});
+  await Invoice.deleteMany({});
   console.log("✅ Database cleared\n");
 }
 
@@ -401,6 +413,15 @@ async function seedProducts(brands, subCategories, suppliers) {
         
         const productName = generateProductName(baseName, brand.name, specs);
         
+        // Phase 6: Add warranty data (60% of products have warranty)
+        const hasWarranty = Math.random() < 0.6; // 60% chance
+        const warranty = {
+          enabled: hasWarranty,
+          durationMonths: hasWarranty
+            ? randomChoice([6, 12, 18, 24, 36]) // Common warranty periods
+            : null,
+        };
+
         const product = await Product.create({
           name: productName,
           brand: brand._id,
@@ -410,6 +431,7 @@ async function seedProducts(brands, subCategories, suppliers) {
           stock: 0, // Will be updated by inventory logs
           lowStockThreshold,
           specs,
+          warranty, // Phase 6: Warranty data
         });
         
         products.push(product);
@@ -426,8 +448,9 @@ async function seedInventoryLogs(products, manager) {
   console.log("📋 Seeding inventory logs...");
   
   const logs = [];
+  // Phase 6: 3 months of data (90 days)
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 60); // 60 days ago
+  startDate.setDate(startDate.getDate() - 90); // 90 days ago
   const endDate = new Date();
   
   // Create 3-5 inventory entries per product
@@ -469,52 +492,225 @@ async function seedInventoryLogs(products, manager) {
   return logs;
 }
 
-// Seed Sales
-async function seedSales(products, cashiers) {
-  console.log("💰 Seeding sales...");
+
+// Seed Sales with Invoices
+async function seedSales(products, cashiers, manager) {
+  console.log("💰 Seeding sales with invoices...");
   
   const sales = [];
+  const invoices = [];
+  // Phase 6: 3 months of data (90 days)
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 30); // 30 days ago
+  startDate.setDate(startDate.getDate() - 90); // 90 days ago
   const endDate = new Date();
   
-  // Generate 200+ sales
+  // Generate 200-300 sales (optimized for performance)
   const salesCount = randomInt(200, 300);
   
+  console.log(`   Creating ${salesCount} sales with invoices...`);
+  
+  // Track sales for cancellation/return later
+  const activeSales = [];
+  let successCount = 0;
+  let errorCount = 0;
+  let skippedCount = 0;
+  
   for (let i = 0; i < salesCount; i++) {
-    const product = randomChoice(products);
+    // Progress indicator every 25 sales
+    if (i > 0 && i % 25 === 0) {
+      const progress = ((i / salesCount) * 100).toFixed(1);
+      console.log(`   📊 Progress: ${i}/${salesCount} (${progress}%) - ${successCount} created, ${errorCount} errors, ${skippedCount} skipped`);
+    }
+    // Reload product to get current stock (stock changes after each sale)
+    const productIndex = Math.floor(Math.random() * products.length);
+    const product = await Product.findById(products[productIndex]._id);
     const cashier = randomChoice(cashiers);
     
     // Don't create sale if product has no stock
-    if (product.stock <= 0) continue;
+    if (!product || product.stock <= 0) continue;
     
     // Quantity: 1-5 units, but not more than available stock
     const maxQuantity = Math.min(product.stock, 5);
+    if (maxQuantity < 1) {
+      skippedCount++;
+      continue;
+    }
     const quantity = randomInt(1, maxQuantity);
     
     // Selling price: 10-50% markup from purchase price
     const markup = randomFloat(1.1, 1.5);
     const sellingPrice = Math.round(product.purchasePrice * markup * 100) / 100;
     
-    const createdAt = randomDate(startDate, endDate);
+    // Generate customer data
+    const customerName = generateCustomerName();
+    const customerPhone = randomPhone();
     
-    const sale = await Sale.create({
-      product: product._id,
-      quantity,
-      sellingPrice,
-      cashier: cashier._id,
-      createdAt,
-      updatedAt: createdAt,
-    });
+    // Random date within 3 months
+    const saleDate = randomDate(startDate, endDate);
     
-    sales.push(sale);
-    
-    // Update product stock (atomic operation)
-    product.stock -= quantity;
-    await product.save();
+    try {
+      // Use SaleService.registerSale() to create sale + invoice automatically
+      const result = await SaleService.registerSale({
+        productId: product._id.toString(),
+        quantity,
+        sellingPrice,
+        cashierId: cashier._id.toString(),
+        customer: {
+          name: customerName,
+          phone: customerPhone,
+        },
+      });
+      
+      // Update sale date (if needed)
+      if (result.sale) {
+        await Sale.findByIdAndUpdate(result.sale._id, {
+          createdAt: saleDate,
+          updatedAt: saleDate,
+        });
+        
+        // Update invoice date if created
+        if (result.invoice?.invoiceId) {
+          const invoice = await Invoice.findOne({ sale: result.sale._id });
+          if (invoice) {
+            await Invoice.findByIdAndUpdate(invoice._id, {
+              createdAt: saleDate,
+              updatedAt: saleDate,
+            });
+          }
+        }
+        
+        sales.push(result.sale);
+        successCount++;
+        
+        // Track active sales for later cancellation/return
+        if (Math.random() > 0.7) { // 30% chance to be marked for cancellation/return later
+          activeSales.push({
+            sale: result.sale,
+            saleDate,
+            productId: product._id.toString(),
+            cashier,
+          });
+        }
+      }
+      
+      // Stock is already updated by registerSale, no need to reload here
+    } catch (error) {
+      errorCount++;
+      if (i % 50 === 0 || errorCount <= 5) {
+        // Only log first 5 errors or errors at progress checkpoints
+        console.error(`   ⚠️  Failed to create sale ${i + 1}:`, error.message);
+      }
+      // Continue with next sale
+    }
   }
   
-  console.log(`✅ Sales seeded (${sales.length})`);
+  console.log(`\n✅ Sales seeded: ${successCount} successful, ${errorCount} errors, ${skippedCount} skipped (total created: ${sales.length})`);
+  
+  // Phase 6: Cancel/return some sales (realistic scenario)
+  console.log(`🔄 Processing sale cancellations and returns (${activeSales.length} candidates)...`);
+  let cancelledCount = 0;
+  let returnedCount = 0;
+  let cancelErrors = 0;
+  let returnErrors = 0;
+  
+  // Cancel 5-10% of sales
+  const toCancel = Math.floor(activeSales.length * randomFloat(0.05, 0.1));
+  console.log(`   Cancelling ${toCancel} sales...`);
+  for (let i = 0; i < toCancel && i < activeSales.length; i++) {
+    const saleData = activeSales[i];
+    const cancelDate = new Date(saleData.saleDate);
+    cancelDate.setDate(cancelDate.getDate() + randomInt(1, 7)); // Cancel within 1-7 days
+    
+    // Only cancel if cancel date is in the past
+    if (cancelDate < new Date()) {
+      try {
+        const cancellationReasons = [
+          "Produit défectueux",
+          "Erreur de saisie",
+          "Client a changé d'avis",
+          "Produit retourné par le client",
+          "Commande annulée",
+        ];
+        
+        await SaleService.cancelSale(
+          saleData.sale._id.toString(),
+          manager._id.toString(),
+          randomChoice(cancellationReasons)
+        );
+        
+        // Update cancelled date
+        await Sale.findByIdAndUpdate(saleData.sale._id, {
+          cancelledAt: cancelDate,
+          updatedAt: cancelDate,
+        });
+        
+        // Update invoice cancelled date (if exists)
+        const invoice = await Invoice.findOne({ sale: saleData.sale._id });
+        if (invoice) {
+          await Invoice.findByIdAndUpdate(invoice._id, {
+            cancelledAt: cancelDate,
+            updatedAt: cancelDate,
+          });
+        }
+        
+        cancelledCount++;
+      } catch (error) {
+        cancelErrors++;
+        // Continue if cancellation fails
+      }
+    }
+  }
+  
+  // Return 3-7% of remaining active sales
+  const remainingActive = activeSales.slice(toCancel);
+  const toReturn = Math.floor(remainingActive.length * randomFloat(0.03, 0.07));
+  console.log(`   Returning ${toReturn} sales...`);
+  for (let i = 0; i < toReturn && i < remainingActive.length; i++) {
+    const saleData = remainingActive[i];
+    const returnDate = new Date(saleData.saleDate);
+    returnDate.setDate(returnDate.getDate() + randomInt(8, 30)); // Return within 8-30 days
+    
+    // Only return if return date is in the past
+    if (returnDate < new Date()) {
+      try {
+        const returnReasons = [
+          "Produit défectueux",
+          "Client insatisfait",
+          "Produit ne correspond pas à la description",
+          "Défaut de fabrication",
+        ];
+        
+        await SaleService.returnSale(
+          saleData.sale._id.toString(),
+          manager._id.toString(),
+          randomChoice(returnReasons)
+        );
+        
+        // Update return date
+        await Sale.findByIdAndUpdate(saleData.sale._id, {
+          cancelledAt: returnDate,
+          updatedAt: returnDate,
+        });
+        
+        // Update invoice return date (if exists)
+        const invoice = await Invoice.findOne({ sale: saleData.sale._id });
+        if (invoice) {
+          await Invoice.findByIdAndUpdate(invoice._id, {
+            cancelledAt: returnDate,
+            updatedAt: returnDate,
+          });
+        }
+        
+        returnedCount++;
+      } catch (error) {
+        returnErrors++;
+        // Continue if return fails
+      }
+    }
+  }
+  
+  console.log(`✅ Sales processed: ${cancelledCount} cancelled (${cancelErrors} errors), ${returnedCount} returned (${returnErrors} errors)`);
+  
   return sales;
 }
 
@@ -536,18 +732,41 @@ async function seedDatabase() {
     const products = await seedProducts(brands, subCategories, suppliers);
     
     const inventoryLogs = await seedInventoryLogs(products, manager);
-    const sales = await seedSales(products, cashiers);
+    const sales = await seedSales(products, cashiers, manager);
+    
+    // Count invoices
+    const invoiceCount = await Invoice.countDocuments({});
+    
+    // Count sales by status
+    const activeSalesCount = await Sale.countDocuments({ status: "active" });
+    const cancelledSalesCount = await Sale.countDocuments({ status: "cancelled" });
+    const returnedSalesCount = await Sale.countDocuments({ status: "returned" });
+    
+    // Count invoices by status
+    const activeInvoicesCount = await Invoice.countDocuments({ status: "active" });
+    const cancelledInvoicesCount = await Invoice.countDocuments({ status: "cancelled" });
+    const returnedInvoicesCount = await Invoice.countDocuments({ status: "returned" });
+    
+    // Count products with warranty
+    const productsWithWarranty = await Product.countDocuments({ "warranty.enabled": true });
     
     console.log("\n✅ Database seeding completed successfully!\n");
     console.log("Summary:");
-    console.log(`  Users: ${users.length}`);
+    console.log(`  Users: ${users.length} (1 manager, ${cashiers.length} cashiers)`);
     console.log(`  Categories: ${categories.length}`);
     console.log(`  SubCategories: ${subCategories.length}`);
     console.log(`  Brands: ${brands.length}`);
     console.log(`  Suppliers: ${suppliers.length}`);
-    console.log(`  Products: ${products.length}`);
+    console.log(`  Products: ${products.length} (${productsWithWarranty} with warranty)`);
     console.log(`  Inventory Logs: ${inventoryLogs.length}`);
-    console.log(`  Sales: ${sales.length}\n`);
+    console.log(`  Sales: ${sales.length}`);
+    console.log(`    - Active: ${activeSalesCount}`);
+    console.log(`    - Cancelled: ${cancelledSalesCount}`);
+    console.log(`    - Returned: ${returnedSalesCount}`);
+    console.log(`  Invoices: ${invoiceCount}`);
+    console.log(`    - Active: ${activeInvoicesCount}`);
+    console.log(`    - Cancelled: ${cancelledInvoicesCount}`);
+    console.log(`    - Returned: ${returnedInvoicesCount}\n`);
     
     console.log("Login credentials:");
     console.log("  Manager: manager@store.com / password123");
