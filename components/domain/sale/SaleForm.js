@@ -224,6 +224,10 @@ function getStockBadgeProps(product) {
  * @param {Function} props.onSubmit - Submit handler: () => void
  * @param {boolean} props.isLoading - Loading state
  * @param {string|null} props.error - Error message
+ * @param {string} props.customerName - Customer name (for invoice)
+ * @param {Function} props.onCustomerNameChange - Customer name change handler: (value) => void
+ * @param {string} props.customerPhone - Customer phone (for invoice)
+ * @param {Function} props.onCustomerPhoneChange - Customer phone change handler: (value) => void
  */
 export default function SaleForm({
   product,
@@ -234,6 +238,10 @@ export default function SaleForm({
   onSubmit,
   isLoading = false,
   error = null,
+  customerName = "",
+  onCustomerNameChange,
+  customerPhone = "",
+  onCustomerPhoneChange,
 }) {
   if (!product) {
     return null;
@@ -249,8 +257,15 @@ export default function SaleForm({
   const isOutOfStock = product.stockStatus?.isOutOfStock || stock === 0;
   const isQuantityInvalid = quantity > stock || quantity < 1;
   const isPriceInvalid = sellingPrice === null || sellingPrice <= 0;
+  const isCustomerNameInvalid = !customerName || !customerName.trim();
+  const isCustomerPhoneInvalid = !customerPhone || !customerPhone.trim();
   const isFormDisabled =
-    isLoading || isOutOfStock || isQuantityInvalid || isPriceInvalid;
+    isLoading || 
+    isOutOfStock || 
+    isQuantityInvalid || 
+    isPriceInvalid ||
+    isCustomerNameInvalid ||
+    isCustomerPhoneInvalid;
 
   // ✅ Use stockStatus from backend if available, fallback to lowStockThreshold
   const isLowStock = product.stockStatus?.isLowStock || (stock > 0 && stock <= (product.lowStockThreshold || 3));
@@ -327,6 +342,39 @@ export default function SaleForm({
             disabled={isLoading}
             hasError={isPriceInvalid && !isLoading}
             placeholder="Prix de vente"
+          />
+        </FormField>
+
+        {/* Customer Information (Required for Invoice) */}
+        <FormField 
+          label="Nom du client *" 
+          id="customerName" 
+          required
+          helperText="Requis pour générer la facture"
+        >
+          <Input
+            id="customerName"
+            type="text"
+            value={customerName}
+            onChange={(e) => onCustomerNameChange && onCustomerNameChange(e.target.value)}
+            disabled={isLoading}
+            placeholder="Nom complet du client"
+          />
+        </FormField>
+
+        <FormField 
+          label="Téléphone du client *" 
+          id="customerPhone" 
+          required
+          helperText="Requis pour générer la facture"
+        >
+          <Input
+            id="customerPhone"
+            type="tel"
+            value={customerPhone}
+            onChange={(e) => onCustomerPhoneChange && onCustomerPhoneChange(e.target.value)}
+            disabled={isLoading}
+            placeholder="Numéro de téléphone"
           />
         </FormField>
       </FormFields>

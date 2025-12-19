@@ -84,6 +84,10 @@ export default function FastSellingClient() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [sellingPrice, setSellingPrice] = useState(null);
+  
+  // Customer information (required for invoice)
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,6 +161,7 @@ export default function FastSellingClient() {
     setSellingPrice(product.purchasePrice || null);
     setErrorMessage(null);
     setSuccessMessage(null);
+    // Keep customer info when selecting new product (for faster workflow)
     // Clear search to hide results
     setSearchQuery("");
     setDebouncedQuery("");
@@ -195,6 +200,17 @@ export default function FastSellingClient() {
       setErrorMessage("Le prix de vente doit être supérieur à 0.");
       return;
     }
+    
+    // Validate customer information (required for invoice)
+    if (!customerName || !customerName.trim()) {
+      setErrorMessage("Le nom du client est requis pour générer la facture.");
+      return;
+    }
+    
+    if (!customerPhone || !customerPhone.trim()) {
+      setErrorMessage("Le téléphone du client est requis pour générer la facture.");
+      return;
+    }
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -205,6 +221,10 @@ export default function FastSellingClient() {
         productId: productId,
         quantity: quantityInt,
         sellingPrice: price,
+        customer: {
+          name: customerName.trim(),
+          phone: customerPhone.trim(),
+        },
       };
 
       // Debug logging in development
@@ -234,6 +254,8 @@ export default function FastSellingClient() {
         setSelectedProduct(null);
         setQuantity(1);
         setSellingPrice(null);
+        setCustomerName("");
+        setCustomerPhone("");
         setSearchQuery("");
         setDebouncedQuery("");
         setSearchResults([]);
@@ -318,6 +340,10 @@ export default function FastSellingClient() {
             sellingPrice={sellingPrice}
             onQuantityChange={setQuantity}
             onPriceChange={setSellingPrice}
+            customerName={customerName}
+            onCustomerNameChange={setCustomerName}
+            customerPhone={customerPhone}
+            onCustomerPhoneChange={setCustomerPhone}
             onSubmit={handleSubmit}
             isLoading={isSubmitting}
             error={errorMessage}
