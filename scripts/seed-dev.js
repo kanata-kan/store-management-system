@@ -118,7 +118,7 @@ async function clearDatabase() {
 async function seedUsers() {
   console.log("👤 Seeding users...");
   
-  const users = [
+  const usersData = [
     {
       name: "Ahmed Benali",
       email: "manager@store.com",
@@ -145,7 +145,14 @@ async function seedUsers() {
     },
   ];
   
-  const createdUsers = await User.insertMany(users);
+  // Use User.create() instead of insertMany() to trigger pre-save hooks
+  // insertMany() does NOT trigger pre-save hooks, so passwords won't be hashed
+  const createdUsers = [];
+  for (const userData of usersData) {
+    const user = await User.create(userData);
+    createdUsers.push(user);
+  }
+  
   console.log(`✅ Users seeded (${createdUsers.length})`);
   return createdUsers;
 }
