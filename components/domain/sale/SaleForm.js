@@ -173,6 +173,50 @@ const FormActions = styled.div`
   gap: ${(props) => props.theme.spacing.md};
 `;
 
+const WarrantyBlock = styled.div`
+  padding: ${(props) => props.theme.spacing.lg};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.successLight}20 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.success};
+  border-left: 4px solid ${(props) => props.theme.colors.success};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-bottom: ${(props) => props.theme.spacing.md};
+`;
+
+const WarrantyHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) => props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.base};
+`;
+
+const WarrantyDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.xs};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+  margin-left: ${(props) => props.theme.spacing.xl};
+`;
+
+const WarrantyDetailRow = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.spacing.sm};
+`;
+
+const WarrantyLabel = styled.span`
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.foreground};
+`;
+
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
 /**
@@ -270,6 +314,31 @@ export default function SaleForm({
   // ✅ Use stockStatus from backend if available, fallback to lowStockThreshold
   const isLowStock = product.stockStatus?.isLowStock || (stock > 0 && stock <= (product.lowStockThreshold || 3));
 
+  // Check if product has warranty
+  const hasWarranty = product.warranty?.enabled === true;
+  const warrantyDurationMonths = product.warranty?.durationMonths || null;
+  
+  // Calculate warranty expiration date (if warranty exists)
+  const calculateWarrantyExpiration = (durationMonths) => {
+    if (!durationMonths) return null;
+    const expirationDate = new Date();
+    expirationDate.setMonth(expirationDate.getMonth() + durationMonths);
+    return expirationDate;
+  };
+  
+  const warrantyExpirationDate = hasWarranty && warrantyDurationMonths 
+    ? calculateWarrantyExpiration(warrantyDurationMonths)
+    : null;
+
+  const formatWarrantyDate = (date) => {
+    if (!date) return null;
+    return new Date(date).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <FormContainer>
       <ProductInfoCard>
@@ -301,6 +370,28 @@ export default function SaleForm({
           </WarningMessage>
         )}
       </ProductInfoCard>
+
+      {/* Warranty Information Block (if product has warranty) */}
+      {hasWarranty && warrantyDurationMonths && (
+        <WarrantyBlock>
+          <WarrantyHeader>
+            <AppIcon name="shield" size="sm" color="success" />
+            <span>Produit avec garantie</span>
+          </WarrantyHeader>
+          <WarrantyDetails>
+            <WarrantyDetailRow>
+              <WarrantyLabel>Durée de garantie:</WarrantyLabel>
+              <span>{warrantyDurationMonths} mois</span>
+            </WarrantyDetailRow>
+            {warrantyExpirationDate && (
+              <WarrantyDetailRow>
+                <WarrantyLabel>Date d'expiration:</WarrantyLabel>
+                <span>{formatWarrantyDate(warrantyExpirationDate)}</span>
+              </WarrantyDetailRow>
+            )}
+          </WarrantyDetails>
+        </WarrantyBlock>
+      )}
 
       {error && (
         <ErrorMessage role="alert">

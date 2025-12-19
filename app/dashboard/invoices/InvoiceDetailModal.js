@@ -261,7 +261,12 @@ export default function InvoiceDetailModal({
             </InfoItem>
             <InfoItem>
               <InfoLabel>Statut</InfoLabel>
-              <InfoValue>{invoice.status}</InfoValue>
+              <InfoValue>
+                {invoice.status === "active" && "Active"}
+                {invoice.status === "cancelled" && "Annulée"}
+                {invoice.status === "returned" && "Retournée"}
+                {!["active", "cancelled", "returned"].includes(invoice.status) && invoice.status}
+              </InfoValue>
             </InfoItem>
             <InfoItem>
               <InfoLabel>Caissier</InfoLabel>

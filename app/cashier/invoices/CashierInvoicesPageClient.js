@@ -32,14 +32,35 @@ const PageTitle = styled.h1`
   font-size: ${(props) => props.theme.typography.fontSize["2xl"]};
   font-weight: ${(props) => props.theme.typography.fontWeight.bold};
   color: ${(props) => props.theme.colors.foreground};
+  margin: 0 0 ${(props) => props.theme.spacing.xs} 0;
+`;
+
+const PageSubtitle = styled.p`
+  font-size: ${(props) => props.theme.typography.fontSize.base};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
   margin: 0;
 `;
 
-const FiltersForm = styled.form`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${(props) => props.theme.spacing.md};
-  align-items: flex-end;
+const SearchSection = styled.div`
+  margin-bottom: ${(props) => props.theme.spacing.lg};
+  padding: ${(props) => props.theme.spacing.lg};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primaryLight}08 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.primaryLight};
+  border-left: 4px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  box-shadow: ${(props) => props.theme.shadows.card};
+`;
+
+const MainSearchField = styled.div`
+  width: 100%;
+  max-width: 600px;
+`;
+
+const FiltersSection = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.xl};
   padding: ${(props) => props.theme.spacing.lg};
   background-color: ${(props) => props.theme.colors.elevation1};
@@ -47,15 +68,23 @@ const FiltersForm = styled.form`
   border: 1px solid ${(props) => props.theme.colors.border};
 `;
 
+const FiltersForm = styled.form`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${(props) => props.theme.spacing.md};
+  align-items: flex-end;
+`;
+
 const FilterGroup = styled.div`
-  min-width: 220px;
-  flex: 1 1 220px;
+  min-width: 200px;
+  flex: 1 1 200px;
 `;
 
 const ActionsGroup = styled.div`
   display: flex;
   gap: ${(props) => props.theme.spacing.sm};
   flex-shrink: 0;
+  align-self: flex-end;
 `;
 
 export default function CashierInvoicesPageClient({
@@ -72,44 +101,44 @@ export default function CashierInvoicesPageClient({
 
   // Controlled state for form inputs
   const [q, setQ] = useState(currentFilters.q || "");
-  const [invoiceNumber, setInvoiceNumber] = useState(
-    currentFilters.invoiceNumber || ""
-  );
-  const [warrantyStatus, setWarrantyStatus] = useState(
+  const [warrantyFilter, setWarrantyFilter] = useState(
     currentFilters.warrantyStatus || "all"
-  );
-  const [hasWarranty, setHasWarranty] = useState(
-    currentFilters.hasWarranty || ""
-  );
-  const [expiringSoon, setExpiringSoon] = useState(
-    currentFilters.expiringSoon || ""
   );
   const [startDate, setStartDate] = useState(currentFilters.startDate || "");
   const [endDate, setEndDate] = useState(currentFilters.endDate || "");
   const [status, setStatus] = useState(currentFilters.status || "all");
+
+  // Handle main search (immediate, no form submit needed)
+  const handleSearchChange = (value) => {
+    setQ(value);
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (value.trim()) {
+      params.set("q", value.trim());
+    } else {
+      params.delete("q");
+    }
+    
+    params.set("page", "1");
+    router.push(`/cashier/invoices?${params.toString()}`);
+    router.refresh();
+  };
 
   const handleFilterSubmit = (event) => {
     event.preventDefault();
 
     const params = new URLSearchParams(searchParams.toString());
 
-    // Search
+    // Keep search query
     if (q) params.set("q", q);
     else params.delete("q");
 
-    if (invoiceNumber) params.set("invoiceNumber", invoiceNumber);
-    else params.delete("invoiceNumber");
-
-    // Warranty filters
-    if (warrantyStatus && warrantyStatus !== "all")
-      params.set("warrantyStatus", warrantyStatus);
-    else params.delete("warrantyStatus");
-
-    if (hasWarranty) params.set("hasWarranty", hasWarranty);
-    else params.delete("hasWarranty");
-
-    if (expiringSoon) params.set("expiringSoon", expiringSoon);
-    else params.delete("expiringSoon");
+    // Warranty filter (simplified)
+    if (warrantyFilter && warrantyFilter !== "all") {
+      params.set("warrantyStatus", warrantyFilter);
+    } else {
+      params.delete("warrantyStatus");
+    }
 
     // Date range
     if (startDate) params.set("startDate", startDate);
@@ -131,12 +160,9 @@ export default function CashierInvoicesPageClient({
 
   const handleResetFilters = () => {
     setQ("");
-    setInvoiceNumber("");
-    setWarrantyStatus("all");
-    setHasWarranty("");
+    setWarrantyFilter("all");
     setStartDate("");
     setEndDate("");
-    setExpiringSoon("");
     setStatus("all");
 
     const params = new URLSearchParams();
@@ -175,28 +201,16 @@ export default function CashierInvoicesPageClient({
     }
   };
 
-  // Prepare options for Select components
-  const warrantyStatusOptions = [
-    { value: "all", label: "Tous les statuts" },
-    { value: "active", label: "Garantie active" },
+  // Prepare options for Select components (simplified)
+  // "Avec garantie" means active warranty, "Garantie expirée" means expired
+  const warrantyFilterOptions = [
+    { value: "all", label: "Tous" },
+    { value: "active", label: "Avec garantie" },
     { value: "expired", label: "Garantie expirée" },
-    { value: "none", label: "Sans garantie" },
-  ];
-
-  const hasWarrantyOptions = [
-    { value: "", label: "Tous" },
-    { value: "true", label: "Avec garantie" },
-    { value: "false", label: "Sans garantie" },
-  ];
-
-  const expiringSoonOptions = [
-    { value: "", label: "Tous" },
-    { value: "7", label: "Expire dans 7 jours" },
-    { value: "30", label: "Expire dans 30 jours" },
   ];
 
   const statusOptions = [
-    { value: "all", label: "Tous les statuts" },
+    { value: "all", label: "Tous" },
     { value: "active", label: "Active" },
     { value: "cancelled", label: "Annulée" },
     { value: "returned", label: "Retournée" },
@@ -206,125 +220,97 @@ export default function CashierInvoicesPageClient({
     <PageContainer>
       <PageHeader>
         <PageTitle>Mes factures</PageTitle>
+        <PageSubtitle>Toutes les factures que vous avez créées</PageSubtitle>
       </PageHeader>
 
-      <FiltersForm onSubmit={handleFilterSubmit}>
-        <FilterGroup>
+      {/* Main Search Bar */}
+      <SearchSection>
+        <MainSearchField>
           <FormField
-            label="Recherche"
-            id="q"
-            helperText="Nom, téléphone ou numéro de facture"
+            label="Rechercher une facture"
+            id="mainSearch"
+            helperText="Rechercher par numéro de facture, nom du client ou téléphone"
           >
             <Input
-              id="q"
-              name="q"
+              id="mainSearch"
+              type="text"
               value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Rechercher..."
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Numéro de facture, nom du client, téléphone..."
+              autoFocus
             />
           </FormField>
-        </FilterGroup>
+        </MainSearchField>
+      </SearchSection>
 
-        <FilterGroup>
-          <FormField label="Numéro de facture" id="invoiceNumber">
-            <Input
-              id="invoiceNumber"
-              name="invoiceNumber"
-              value={invoiceNumber}
-              onChange={(e) => setInvoiceNumber(e.target.value)}
-              placeholder="INV-20250102-0001"
-            />
-          </FormField>
-        </FilterGroup>
+      {/* Minimal Filters */}
+      <FiltersSection>
+        <FiltersForm onSubmit={handleFilterSubmit}>
+          <FilterGroup>
+            <FormField label="Garantie" id="warrantyFilter">
+              <Select
+                id="warrantyFilter"
+                name="warrantyFilter"
+                value={warrantyFilter}
+                onChange={(e) => setWarrantyFilter(e.target.value)}
+                options={warrantyFilterOptions}
+              />
+            </FormField>
+          </FilterGroup>
 
-        <FilterGroup>
-          <FormField label="Statut de garantie" id="warrantyStatus">
-            <Select
-              id="warrantyStatus"
-              name="warrantyStatus"
-              value={warrantyStatus}
-              onChange={(e) => setWarrantyStatus(e.target.value)}
-              options={warrantyStatusOptions}
-            />
-          </FormField>
-        </FilterGroup>
+          <FilterGroup>
+            <FormField label="Statut" id="status">
+              <Select
+                id="status"
+                name="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                options={statusOptions}
+              />
+            </FormField>
+          </FilterGroup>
 
-        <FilterGroup>
-          <FormField label="Garantie" id="hasWarranty">
-            <Select
-              id="hasWarranty"
-              name="hasWarranty"
-              value={hasWarranty}
-              onChange={(e) => setHasWarranty(e.target.value)}
-              options={hasWarrantyOptions}
-            />
-          </FormField>
-        </FilterGroup>
+          <FilterGroup>
+            <FormField label="Date de début" id="startDate">
+              <DatePicker
+                id="startDate"
+                name="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                placeholder="Sélectionner une date"
+              />
+            </FormField>
+          </FilterGroup>
 
-        <FilterGroup>
-          <FormField label="Expire bientôt" id="expiringSoon">
-            <Select
-              id="expiringSoon"
-              name="expiringSoon"
-              value={expiringSoon}
-              onChange={(e) => setExpiringSoon(e.target.value)}
-              options={expiringSoonOptions}
-            />
-          </FormField>
-        </FilterGroup>
+          <FilterGroup>
+            <FormField label="Date de fin" id="endDate">
+              <DatePicker
+                id="endDate"
+                name="endDate"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                placeholder="Sélectionner une date"
+                min={startDate || undefined}
+              />
+            </FormField>
+          </FilterGroup>
 
-        <FilterGroup>
-          <FormField label="Statut" id="status">
-            <Select
-              id="status"
-              name="status"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              options={statusOptions}
-            />
-          </FormField>
-        </FilterGroup>
-
-        <FilterGroup>
-          <FormField label="Date de début" id="startDate">
-            <DatePicker
-              id="startDate"
-              name="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              placeholder="Sélectionner une date"
-            />
-          </FormField>
-        </FilterGroup>
-
-        <FilterGroup>
-          <FormField label="Date de fin" id="endDate">
-            <DatePicker
-              id="endDate"
-              name="endDate"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              placeholder="Sélectionner une date"
-              min={startDate || undefined}
-            />
-          </FormField>
-        </FilterGroup>
-
-        <ActionsGroup>
-          <Button type="submit" variant="primary" size="sm">
-            <AppIcon name="filter" size="sm" color="surface" />
-            Appliquer
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleResetFilters}
-          >
-            Réinitialiser
-          </Button>
-        </ActionsGroup>
-      </FiltersForm>
+          <ActionsGroup>
+            <Button type="submit" variant="primary" size="sm">
+              <AppIcon name="filter" size="sm" color="surface" />
+              Appliquer
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleResetFilters}
+            >
+              Réinitialiser
+            </Button>
+          </ActionsGroup>
+        </FiltersForm>
+      </FiltersSection>
 
       <CashierInvoiceTable
         invoices={invoices}

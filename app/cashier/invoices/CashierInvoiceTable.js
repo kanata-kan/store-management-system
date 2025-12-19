@@ -141,7 +141,7 @@ export default function CashierInvoiceTable({
       <thead>
         <tr>
           <TableHeader
-            label="Numéro"
+            label="Numéro de facture"
             sortKey="invoiceNumber"
             currentSortBy={currentSortBy}
             currentSortOrder={currentSortOrder}
@@ -155,11 +155,8 @@ export default function CashierInvoiceTable({
             onSort={handleSort}
           />
           <TableHeader
-            label="Téléphone"
-            sortKey="customer.phone"
-            currentSortBy={currentSortBy}
-            currentSortOrder={currentSortOrder}
-            onSort={handleSort}
+            label="Garantie"
+            align="center"
           />
           <TableHeader
             label="Montant total"
@@ -168,10 +165,6 @@ export default function CashierInvoiceTable({
             currentSortOrder={currentSortOrder}
             onSort={handleSort}
             align="right"
-          />
-          <TableHeader
-            label="Garantie"
-            align="center"
           />
           <TableHeader
             label="Date"
@@ -187,21 +180,25 @@ export default function CashierInvoiceTable({
         {invoices.map((invoice) => (
           <TableRow key={invoice._id || invoice.id} $status={invoice.status}>
             <TableCell>
-              <InvoiceNumber>{invoice.invoiceNumber}</InvoiceNumber>
+              <InvoiceNumber 
+                style={{ cursor: "pointer", textDecoration: "underline" }}
+                onClick={() => onViewInvoice(invoice)}
+                title="Cliquer pour voir les détails"
+              >
+                {invoice.invoiceNumber}
+              </InvoiceNumber>
             </TableCell>
             <TableCell>
               <CustomerName>{invoice.customer.name}</CustomerName>
-            </TableCell>
-            <TableCell>
               <SubLabel>{invoice.customer.phone}</SubLabel>
-            </TableCell>
-            <TableCell $align="right">
-              <strong>{formatCurrency(invoice.totalAmount)}</strong>
             </TableCell>
             <TableCell $align="center">
               <WarrantyBadge $status={invoice.warrantyStatus}>
                 {getWarrantyStatusLabel(invoice.warrantyStatus)}
               </WarrantyBadge>
+            </TableCell>
+            <TableCell $align="right">
+              <strong>{formatCurrency(invoice.totalAmount)}</strong>
             </TableCell>
             <TableCell>
               <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
@@ -215,14 +212,7 @@ export default function CashierInvoiceTable({
                   title="Voir les détails"
                 >
                   <AppIcon name="eye" size="sm" />
-                </ActionButton>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDownloadPDF(invoice._id || invoice.id)}
-                  title="Télécharger PDF"
-                >
-                  <AppIcon name="download" size="sm" />
+                  Voir
                 </ActionButton>
                 <ActionButton
                   variant="ghost"
@@ -231,6 +221,16 @@ export default function CashierInvoiceTable({
                   title="Imprimer"
                 >
                   <AppIcon name="printer" size="sm" />
+                  Imprimer
+                </ActionButton>
+                <ActionButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDownloadPDF(invoice._id || invoice.id)}
+                  title="Télécharger PDF"
+                >
+                  <AppIcon name="download" size="sm" />
+                  PDF
                 </ActionButton>
               </TableActionButtons>
             </TableCell>

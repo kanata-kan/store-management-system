@@ -31,17 +31,8 @@ function buildCashierInvoicesQuery(searchParams) {
   if (searchParams?.q) {
     params.set("q", searchParams.q);
   }
-  if (searchParams?.invoiceNumber) {
-    params.set("invoiceNumber", searchParams.invoiceNumber);
-  }
   if (searchParams?.warrantyStatus && searchParams.warrantyStatus !== "all") {
     params.set("warrantyStatus", searchParams.warrantyStatus);
-  }
-  if (searchParams?.hasWarranty) {
-    params.set("hasWarranty", searchParams.hasWarranty);
-  }
-  if (searchParams?.expiringSoon) {
-    params.set("expiringSoon", searchParams.expiringSoon);
   }
   if (searchParams?.startDate) {
     params.set("startDate", searchParams.startDate);
@@ -87,10 +78,7 @@ export default async function CashierInvoicesPage({ searchParams = {} }) {
   const currentPage = parseInt(searchParams?.page || "1", 10);
   const currentFilters = {
     q: searchParams?.q || "",
-    invoiceNumber: searchParams?.invoiceNumber || "",
     warrantyStatus: searchParams?.warrantyStatus || "all",
-    hasWarranty: searchParams?.hasWarranty || "",
-    expiringSoon: searchParams?.expiringSoon || "",
     startDate: searchParams?.startDate || "",
     endDate: searchParams?.endDate || "",
     status: searchParams?.status || "all",
