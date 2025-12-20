@@ -30,7 +30,7 @@ const Select = styled.select`
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: border-color ${(props) => props.theme.motion.duration.normal} ${(props) => props.theme.motion.easing.easeOut};
 
   &:hover {
     border-color: ${(props) => props.theme.colors.primary};
@@ -39,7 +39,7 @@ const Select = styled.select`
   &:focus {
     outline: none;
     border-color: ${(props) => props.theme.colors.primary};
-    box-shadow: 0 0 0 3px
+    box-shadow: 0 0 0 ${(props) => props.theme.spacing.xs}
       ${(props) => props.theme.colors.primary}33;
   }
 `;

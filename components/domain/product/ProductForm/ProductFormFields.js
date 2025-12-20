@@ -283,6 +283,63 @@ export default function ProductFormFields({
           step="1"
         />
       </FormField>
+
+      {/* Warranty Section */}
+      <FormField
+        label="Garantie"
+        id="warrantyEnabled"
+        helperText="Activer la garantie pour ce produit"
+      >
+        <Switch
+          id="warrantyEnabled"
+          checked={values.warranty?.enabled || false}
+          onChange={(checked) => {
+            onChange("warranty", {
+              enabled: checked,
+              durationMonths: checked
+                ? values.warranty?.durationMonths || 1
+                : null,
+            });
+          }}
+          disabled={disabled}
+        />
+      </FormField>
+
+      {values.warranty?.enabled && (
+        <FormField
+          label="Durée de garantie (mois)"
+          id="warrantyDurationMonths"
+          required
+          error={errors["warranty.durationMonths"] || errors.warranty?.durationMonths}
+          helperText="Nombre de mois de garantie (minimum 1 mois)"
+        >
+          <Input
+            id="warrantyDurationMonths"
+            type="number"
+            value={
+              values.warranty?.durationMonths !== undefined &&
+              values.warranty?.durationMonths !== null
+                ? values.warranty.durationMonths
+                : ""
+            }
+            onChange={(e) => {
+              const duration = e.target.value
+                ? parseInt(e.target.value, 10)
+                : null;
+              onChange("warranty", {
+                enabled: true,
+                durationMonths: duration,
+              });
+            }}
+            placeholder="Ex: 12"
+            required
+            disabled={disabled}
+            hasError={!!(errors["warranty.durationMonths"] || errors.warranty?.durationMonths)}
+            min="1"
+            step="1"
+          />
+        </FormField>
+      )}
     </FieldsContainer>
   );
 }

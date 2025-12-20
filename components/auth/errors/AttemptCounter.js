@@ -33,8 +33,8 @@ const CounterContainer = styled.div`
 `;
 
 const IconWrapper = styled.div`
-  width: 32px;
-  height: 32px;
+  width: ${(props) => props.theme.spacing.xxl};
+  height: ${(props) => props.theme.spacing.xxl};
   border-radius: ${(props) => props.theme.borderRadius.full};
   background: ${(props) => {
     if (props.$attemptsRemaining === 1) return props.theme.colors.errorLight;
@@ -75,12 +75,12 @@ const CounterValue = styled.span`
 
 const ProgressBar = styled.div`
   flex: 1;
-  height: 8px;
+  height: ${(props) => props.theme.spacing.sm};
   background-color: ${(props) => props.theme.colors.elevation2};
   border-radius: ${(props) => props.theme.borderRadius.full};
   overflow: hidden;
   position: relative;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: ${(props) => props.theme.shadows.inner};
 `;
 
 const ProgressFill = styled.div`
@@ -100,8 +100,9 @@ const ProgressFill = styled.div`
     }} 100%
   );
   border-radius: ${(props) => props.theme.borderRadius.full};
-  transition: width 0.3s ease, background 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: width ${(props) => props.theme.motion.duration.slow} ${(props) => props.theme.motion.easing.easeOut}, 
+              background ${(props) => props.theme.motion.duration.slow} ${(props) => props.theme.motion.easing.easeOut};
+  box-shadow: ${(props) => props.theme.shadows.xs};
 `;
 
 /**

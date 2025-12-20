@@ -51,8 +51,9 @@ export default async function CashierInvoicesPage({ searchParams = {} }) {
   );
 
   // Extract data
+  // API returns: { status: "success", data: { invoices: [...], pagination: {...} } }
   const invoicesData = invoicesResult?.data || {};
-  const invoices = Array.isArray(invoicesData?.items) ? invoicesData.items : [];
+  const invoices = Array.isArray(invoicesData?.invoices) ? invoicesData.invoices : [];
   const pagination = invoicesData?.pagination || {
     page: 1,
     limit: 20,

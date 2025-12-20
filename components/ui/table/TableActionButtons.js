@@ -39,6 +39,9 @@ const ActionButton = styled.button`
   white-space: nowrap;
   min-width: fit-content;
   flex-shrink: 0; /* Prevent buttons from shrinking */
+  background-color: ${(props) => props.theme.colors.surface};
+  color: ${(props) => props.theme.colors.foreground};
+  border: 1px solid ${(props) => props.theme.colors.border};
   
   &:disabled {
     opacity: 0.5;
@@ -47,6 +50,8 @@ const ActionButton = styled.button`
   }
   
   &:not(:disabled):hover {
+    background-color: ${(props) => props.theme.colors.surfaceHover};
+    border-color: ${(props) => props.theme.colors.primary};
     transform: translateY(-1px);
     box-shadow: ${(props) => props.theme.shadows.md};
   }
@@ -139,7 +144,7 @@ const ReturnButton = styled(ActionButton)`
 
 const IconOnlyButton = styled(ActionButton)`
   padding: ${(props) => props.theme.spacing.xs};
-  min-width: 32px;
+  min-width: ${(props) => props.theme.spacing.xxl};
   justify-content: center;
 `;
 
@@ -262,7 +267,14 @@ export default function TableActionButtons({
             title={button.title || button.label}
             aria-label={button.ariaLabel || button.label}
           >
-            {button.icon && <AppIcon name={button.icon} size="xs" color="surface" />}
+            {button.icon && (
+              <AppIcon 
+                name={button.icon} 
+                size="xs" 
+                color="foreground" 
+                spinning={button.icon === "loader"}
+              />
+            )}
             {!iconOnly && button.label}
           </VariantButton>
         );

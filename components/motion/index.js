@@ -29,13 +29,13 @@ export const fadeIn = `
  */
 export const slideUp = `
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(${theme.spacing.sm});
   animation: slideUp ${theme.motion.duration.normal} ${theme.motion.easing.easeOut} forwards;
 
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(${theme.spacing.sm});
     }
     to {
       opacity: 1;

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facture {{invoiceNumber}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #ffffff;
+      padding: 40px;
+    }
+
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+    }
+
+    /* Header */
+    .invoice-header {
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .invoice-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .invoice-number {
+      font-size: 16px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    /* Store Info */
+    .store-info {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .store-info p {
+      font-size: 11px;
+      color: #4b5563;
+      margin-bottom: 4px;
+    }
+
+    /* Two Columns Layout */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .info-section {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #2563eb;
+    }
+
+    .info-section .section-title {
+      font-size: 12px;
+      margin-bottom: 10px;
+      color: #2563eb;
+    }
+
+    .info-section p {
+      font-size: 11px;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .info-section strong {
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    /* Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .items-table thead {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .items-table th {
+      padding: 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .items-table th:first-child {
+      border-top-left-radius: 6px;
+    }
+
+    .items-table th:last-child {
+      border-top-right-radius: 6px;
+      text-align: right;
+    }
+
+    .items-table th.text-center {
+      text-align: center;
+    }
+
+    .items-table tbody tr {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .items-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .items-table tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .items-table td {
+      padding: 12px;
+      font-size: 11px;
+      color: #374151;
+    }
+
+    .items-table td:last-child {
+      text-align: right;
+    }
+
+    .items-table td.text-center {
+      text-align: center;
+    }
+
+    .product-name {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .warranty-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 9px;
+      font-weight: 600;
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .warranty-badge.no-warranty {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    /* Totals */
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+
+    .totals-box {
+      width: 300px;
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .total-row:last-child {
+      border-bottom: none;
+    }
+
+    .total-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .total-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .total-row.grand-total {
+      margin-top: 10px;
+      padding-top: 15px;
+      border-top: 2px solid #2563eb;
+    }
+
+    .total-row.grand-total .total-label {
+      font-size: 16px;
+      color: #2563eb;
+    }
+
+    .total-row.grand-total .total-value {
+      font-size: 18px;
+      color: #2563eb;
+    }
+
+    /* Warranty Section */
+    .warranty-section {
+      margin-top: 30px;
+      padding: 20px;
+      background: #eff6ff;
+      border-radius: 8px;
+      border-left: 4px solid #2563eb;
+    }
+
+    .warranty-section .section-title {
+      color: #2563eb;
+      margin-bottom: 15px;
+    }
+
+    .warranty-item {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #bfdbfe;
+    }
+
+    .warranty-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .warranty-item-name {
+      font-weight: 700;
+      font-size: 12px;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .warranty-details {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    .warranty-details span {
+      display: inline-block;
+      margin-right: 15px;
+    }
+
+    /* Footer */
+    .invoice-footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        padding: 0;
+      }
+
+      .invoice-container {
+        max-width: 100%;
+      }
+
+      .items-table tbody tr {
+        break-inside: avoid;
+      }
+
+      .totals-section {
+        break-inside: avoid;
+      }
+    }
+
+    /* Currency formatting */
+    .currency {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+      <h1 class="invoice-title">FACTURE</h1>
+      <div class="invoice-number">N° {{invoiceNumber}}</div>
+    </div>
+
+    <!-- Store Info -->
+    <div class="store-info">
+      <div class="section-title">Informations du magasin</div>
+      <p><strong>Magasin de gestion</strong></p>
+      <p>Adresse du magasin</p>
+      <p>Téléphone: +212 XXX XXX XXX</p>
+    </div>
+
+    <!-- Customer and Invoice Info -->
+    <div class="info-grid">
+      <!-- Customer Info -->
+      <div class="info-section">
+        <div class="section-title">Informations client</div>
+        <p><strong>Nom:</strong> {{customerName}}</p>
+        <p><strong>Téléphone:</strong> {{customerPhone}}</p>
+      </div>
+
+      <!-- Invoice Details -->
+      <div class="info-section">
+        <div class="section-title">Détails de la facture</div>
+        <p><strong>Date:</strong> {{invoiceDate}}</p>
+        <p><strong>Caissier:</strong> {{cashierName}}</p>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th class="text-center">Qté</th>
+          <th class="text-right">Prix unit.</th>
+          <th class="text-right">Total</th>
+          <th class="text-center">Garantie</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{itemsRows}}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div class="totals-section">
+      <div class="totals-box">
+        <div class="total-row">
+          <span class="total-label">Sous-total:</span>
+          <span class="total-value currency">{{subtotal}}</span>
+        </div>
+        <div class="total-row grand-total">
+          <span class="total-label">TOTAL:</span>
+          <span class="total-value currency">{{totalAmount}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warranty Section (if applicable) -->
+    {{warrantySection}}
+
+    <!-- Footer -->
+    <div class="invoice-footer">
+      Facture générée le {{generatedDate}}
+    </div>
+  </div>
+</body>
+</html>
+

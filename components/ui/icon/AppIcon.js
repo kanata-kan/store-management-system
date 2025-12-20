@@ -41,6 +41,10 @@ import {
   Lock,
   Clock,
   AlertCircle,
+  Receipt,
+  FileText,
+  Download,
+  Printer,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -83,6 +87,11 @@ const ICONS = {
   clock: Clock,
   "alert-circle": AlertCircle,
   package: Package,
+  invoice: Receipt,
+  receipt: Receipt,
+  "file-text": FileText,
+  download: Download,
+  printer: Printer,
   // Add more icon mappings as needed
 };
 

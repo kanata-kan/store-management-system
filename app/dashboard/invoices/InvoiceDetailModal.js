@@ -7,8 +7,10 @@
 
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import styled from "styled-components";
-import { Button, AppIcon } from "@/components/ui";
+import { Button, AppIcon, Select } from "@/components/ui";
 import { fadeIn } from "@/components/motion";
 import { formatDate as formatDateTime } from "@/lib/utils/dateFormatters.js";
 import { formatCurrency } from "@/lib/utils/currencyConfig.js";
@@ -234,6 +236,41 @@ const ErrorAlert = styled.div`
   margin-bottom: ${(props) => props.theme.spacing.md};
 `;
 
+const StatusManagementSection = styled.div`
+  margin-bottom: ${(props) => props.theme.spacing.xl};
+  padding: ${(props) => props.theme.spacing.lg};
+  background-color: ${(props) => props.theme.colors.elevation1 || props.theme.colors.surface};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+`;
+
+const StatusForm = styled.div`
+  display: flex;
+  gap: ${(props) => props.theme.spacing.md};
+  align-items: flex-end;
+  flex-wrap: wrap;
+`;
+
+const StatusFormField = styled.div`
+  flex: 1;
+  min-width: 200px;
+`;
+
+const StatusLabel = styled.label`
+  display: block;
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.foreground};
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+`;
+
+const InfoText = styled.p`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.mutedForeground};
+  margin-top: ${(props) => props.theme.spacing.sm};
+  margin-bottom: 0;
+`;
+
 export default function InvoiceDetailModal({
   invoice,
   isOpen,
@@ -241,9 +278,19 @@ export default function InvoiceDetailModal({
   onDownloadPDF,
   onPrintInvoice,
 }) {
+  const router = useRouter();
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [statusError, setStatusError] = useState(null);
+
   if (!isOpen || !invoice) {
     return null;
   }
+
+  // Check if invoice is older than 7 days
+  const invoiceDate = new Date(invoice.createdAt);
+  const now = new Date();
+  const daysDiff = Math.floor((now - invoiceDate) / (1000 * 60 * 60 * 24));
+  const isTooOld = daysDiff >= 7;
 
   const getWarrantyStatusLabel = (status) => {
     switch (status) {
@@ -265,6 +312,68 @@ export default function InvoiceDetailModal({
 
   // Check if invoice can be printed (not cancelled or returned)
   const canPrintInvoice = invoice.status === "active";
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "active":
+        return "Active";
+      case "cancelled":
+        return "Annulée";
+      case "returned":
+        return "Retournée";
+      case "paid":
+        return "Payée";
+      default:
+        return status;
+    }
+  };
+
+  const statusOptions = [
+    { value: "active", label: "Active" },
+    { value: "cancelled", label: "Annulée" },
+    { value: "returned", label: "Retournée" },
+    { value: "paid", label: "Payée" },
+  ];
+
+  const handleStatusChange = async (newStatus) => {
+    if (newStatus === invoice.status) return;
+
+    setIsUpdatingStatus(true);
+    setStatusError(null);
+
+    try {
+      const response = await fetch(`/api/invoices/${invoice._id || invoice.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        // Refresh the page to show updated invoice
+        router.refresh();
+        // Close modal and reopen with updated data
+        onClose();
+        // Trigger refresh in parent component
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        setStatusError(
+          result.error?.message || "Une erreur est survenue lors de la mise à jour du statut."
+        );
+      }
+    } catch (error) {
+      console.error("Error updating invoice status:", error);
+      setStatusError("Une erreur réseau est survenue. Veuillez réessayer.");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
 
   return (
     <ModalOverlay onClick={onClose}>
@@ -304,12 +413,7 @@ export default function InvoiceDetailModal({
             </InfoItem>
             <InfoItem>
               <InfoLabel>Statut</InfoLabel>
-              <InfoValue>
-                {invoice.status === "active" && "Active"}
-                {invoice.status === "cancelled" && "Annulée"}
-                {invoice.status === "returned" && "Retournée"}
-                {!["active", "cancelled", "returned"].includes(invoice.status) && invoice.status}
-              </InfoValue>
+              <InfoValue>{getStatusLabel(invoice.status)}</InfoValue>
             </InfoItem>
             <InfoItem>
               <InfoLabel>Caissier</InfoLabel>
@@ -408,6 +512,49 @@ export default function InvoiceDetailModal({
             </TotalsContainer>
           </TotalsSection>
         </Section>
+
+        {/* Status Management Section (Manager only) */}
+        <StatusManagementSection>
+          <SectionTitle>Gestion du statut</SectionTitle>
+          {isTooOld ? (
+            <WarningMessage role="alert">
+              <AppIcon name="lock" size="sm" color="warning" />
+              <span>
+                Cette facture est trop ancienne ({daysDiff} jour{daysDiff > 1 ? "s" : ""}). Elle ne peut plus être modifiée car elle constitue un snapshot historique.
+              </span>
+            </WarningMessage>
+          ) : (
+            <>
+              <StatusForm>
+                <StatusFormField>
+                  <StatusLabel htmlFor="invoice-status">Modifier le statut</StatusLabel>
+                  <Select
+                    id="invoice-status"
+                    value={invoice.status || "active"}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    options={statusOptions}
+                    disabled={isUpdatingStatus}
+                  />
+                </StatusFormField>
+              </StatusForm>
+              {statusError && (
+                <ErrorAlert role="alert" style={{ marginTop: "1rem" }}>
+                  <AppIcon name="warning" size="sm" color="error" />
+                  <span>{statusError}</span>
+                </ErrorAlert>
+              )}
+              {isUpdatingStatus && (
+                <InfoText>
+                  <AppIcon name="loader" size="xs" />
+                  Mise à jour en cours...
+                </InfoText>
+              )}
+              <InfoText>
+                ⚠️ Vous pouvez modifier le statut uniquement pour les factures de moins de 7 jours.
+              </InfoText>
+            </>
+          )}
+        </StatusManagementSection>
 
         {/* Actions */}
         <ModalActions>

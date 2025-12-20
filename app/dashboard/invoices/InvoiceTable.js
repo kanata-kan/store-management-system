@@ -13,7 +13,7 @@ import styled from "styled-components";
 import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { Button, AppIcon } from "@/components/ui";
+import { AppIcon } from "@/components/ui";
 import { formatDate as formatDateTime } from "@/lib/utils/dateFormatters.js";
 import { formatCurrency } from "@/lib/utils/currencyConfig.js";
 
@@ -85,6 +85,13 @@ const StatusBadge = styled.span`
     background-color: ${props.theme.colors.warning};
     color: ${props.theme.colors.surface};
   `}
+
+  ${(props) =>
+    props.$status === "paid" &&
+    `
+    background-color: ${props.theme.colors.primary};
+    color: ${props.theme.colors.surface};
+  `}
 `;
 
 const WarrantyBadge = styled.span`
@@ -117,10 +124,6 @@ const WarrantyBadge = styled.span`
   `}
 `;
 
-const ActionButton = styled(Button)`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-`;
 
 export default function InvoiceTable({
   invoices,
@@ -151,6 +154,8 @@ export default function InvoiceTable({
         return "Annulée";
       case "returned":
         return "Retournée";
+      case "paid":
+        return "Payée";
       default:
         return status;
     }
@@ -275,32 +280,33 @@ export default function InvoiceTable({
               <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
             </TableCell>
             <TableCell $align="center">
-              <TableActionButtons>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onViewInvoice(invoice)}
-                  title="Voir les détails"
-                >
-                  <AppIcon name="eye" size="sm" />
-                </ActionButton>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDownloadPDF(invoice._id || invoice.id)}
-                  title="Télécharger PDF"
-                >
-                  <AppIcon name="download" size="sm" />
-                </ActionButton>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onPrintInvoice(invoice._id || invoice.id)}
-                  title="Imprimer"
-                >
-                  <AppIcon name="printer" size="sm" />
-                </ActionButton>
-              </TableActionButtons>
+              <TableActionButtons
+                iconOnly={true}
+                align="center"
+                customButtons={[
+                  {
+                    label: "Voir les détails",
+                    icon: "eye",
+                    onClick: () => onViewInvoice(invoice),
+                    title: "Voir les détails",
+                    ariaLabel: "Voir les détails",
+                  },
+                  {
+                    label: "Télécharger PDF",
+                    icon: "download",
+                    onClick: () => onDownloadPDF(invoice._id || invoice.id),
+                    title: "Télécharger PDF",
+                    ariaLabel: "Télécharger PDF",
+                  },
+                  {
+                    label: "Imprimer",
+                    icon: "printer",
+                    onClick: () => onPrintInvoice(invoice._id || invoice.id),
+                    title: "Imprimer",
+                    ariaLabel: "Imprimer",
+                  },
+                ]}
+              />
             </TableCell>
           </TableRow>
         ))}

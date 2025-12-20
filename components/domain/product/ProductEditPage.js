@@ -80,6 +80,7 @@ export default function ProductEditPage({
             categoryId: productData.subCategory?.category?.id || productData.subCategory?.category?._id || null,
             subCategoryId: productData.subCategory?.id || productData.subCategory?._id || null,
             supplierId: productData.supplier?.id || productData.supplier?._id || null,
+            warranty: productData.warranty || { enabled: false, durationMonths: null },
           });
         } else {
           setFetchError(

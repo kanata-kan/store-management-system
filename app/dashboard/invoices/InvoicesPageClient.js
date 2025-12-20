@@ -146,16 +146,104 @@ export default function InvoicesPageClient({
     }
   };
 
-  const handleDownloadPDF = (invoiceId) => {
-    window.open(`/api/invoices/${invoiceId}/pdf`, "_blank");
+  const handleDownloadPDF = async (invoiceId) => {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        // Handle JSON error response
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors du téléchargement de la facture. Veuillez réessayer."}`);
+        } catch {
+          if (response.status === 403) {
+            alert("❌ Vous n'êtes pas autorisé à télécharger cette facture.");
+          } else if (response.status === 404) {
+            alert("❌ Facture introuvable.");
+          } else {
+            alert("❌ Erreur lors du téléchargement de la facture. Veuillez réessayer.");
+          }
+        }
+        return;
+      }
+
+      // Verify content-type before processing as blob
+      const contentType = response.headers.get("content-type");
+      if (contentType !== "application/pdf") {
+        // Response is not a PDF, try to parse as JSON error
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de la génération du PDF."}`);
+        } catch {
+          alert("❌ Réponse invalide du serveur. Veuillez réessayer.");
+        }
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `facture-${invoiceId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert("❌ Erreur réseau lors du téléchargement. Veuillez réessayer.");
+    }
   };
 
-  const handlePrintInvoice = (invoiceId) => {
-    const printWindow = window.open(`/api/invoices/${invoiceId}/pdf`, "_blank");
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.print();
-      };
+  const handlePrintInvoice = async (invoiceId) => {
+    try {
+      const response = await fetch(`/api/invoices/${invoiceId}/pdf`, {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        // Handle JSON error response
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de l'impression de la facture. Veuillez réessayer."}`);
+        } catch {
+          if (response.status === 403) {
+            alert("❌ Vous n'êtes pas autorisé à imprimer cette facture.");
+          } else if (response.status === 404) {
+            alert("❌ Facture introuvable.");
+          } else {
+            alert("❌ Erreur lors de l'impression de la facture. Veuillez réessayer.");
+          }
+        }
+        return;
+      }
+
+      // Verify content-type before processing as blob
+      const contentType = response.headers.get("content-type");
+      if (contentType !== "application/pdf") {
+        // Response is not a PDF, try to parse as JSON error
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de la génération du PDF."}`);
+        } catch {
+          alert("❌ Réponse invalide du serveur. Veuillez réessayer.");
+        }
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const printWindow = window.open(url, "_blank");
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    } catch (error) {
+      console.error("Error printing PDF:", error);
+      alert("❌ Erreur réseau lors de l'impression. Veuillez réessayer.");
     }
   };
 

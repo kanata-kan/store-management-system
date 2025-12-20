@@ -251,14 +251,14 @@ const CTAButtonStyled = styled.button`
   font-size: ${(props) => props.theme.typography.fontSize.base};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
   font-family: ${(props) => props.theme.typography.fontFamily.sans};
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: ${(props) => props.theme.colors.glassmorphism};
   backdrop-filter: blur(10px);
   color: ${(props) => props.theme.colors.surface};
   cursor: pointer;
   ${smoothTransition("all")}
   
   &:hover:not(:disabled) {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: ${(props) => props.theme.colors.glassmorphismHover};
     border-color: ${(props) => props.theme.colors.surface};
   }
   

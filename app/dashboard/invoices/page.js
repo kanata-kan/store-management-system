@@ -41,6 +41,13 @@ export default async function InvoicesPage({ searchParams = {} }) {
     fetchWithCookies("/api/users?role=cashier"),
   ]);
 
+  // Handle API errors - if invoicesData is null, it means API call failed
+  // This could be due to authentication, validation, or server errors
+  if (!invoicesData) {
+    // In production, you might want to log this or show a user-friendly error
+    console.error("[InvoicesPage] Failed to fetch invoices from API");
+  }
+
   const invoices = Array.isArray(invoicesData?.data) ? invoicesData.data : [];
 
   const pagination = invoicesData?.meta?.pagination || {

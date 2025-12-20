@@ -13,6 +13,7 @@ import styled from "styled-components";
 import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
+import { AppIcon } from "@/components/ui";
 import DeleteConfirmationModal from "@/components/ui/delete-confirmation-modal";
 
 const TableRow = styled.tr`
@@ -126,6 +127,22 @@ const PriceCell = styled.span`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
+const WarrantyBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  background-color: ${(props) => props.theme.colors.successLight};
+  color: ${(props) => props.theme.colors.success};
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  box-shadow: ${(props) => props.theme.shadows.sm};
+`;
+
+const NoWarrantyText = styled.span`
+  color: ${(props) => props.theme.colors.muted};
+`;
 
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
 
@@ -258,6 +275,7 @@ export default function ProductsTable({
             onSort={handleSort}
             align="right"
           />
+          <TableHeader label="Garantie" align="center" />
           <TableHeader label="Actions" align="center" />
         </tr>
       }
@@ -297,6 +315,16 @@ export default function ProductsTable({
             </TableCell>
             <TableCell $align="right">
               <PriceCell>{formatCurrencyValue(product.purchasePrice)} {getCurrencySymbol()}</PriceCell>
+            </TableCell>
+            <TableCell $align="center">
+              {product.warranty?.enabled ? (
+                <WarrantyBadge>
+                  <AppIcon name="shield" size="xs" />
+                  {product.warranty.durationMonths} mois
+                </WarrantyBadge>
+              ) : (
+                <NoWarrantyText>—</NoWarrantyText>
+              )}
             </TableCell>
             <TableCell $align="center">
               <TableActionButtons

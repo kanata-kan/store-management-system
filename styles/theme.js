@@ -45,6 +45,11 @@ export const theme = {
     elevation1: "#ffffff",
     elevation2: "#f9fafb",
     elevation3: "#f3f4f6",
+    
+    // Overlay and glassmorphism effects
+    overlay: "rgba(0, 0, 0, 0.6)", // Modal overlay backdrop
+    glassmorphism: "rgba(255, 255, 255, 0.2)", // Glassmorphism effect
+    glassmorphismHover: "rgba(255, 255, 255, 0.3)", // Glassmorphism hover state
   },
   spacing: {
     xs: "0.25rem",

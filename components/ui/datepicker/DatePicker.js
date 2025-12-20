@@ -80,7 +80,7 @@ const CalendarPopup = styled.div`
   background: ${(props) => props.theme.colors.surface};
   border: 1px solid ${(props) => props.theme.colors.border};
   border-radius: ${(props) => props.theme.borderRadius.md};
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: ${(props) => props.theme.shadows.dropdown};
   padding: ${(props) => props.theme.spacing.md};
   ${smoothTransition("opacity, transform")}
 

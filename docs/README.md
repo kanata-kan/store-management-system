@@ -1,58 +1,265 @@
-# Documentation Index
+# 📚 Documentation Home
 
-This directory contains all project documentation organized by category.
+> المرجع الشامل لجميع توثيق Store Management System
 
-## 📁 Directory Structure
-
-### 📋 `requirements/`
-
-Contains requirement specifications and functional documentation:
-
-- **SRS.md** - Software Requirements Specification (متطلبات النظام)
-
-### 🏗️ `design/`
-
-Contains technical design and architecture documentation:
-
-- **SDS.md** - Software Design Specification (مواصفات التصميم)
-- **ARCHITECTURE_BLUEPRINT.md** - System Architecture Blueprint (المخطط المعماري)
-
-### 🔌 `api/`
-
-Contains API documentation and contracts:
-
-- **API_CONTRACT.md** - Complete API endpoint specifications (عقد واجهة برمجة التطبيقات)
-
-### 📏 `standards/`
-
-Contains coding standards and guidelines:
-
-- **CODING_STANDARDS.md** - Development standards and best practices (معايير البرمجة)
-
-### 🚀 `deployment/`
-
-Contains deployment and DevOps documentation:
-
-- **CI_CD.md** - Continuous Integration and Deployment guide (دليل النشر)
-
-### 📊 `project-management/`
-
-Contains project planning and tracking documents:
-
-- **ROADMAP.md** - Project roadmap and milestones (خارطة الطريق)
-- **TASK_BREAKDOWN.md** - Detailed task breakdown (تفصيل المهام)
-- **SUMMARY_OF_CHANGES.md** - Change log and version history (سجل التغييرات)
+**آخر تحديث:** 20 ديسمبر 2025  
+**الإصدار:** 2.0  
+**الحالة:** ✅ Active
 
 ---
 
-## 📖 Quick Navigation
+## 🎯 البدء السريع
 
-- **Starting Development?** → Read `requirements/SRS.md` first
-- **Understanding Architecture?** → Check `design/ARCHITECTURE_BLUEPRINT.md`
-- **Building APIs?** → Reference `api/API_CONTRACT.md`
-- **Setting up CI/CD?** → Follow `deployment/CI_CD.md`
-- **Planning Work?** → Review `project-management/ROADMAP.md` and `project-management/TASK_BREAKDOWN.md`
+### للمطور الجديد
+**ابدأ من هنا:**
+1. [Getting Started](01-getting-started/) - البداية السريعة (30 دقيقة)
+2. [Architecture](02-architecture/) - فهم البنية (1 ساعة)
+3. [Development Guide](03-development/) - معايير التطوير (2 ساعة)
+
+### للمطور المتقدم
+**انتقل مباشرة إلى:**
+- [API Documentation](04-api/) - مرجع APIs
+- [Features](05-features/) - تفاصيل الميزات
+- [Database](06-database/) - قاعدة البيانات
 
 ---
 
-**Note:** All user-facing UI text must be in **French**. All technical documentation, code, and comments must be in **English**.
+## 📖 البنية الجديدة
+
+### 📁 الأقسام الرئيسية
+
+| القسم | الوصف | الهدف | الوقت |
+|-------|--------|-------|-------|
+| [01-getting-started/](01-getting-started/) | البداية السريعة | تشغيل المشروع محلياً | 30-60 دقيقة |
+| [02-architecture/](02-architecture/) | البنية المعمارية | فهم التصميم والمبادئ | 1-2 ساعة |
+| [03-development/](03-development/) | دليل التطوير | معايير البرمجة | 2 ساعة |
+| [04-api/](04-api/) | توثيق APIs | مرجع endpoints | حسب الحاجة |
+| [05-features/](05-features/) | الميزات | فهم كل ميزة | حسب الحاجة |
+| [06-database/](06-database/) | قاعدة البيانات | Models وSchemas | حسب الحاجة |
+| [07-ui-ux/](07-ui-ux/) | التصميم | نظام التصميم | حسب الحاجة |
+| [08-deployment/](08-deployment/) | النشر | Production setup | عند النشر |
+| [09-maintenance/](09-maintenance/) | الصيانة | حل المشاكل | عند الحاجة |
+
+---
+
+## 🚀 مسارات التعلم
+
+### 🟢 المسار 1: للمطور الجديد (3-4 ساعات)
+```
+1. Getting Started (30 min)
+   └─> تثبيت وتشغيل المشروع
+
+2. Architecture Overview (1 hour)
+   └─> فهم البنية الأساسية
+
+3. Development Guide (2 hours)
+   └─> معايير التطوير والبرمجة
+
+4. First Feature (30 min)
+   └─> إضافة أول feature
+```
+
+### 🟡 المسار 2: لمطور Frontend (2 ساعات)
+```
+1. Architecture → UI Layer (30 min)
+2. UI/UX Guide (1 hour)
+3. Component Patterns (30 min)
+4. Start coding!
+```
+
+### 🔴 المسار 3: لمطور Backend (2 ساعات)
+```
+1. Architecture → Service Layer (30 min)
+2. API Documentation (30 min)
+3. Database Documentation (30 min)
+4. Service Patterns (30 min)
+5. Start coding!
+```
+
+---
+
+## 📋 الملفات الأساسية
+
+### في Root
+- [README.md](../README.md) - نقطة البداية للمشروع
+- [ARCHITECTURE.md](../ARCHITECTURE.md) - المبادئ الرسمية والملزمة ⭐
+
+### في docs/
+- هذا الملف - الدليل الرئيسي للتوثيق
+- 9 أقسام منظمة حسب الموضوع
+- Archive - المحتوى التاريخي
+
+---
+
+## 🗂️ البنية المنطقية
+
+```
+📚 docs/
+│
+├── 01-getting-started/     ⚡ البداية
+│   ├── Quick start
+│   ├── Installation
+│   └── First steps
+│
+├── 02-architecture/        🏗️ الفهم
+│   ├── System overview
+│   ├── Service layer
+│   └── Data layer
+│
+├── 03-development/         💻 التطوير
+│   ├── Coding standards
+│   ├── Patterns
+│   └── Testing
+│
+├── 04-api/                 🌐 المرجع
+│   └── API endpoints
+│
+├── 05-features/            🎯 الميزات
+│   ├── Authentication
+│   ├── Products
+│   └── Sales
+│
+├── 06-database/            🗄️ البيانات
+│   ├── Models
+│   └── Schemas
+│
+├── 07-ui-ux/              🎨 التصميم
+│   ├── Design system
+│   └── Components
+│
+├── 08-deployment/          🚀 النشر
+│   └── CI/CD
+│
+├── 09-maintenance/         🔧 الصيانة
+│   └── Troubleshooting
+│
+└── archive/                📦 الأرشيف
+    └── Historical content
+```
+
+---
+
+## ❓ أين أجد...؟
+
+### كيف أبدأ؟
+→ [Getting Started](01-getting-started/)
+
+### كيف يعمل النظام؟
+→ [Architecture](02-architecture/)
+
+### كيف أكتب الكود؟
+→ [Development Guide](03-development/)
+
+### أين API endpoints؟
+→ [API Documentation](04-api/)
+
+### كيف تعمل ميزة معينة؟
+→ [Features](05-features/)
+
+### كيف أصمم قاعدة البيانات؟
+→ [Database](06-database/)
+
+### كيف أستخدم Theme؟
+→ [UI/UX Guide](07-ui-ux/)
+
+### كيف أنشر المشروع؟
+→ [Deployment](08-deployment/)
+
+### كيف أحل مشكلة؟
+→ [Maintenance](09-maintenance/)
+
+### أين المحتوى القديم؟
+→ [Archive](archive/)
+
+---
+
+## 🎯 المبادئ الأساسية
+
+```javascript
+// 1. Business logic في Service Layer فقط
+await ProductService.createProduct(data);
+
+// 2. Validation باستخدام Zod
+const validated = validateProduct(body);
+
+// 3. Authorization server-side
+await requireManager(request);
+
+// 4. French UI / English Code
+<Button>Ajouter un produit</Button> // ✅
+
+// 5. Theme tokens فقط
+background: ${props => props.theme.colors.primary}; // ✅
+```
+
+---
+
+## 📞 الحصول على المساعدة
+
+### مشكلة تقنية؟
+1. راجع [Troubleshooting](09-maintenance/troubleshooting.md)
+2. ابحث في التوثيق
+3. اسأل الفريق
+
+### أين الملف الذي أريده؟
+- استخدم الجدول أعلاه
+- تصفح الأقسام
+- ابحث في Archive إذا كان قديماً
+
+---
+
+## 🔄 آخر التحديثات
+
+### Version 2.0 (2025-12-20)
+- ✅ إعادة هيكلة كاملة للتوثيق
+- ✅ تنظيم حسب الموضوع (لا الزمن)
+- ✅ 9 أقسام منظمة
+- ✅ ~100 ملف منقول للأرشيف
+- ✅ README شامل لكل قسم
+
+---
+
+## 🌟 نصائح مهمة
+
+1. **ابدأ من getting-started/** - لا تتخطاها
+2. **اقرأ ARCHITECTURE.md** - مبادئ رسمية وملزمة
+3. **استخدم Archive فقط للمرجع** - ليس للتطوير
+4. **حدّث التوثيق** عند تعديل الكود
+5. **اتبع المعايير** في Development Guide
+
+---
+
+## 🏆 معايير الجودة
+
+### ✅ التوثيق الجيد
+- واضح ومباشر
+- أمثلة من الكود الفعلي
+- محدث دائماً
+- منظم منطقياً
+
+### ❌ التوثيق السيئ
+- قديم وغير محدث
+- بدون أمثلة
+- غير منظم
+- يحتوي على معلومات خاطئة
+
+---
+
+## 📚 الموارد الإضافية
+
+- [Project Repository](https://github.com/your-repo)
+- [Issue Tracker](https://github.com/your-repo/issues)
+- [Contributing Guide](../CONTRIBUTING.md) _(قريباً)_
+- [Changelog](../CHANGELOG.md) _(قريباً)_
+
+---
+
+**Status:** ✅ Active & Maintained  
+**Version:** 2.0  
+**Last Major Update:** 2025-12-20  
+**Next Review:** 2026-01-20
+
+---
+
+**مُعد بواسطة:** Documentation Refactor Project  
+**الهدف:** توثيق احترافي يُسهّل الفهم والصيانة

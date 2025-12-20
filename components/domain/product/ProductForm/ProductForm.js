@@ -114,6 +114,7 @@ export default function ProductForm({
     purchasePrice: null,
     stock: 0,
     lowStockThreshold: null,
+    warranty: { enabled: false, durationMonths: null },
     ...initialValues,
   });
 
@@ -136,6 +137,7 @@ export default function ProductForm({
         purchasePrice: initialValues.purchasePrice || null,
         stock: initialValues.stock !== undefined ? initialValues.stock : 0,
         lowStockThreshold: initialValues.lowStockThreshold !== undefined ? initialValues.lowStockThreshold : null,
+        warranty: initialValues.warranty || { enabled: false, durationMonths: null },
       });
     }
   }, [mode, initialValues]);
@@ -199,6 +201,17 @@ export default function ProductForm({
       newErrors.stock = "Le stock doit être un nombre supérieur ou égal à 0";
     }
 
+    // Warranty validation
+    if (values.warranty?.enabled === true) {
+      if (
+        !values.warranty.durationMonths ||
+        values.warranty.durationMonths < 1
+      ) {
+        newErrors["warranty.durationMonths"] =
+          "La durée de garantie doit être d'au moins 1 mois";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -231,6 +244,20 @@ export default function ProductForm({
       // Optional fields - only include if they have values
       if (values.lowStockThreshold !== null && values.lowStockThreshold !== undefined && values.lowStockThreshold !== "") {
         formData.lowStockThreshold = Number(values.lowStockThreshold);
+      }
+
+      // Add warranty
+      if (values.warranty?.enabled === true) {
+        formData.warranty = {
+          enabled: true,
+          durationMonths: Number(values.warranty.durationMonths),
+        };
+      } else {
+        // Explicitly set to disabled
+        formData.warranty = {
+          enabled: false,
+          durationMonths: null,
+        };
       }
 
       // Call parent's onSubmit handler (no API calls here)

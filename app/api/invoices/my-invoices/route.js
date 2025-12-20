@@ -76,7 +76,12 @@ export async function GET(request) {
     // STRICTLY filter by cashierId - cashier can only see their own invoices
     const result = await InvoiceService.getCashierInvoices(user.id, options);
 
-    return success(result);
+    // Return standardized response: { invoices: [...], pagination: {...} }
+    // This matches the structure expected by the frontend
+    return success({
+      invoices: result.invoices,
+      pagination: result.pagination,
+    });
   } catch (err) {
     return error(err);
   }

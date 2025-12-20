@@ -122,12 +122,31 @@ export default function CashierInvoicesPageClient({
       });
       
       if (!response.ok) {
-        if (response.status === 403) {
-          alert("❌ Vous n'êtes pas autorisé à télécharger cette facture.");
-        } else if (response.status === 404) {
-          alert("❌ Facture introuvable.");
-        } else {
-          alert("❌ Erreur lors du téléchargement de la facture. Veuillez réessayer.");
+        // Handle JSON error response
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors du téléchargement de la facture. Veuillez réessayer."}`);
+        } catch {
+          if (response.status === 403) {
+            alert("❌ Vous n'êtes pas autorisé à télécharger cette facture.");
+          } else if (response.status === 404) {
+            alert("❌ Facture introuvable.");
+          } else {
+            alert("❌ Erreur lors du téléchargement de la facture. Veuillez réessayer.");
+          }
+        }
+        return;
+      }
+      
+      // Verify content-type before processing as blob
+      const contentType = response.headers.get("content-type");
+      if (contentType !== "application/pdf") {
+        // Response is not a PDF, try to parse as JSON error
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de la génération du PDF."}`);
+        } catch {
+          alert("❌ Réponse invalide du serveur. Veuillez réessayer.");
         }
         return;
       }
@@ -159,12 +178,31 @@ export default function CashierInvoicesPageClient({
       });
       
       if (!response.ok) {
-        if (response.status === 403) {
-          alert("❌ Vous n'êtes pas autorisé à imprimer cette facture.");
-        } else if (response.status === 404) {
-          alert("❌ Facture introuvable.");
-        } else {
-          alert("❌ Erreur lors de l'impression de la facture. Veuillez réessayer.");
+        // Handle JSON error response
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de l'impression de la facture. Veuillez réessayer."}`);
+        } catch {
+          if (response.status === 403) {
+            alert("❌ Vous n'êtes pas autorisé à imprimer cette facture.");
+          } else if (response.status === 404) {
+            alert("❌ Facture introuvable.");
+          } else {
+            alert("❌ Erreur lors de l'impression de la facture. Veuillez réessayer.");
+          }
+        }
+        return;
+      }
+      
+      // Verify content-type before processing as blob
+      const contentType = response.headers.get("content-type");
+      if (contentType !== "application/pdf") {
+        // Response is not a PDF, try to parse as JSON error
+        try {
+          const errorData = await response.json();
+          alert(`❌ ${errorData.error?.message || "Erreur lors de la génération du PDF."}`);
+        } catch {
+          alert("❌ Réponse invalide du serveur. Veuillez réessayer.");
         }
         return;
       }
@@ -233,7 +271,8 @@ export default function CashierInvoicesPageClient({
         downloadingInvoiceId={downloadingInvoiceId}
       />
 
-      {pagination.totalPages > 1 && (
+      {/* Pagination - only show if more than 1 page */}
+      {pagination && pagination.totalPages > 1 && (
         <Pagination
           currentPage={pagination.page}
           totalPages={pagination.totalPages}

@@ -50,18 +50,18 @@ export async function GET(request) {
       queryParams.cashierId = searchParams.get("cashierId");
     }
 
-    // Pagination
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
+    // Pagination - keep as strings for validation schema
+    queryParams.page = searchParams.get("page") || "1";
+    queryParams.limit = searchParams.get("limit") || "20";
 
     // Sorting
-    const sortBy = searchParams.get("sortBy") || "createdAt";
-    const sortOrder = searchParams.get("sortOrder") || "desc";
+    queryParams.sortBy = searchParams.get("sortBy") || "createdAt";
+    queryParams.sortOrder = searchParams.get("sortOrder") || "desc";
 
-    queryParams.page = page;
-    queryParams.limit = limit;
-    queryParams.sortBy = sortBy;
-    queryParams.sortOrder = sortOrder;
+    // Ensure status has default value if not provided
+    if (!queryParams.status) {
+      queryParams.status = "all";
+    }
 
     // Validate query parameters
     const validated = validateGetInvoicesQuery(queryParams);

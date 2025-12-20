@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { Table, TableHeader, TableActionButtons } from "@/components/ui/table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { slideUp, smoothTransition } from "@/components/motion";
-import { Button, AppIcon } from "@/components/ui";
+import { AppIcon } from "@/components/ui";
 import { formatDate as formatDateTime } from "@/lib/utils/dateFormatters.js";
 import { formatCurrency } from "@/lib/utils/currencyConfig.js";
 
@@ -146,15 +146,6 @@ const StatusBadge = styled.span`
   `}
 `;
 
-const ActionButton = styled(Button)`
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
 
 export default function CashierInvoiceTable({
   invoices,
@@ -240,7 +231,7 @@ export default function CashierInvoiceTable({
 
   return (
     <Table>
-      <thead>
+      <tbody>
         <tr>
           <TableHeader
             label="Numéro de facture"
@@ -285,8 +276,6 @@ export default function CashierInvoiceTable({
           />
           <TableHeader label="Actions" align="center" />
         </tr>
-      </thead>
-      <tbody>
         {invoices.map((invoice) => (
           <TableRow key={invoice._id || invoice.id} $status={invoice.status}>
             <TableCell>
@@ -343,23 +332,23 @@ export default function CashierInvoiceTable({
               <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
             </TableCell>
             <TableCell $align="center">
-              <TableActionButtons>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onViewInvoice(invoice)}
-                  title="Voir les détails"
-                >
-                  <AppIcon name="eye" size="sm" />
-                  Voir
-                </ActionButton>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onPrintInvoice(invoice._id || invoice.id)}
-                  disabled={!canPrintInvoice(invoice) || printingInvoiceId === (invoice._id || invoice.id)}
-                  title={
-                    !canPrintInvoice(invoice)
+              <TableActionButtons
+                iconOnly={false}
+                align="center"
+                customButtons={[
+                  {
+                    label: "Voir",
+                    icon: "eye",
+                    onClick: () => onViewInvoice(invoice),
+                    title: "Voir les détails",
+                    ariaLabel: "Voir les détails",
+                  },
+                  {
+                    label: printingInvoiceId === (invoice._id || invoice.id) ? "Impression..." : "Imprimer",
+                    icon: printingInvoiceId === (invoice._id || invoice.id) ? "loader" : "printer",
+                    onClick: () => onPrintInvoice(invoice._id || invoice.id),
+                    disabled: !canPrintInvoice(invoice) || printingInvoiceId === (invoice._id || invoice.id),
+                    title: !canPrintInvoice(invoice)
                       ? invoice.status === "cancelled"
                         ? "Cette facture est annulée. Elle ne peut pas être imprimée."
                         : invoice.status === "returned"
@@ -367,23 +356,15 @@ export default function CashierInvoiceTable({
                         : "Cette facture ne peut pas être imprimée."
                       : printingInvoiceId === (invoice._id || invoice.id)
                       ? "Impression en cours..."
-                      : "Imprimer"
-                  }
-                >
-                  {printingInvoiceId === (invoice._id || invoice.id) ? (
-                    <AppIcon name="loader" size="sm" spinning />
-                  ) : (
-                    <AppIcon name="printer" size="sm" />
-                  )}
-                  {printingInvoiceId === (invoice._id || invoice.id) ? "Impression..." : "Imprimer"}
-                </ActionButton>
-                <ActionButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDownloadPDF(invoice._id || invoice.id)}
-                  disabled={!canPrintInvoice(invoice) || downloadingInvoiceId === (invoice._id || invoice.id)}
-                  title={
-                    !canPrintInvoice(invoice)
+                      : "Imprimer",
+                    ariaLabel: "Imprimer",
+                  },
+                  {
+                    label: downloadingInvoiceId === (invoice._id || invoice.id) ? "Téléchargement..." : "PDF",
+                    icon: downloadingInvoiceId === (invoice._id || invoice.id) ? "loader" : "download",
+                    onClick: () => onDownloadPDF(invoice._id || invoice.id),
+                    disabled: !canPrintInvoice(invoice) || downloadingInvoiceId === (invoice._id || invoice.id),
+                    title: !canPrintInvoice(invoice)
                       ? invoice.status === "cancelled"
                         ? "Cette facture est annulée. Elle ne peut pas être téléchargée."
                         : invoice.status === "returned"
@@ -391,17 +372,11 @@ export default function CashierInvoiceTable({
                         : "Cette facture ne peut pas être téléchargée."
                       : downloadingInvoiceId === (invoice._id || invoice.id)
                       ? "Téléchargement en cours..."
-                      : "Télécharger PDF"
-                  }
-                >
-                  {downloadingInvoiceId === (invoice._id || invoice.id) ? (
-                    <AppIcon name="loader" size="sm" spinning />
-                  ) : (
-                    <AppIcon name="download" size="sm" />
-                  )}
-                  {downloadingInvoiceId === (invoice._id || invoice.id) ? "Téléchargement..." : "PDF"}
-                </ActionButton>
-              </TableActionButtons>
+                      : "Télécharger PDF",
+                    ariaLabel: "Télécharger PDF",
+                  },
+                ]}
+              />
             </TableCell>
           </TableRow>
         ))}
