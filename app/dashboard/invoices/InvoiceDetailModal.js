@@ -1,8 +1,7 @@
 /**
- * InvoiceDetailModal Component
+ * InvoiceDetailModal Component (Improved)
  *
- * Modal for displaying full invoice details.
- * Includes customer info, items, warranty status, and actions.
+ * Professional invoice details modal with better organization and clarity.
  */
 
 "use client";
@@ -21,79 +20,166 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.lg};
   ${fadeIn}
 `;
 
 const ModalContent = styled.div`
-  background: linear-gradient(
-    135deg,
-    ${(props) => props.theme.colors.surface} 0%,
-    ${(props) => props.theme.colors.elevation2} 100%
-  );
+  background: ${(props) => props.theme.colors.surface};
   border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.lg};
-  padding: ${(props) => props.theme.spacing.xl};
-  max-width: 900px;
-  width: 90%;
+  border-radius: ${(props) => props.theme.borderRadius.xl};
+  max-width: 1100px;
+  width: 100%;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: ${(props) => props.theme.shadows.modal || props.theme.shadows.card};
-  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
   ${fadeIn}
 `;
 
 const ModalHeader = styled.div`
+  padding: ${(props) => props.theme.spacing.xl} ${(props) => props.theme.spacing.xl};
+  border-bottom: 2px solid ${(props) => props.theme.colors.border};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary}10 0%,
+    transparent 100%
+  );
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: ${(props) => props.theme.spacing.xl};
-  padding-bottom: ${(props) => props.theme.spacing.md};
-  border-bottom: 2px solid ${(props) => props.theme.colors.borderLight};
+  flex-shrink: 0;
+`;
+
+const HeaderLeft = styled.div`
+  flex: 1;
 `;
 
 const ModalTitle = styled.h2`
-  font-size: ${(props) => props.theme.typography.fontSize.xl};
-  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  font-size: ${(props) => props.theme.typography.fontSize["2xl"]};
+  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
   color: ${(props) => props.theme.colors.foreground};
-  margin: 0;
+  margin: 0 0 ${(props) => props.theme.spacing.xs} 0;
 `;
 
-const CloseButton = styled(Button)`
-  padding: ${(props) => props.theme.spacing.xs};
+const InvoiceNumber = styled.div`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.mutedForeground};
+  font-family: ${(props) => props.theme.typography.fontFamily.mono};
 `;
 
-const Section = styled.div`
+const CloseButton = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: ${(props) => props.theme.borderRadius.full};
+  border: none;
+  background: ${(props) => props.theme.colors.elevation1};
+  color: ${(props) => props.theme.colors.foreground};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: ${(props) => props.theme.colors.error};
+    color: ${(props) => props.theme.colors.surface};
+    transform: rotate(90deg);
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: ${(props) => props.theme.spacing.xl};
+  overflow-y: auto;
+  flex: 1;
+`;
+
+const StatusBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.lg};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
   margin-bottom: ${(props) => props.theme.spacing.xl};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  
+  ${(props) => {
+    if (props.$variant === "error") {
+      return `
+        background: linear-gradient(135deg, ${props.theme.colors.error}15 0%, ${props.theme.colors.error}05 100%);
+        border: 2px solid ${props.theme.colors.error};
+        color: ${props.theme.colors.error};
+      `;
+    }
+    if (props.$variant === "warning") {
+      return `
+        background: linear-gradient(135deg, ${props.theme.colors.warning}15 0%, ${props.theme.colors.warning}05 100%);
+        border: 2px solid ${props.theme.colors.warning};
+        color: ${props.theme.colors.warningForeground};
+      `;
+    }
+  }}
 `;
 
-const SectionTitle = styled.h3`
+const TwoColumnLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${(props) => props.theme.spacing.xl};
+  margin-bottom: ${(props) => props.theme.spacing.xl};
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+    gap: ${(props) => props.theme.spacing.lg};
+  }
+`;
+
+const InfoCard = styled.div`
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.elevation1} 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.lg};
+`;
+
+const CardTitle = styled.h3`
   font-size: ${(props) => props.theme.typography.fontSize.base};
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
-  color: ${(props) => props.theme.colors.foreground};
+  color: ${(props) => props.theme.colors.primary};
   margin: 0 0 ${(props) => props.theme.spacing.md} 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
 `;
 
 const InfoGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: ${(props) => props.theme.spacing.md};
 `;
 
-const InfoItem = styled.div`
+const InfoRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.spacing.xs};
+  justify-content: space-between;
+  align-items: center;
+  padding: ${(props) => props.theme.spacing.sm} 0;
+  border-bottom: 1px solid ${(props) => props.theme.colors.borderLight};
+  
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const InfoLabel = styled.span`
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.mutedForeground};
   font-weight: ${(props) => props.theme.typography.fontWeight.medium};
 `;
@@ -101,174 +187,168 @@ const InfoLabel = styled.span`
 const InfoValue = styled.span`
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.foreground};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  text-align: right;
+`;
+
+const ItemsSection = styled.div`
+  margin-bottom: ${(props) => props.theme.spacing.xl};
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-bottom: ${(props) => props.theme.spacing.lg};
+  padding-bottom: ${(props) => props.theme.spacing.md};
+  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+`;
+
+const SectionTitle = styled.h3`
+  font-size: ${(props) => props.theme.typography.fontSize.lg};
+  font-weight: ${(props) => props.theme.typography.fontWeight.bold};
+  color: ${(props) => props.theme.colors.foreground};
+  margin: 0;
 `;
 
 const ItemsTable = styled.table`
   width: 100%;
-  border-collapse: collapse;
-  margin-top: ${(props) => props.theme.spacing.md};
+  border-collapse: separate;
+  border-spacing: 0;
+  background: ${(props) => props.theme.colors.surface};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  overflow: hidden;
+  border: 1px solid ${(props) => props.theme.colors.border};
 `;
 
-const ItemsTableHeader = styled.thead`
-  background-color: ${(props) => props.theme.colors.elevation1};
-  border-bottom: 2px solid ${(props) => props.theme.colors.border};
+const TableHeader = styled.thead`
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary} 0%,
+    ${(props) => props.theme.colors.secondary} 100%
+  );
 `;
 
-const ItemsTableHeaderCell = styled.th`
+const TableHeaderCell = styled.th`
   padding: ${(props) => props.theme.spacing.md};
   text-align: ${(props) => props.$align || "left"};
   font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
-  color: ${(props) => props.theme.colors.foreground};
+  color: ${(props) => props.theme.colors.surface};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
 `;
 
-const ItemsTableRow = styled.tr`
-  border-bottom: 1px solid ${(props) => props.theme.colors.border};
-
+const TableRow = styled.tr`
+  border-bottom: 1px solid ${(props) => props.theme.colors.borderLight};
+  transition: background-color 0.2s;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
   &:hover {
-    background-color: ${(props) => props.theme.colors.surfaceHover};
+    background-color: ${(props) => props.theme.colors.elevation1};
   }
 `;
 
-const ItemsTableCell = styled.td`
+const TableCell = styled.td`
   padding: ${(props) => props.theme.spacing.md};
   font-size: ${(props) => props.theme.typography.fontSize.sm};
   color: ${(props) => props.theme.colors.foreground};
   text-align: ${(props) => props.$align || "left"};
+  vertical-align: middle;
 `;
 
-const WarrantyInfo = styled.div`
+const ProductInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${(props) => props.theme.spacing.xs};
 `;
 
-const WarrantyStatusBadge = styled.span`
-  display: inline-block;
-  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
-  border-radius: ${(props) => props.theme.borderRadius.full};
+const ProductName = styled.div`
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) => props.theme.colors.foreground};
+`;
+
+const ProductBrand = styled.div`
   font-size: ${(props) => props.theme.typography.fontSize.xs};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  width: fit-content;
-
-  ${(props) =>
-    props.$status === "active" &&
-    `
-    background-color: ${props.theme.colors.success};
-    color: ${props.theme.colors.surface};
-  `}
-
-  ${(props) =>
-    props.$status === "expired" &&
-    `
-    background-color: ${props.theme.colors.error};
-    color: ${props.theme.colors.surface};
-  `}
-
-  ${(props) =>
-    props.$status === "none" &&
-    `
-    background-color: ${props.theme.colors.muted};
-    color: ${props.theme.colors.foreground};
-  `}
+  color: ${(props) => props.theme.colors.mutedForeground};
 `;
 
-const TotalsSection = styled.div`
-  display: flex;
-  justify-content: flex-end;
+const WarrantyBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.xs};
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  
+  ${(props) => {
+    if (props.$status === "active") {
+      return `
+        background: ${props.theme.colors.success};
+        color: ${props.theme.colors.surface};
+      `;
+    }
+    if (props.$status === "expired") {
+      return `
+        background: ${props.theme.colors.error};
+        color: ${props.theme.colors.surface};
+      `;
+    }
+    return `
+      background: ${props.theme.colors.muted};
+      color: ${props.theme.colors.foreground};
+    `;
+  }}
+`;
+
+const WarrantyDate = styled.div`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.mutedForeground};
+  margin-top: ${(props) => props.theme.spacing.xs};
+`;
+
+const TotalsCard = styled.div`
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primary}10 0%,
+    transparent 100%
+  );
+  border: 2px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  padding: ${(props) => props.theme.spacing.lg};
   margin-top: ${(props) => props.theme.spacing.lg};
-  padding-top: ${(props) => props.theme.spacing.md};
-  border-top: 2px solid ${(props) => props.theme.colors.border};
-`;
-
-const TotalsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${(props) => props.theme.spacing.sm};
-  min-width: 250px;
 `;
 
 const TotalRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: ${(props) => props.theme.typography.fontSize[props.$size || "sm"]};
-  font-weight: ${(props) =>
-    props.$bold
-      ? props.theme.typography.fontWeight.semibold
-      : props.theme.typography.fontWeight.medium};
+  padding: ${(props) => props.theme.spacing.sm} 0;
+  font-size: ${(props) => props.theme.typography.fontSize[props.$size || "base"]};
+  font-weight: ${(props) => props.theme.typography.fontWeight[props.$weight || "medium"]};
   color: ${(props) => props.theme.colors.foreground};
+  
+  ${(props) => props.$highlight && `
+    padding-top: ${props.theme.spacing.md};
+    border-top: 2px solid ${props.theme.colors.primary};
+    margin-top: ${props.theme.spacing.sm};
+  `}
 `;
 
-const ModalActions = styled.div`
+const ModalFooter = styled.div`
+  padding: ${(props) => props.theme.spacing.xl};
+  border-top: 2px solid ${(props) => props.theme.colors.border};
+  background: ${(props) => props.theme.colors.elevation1};
   display: flex;
   gap: ${(props) => props.theme.spacing.md};
   justify-content: flex-end;
-  margin-top: ${(props) => props.theme.spacing.xl};
-  padding-top: ${(props) => props.theme.spacing.md};
-  border-top: 1px solid ${(props) => props.theme.colors.borderLight};
-`;
-
-const WarningMessage = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.sm};
-  padding: ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.warningLight};
-  border: 1px solid ${(props) => props.theme.colors.warning};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  color: ${(props) => props.theme.colors.foreground};
-  font-size: ${(props) => props.theme.typography.fontSize.sm};
-  margin-bottom: ${(props) => props.theme.spacing.md};
-`;
-
-const ErrorAlert = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.sm};
-  padding: ${(props) => props.theme.spacing.md};
-  background-color: ${(props) => props.theme.colors.errorLight};
-  border: 1px solid ${(props) => props.theme.colors.error};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  color: ${(props) => props.theme.colors.error};
-  font-size: ${(props) => props.theme.typography.fontSize.sm};
-  margin-bottom: ${(props) => props.theme.spacing.md};
-`;
-
-const StatusManagementSection = styled.div`
-  margin-bottom: ${(props) => props.theme.spacing.xl};
-  padding: ${(props) => props.theme.spacing.lg};
-  background-color: ${(props) => props.theme.colors.elevation1 || props.theme.colors.surface};
-  border: 1px solid ${(props) => props.theme.colors.border};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-`;
-
-const StatusForm = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.md};
-  align-items: flex-end;
+  flex-shrink: 0;
   flex-wrap: wrap;
-`;
-
-const StatusFormField = styled.div`
-  flex: 1;
-  min-width: 200px;
-`;
-
-const StatusLabel = styled.label`
-  display: block;
-  font-size: ${(props) => props.theme.typography.fontSize.sm};
-  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
-  color: ${(props) => props.theme.colors.foreground};
-  margin-bottom: ${(props) => props.theme.spacing.xs};
-`;
-
-const InfoText = styled.p`
-  font-size: ${(props) => props.theme.typography.fontSize.xs};
-  color: ${(props) => props.theme.colors.mutedForeground};
-  margin-top: ${(props) => props.theme.spacing.sm};
-  margin-bottom: 0;
 `;
 
 export default function InvoiceDetailModal({
@@ -286,7 +366,6 @@ export default function InvoiceDetailModal({
     return null;
   }
 
-  // Check if invoice is older than 7 days
   const invoiceDate = new Date(invoice.createdAt);
   const now = new Date();
   const daysDiff = Math.floor((now - invoiceDate) / (1000 * 60 * 60 * 24));
@@ -310,7 +389,6 @@ export default function InvoiceDetailModal({
     return new Date(date).toLocaleDateString("fr-FR");
   };
 
-  // Check if invoice can be printed (not cancelled or returned)
   const canPrintInvoice = invoice.status === "active";
 
   const getStatusLabel = (status) => {
@@ -328,260 +406,168 @@ export default function InvoiceDetailModal({
     }
   };
 
-  const statusOptions = [
-    { value: "active", label: "Active" },
-    { value: "cancelled", label: "Annulée" },
-    { value: "returned", label: "Retournée" },
-    { value: "paid", label: "Payée" },
-  ];
-
-  const handleStatusChange = async (newStatus) => {
-    if (newStatus === invoice.status) return;
-
-    setIsUpdatingStatus(true);
-    setStatusError(null);
-
-    try {
-      const response = await fetch(`/api/invoices/${invoice._id || invoice.id}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.status === "success") {
-        // Refresh the page to show updated invoice
-        router.refresh();
-        // Close modal and reopen with updated data
-        onClose();
-        // Trigger refresh in parent component
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      } else {
-        setStatusError(
-          result.error?.message || "Une erreur est survenue lors de la mise à jour du statut."
-        );
-      }
-    } catch (error) {
-      console.error("Error updating invoice status:", error);
-      setStatusError("Une erreur réseau est survenue. Veuillez réessayer.");
-    } finally {
-      setIsUpdatingStatus(false);
-    }
-  };
-
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <ModalTitle>Détails de la facture</ModalTitle>
-          <CloseButton variant="ghost" size="sm" onClick={onClose}>
-            <AppIcon name="x" size="sm" />
+          <HeaderLeft>
+            <ModalTitle>Détails de la facture</ModalTitle>
+            <InvoiceNumber>{invoice.invoiceNumber}</InvoiceNumber>
+          </HeaderLeft>
+          <CloseButton onClick={onClose}>
+            <AppIcon name="x" size="lg" />
           </CloseButton>
         </ModalHeader>
 
-        {/* Status Warning */}
-        {invoice.status === "cancelled" && (
-          <ErrorAlert role="alert">
-            <AppIcon name="warning" size="sm" color="error" />
-            <span>❌ Cette facture est annulée. Elle ne peut pas être imprimée.</span>
-          </ErrorAlert>
-        )}
-        {invoice.status === "returned" && (
-          <WarningMessage role="alert">
-            <AppIcon name="warning" size="sm" color="warning" />
-            <span>⚠️ Cette facture est retournée. Elle ne peut pas être imprimée.</span>
-          </WarningMessage>
-        )}
+        <ModalBody>
+          {/* Status Alerts */}
+          {invoice.status === "cancelled" && (
+            <StatusBanner $variant="error">
+              <AppIcon name="alert-circle" size="lg" />
+              <span>❌ Cette facture est annulée et ne peut pas être imprimée.</span>
+            </StatusBanner>
+          )}
+          {invoice.status === "returned" && (
+            <StatusBanner $variant="warning">
+              <AppIcon name="alert-triangle" size="lg" />
+              <span>⚠️ Cette facture est retournée et ne peut pas être imprimée.</span>
+            </StatusBanner>
+          )}
 
-        {/* Invoice Info */}
-        <Section>
-          <SectionTitle>Informations de la facture</SectionTitle>
-          <InfoGrid>
-            <InfoItem>
-              <InfoLabel>Numéro de facture</InfoLabel>
-              <InfoValue>{invoice.invoiceNumber}</InfoValue>
-            </InfoItem>
-            <InfoItem>
-              <InfoLabel>Date</InfoLabel>
-              <InfoValue>{formatDateTime(invoice.createdAt)}</InfoValue>
-            </InfoItem>
-            <InfoItem>
-              <InfoLabel>Statut</InfoLabel>
-              <InfoValue>{getStatusLabel(invoice.status)}</InfoValue>
-            </InfoItem>
-            <InfoItem>
-              <InfoLabel>Caissier</InfoLabel>
-              <InfoValue>{invoice.cashier?.name || "N/A"}</InfoValue>
-            </InfoItem>
-          </InfoGrid>
-        </Section>
+          {/* Two Column Layout */}
+          <TwoColumnLayout>
+            {/* Invoice Info */}
+            <InfoCard>
+              <CardTitle>
+                <AppIcon name="file-text" size="sm" /> Informations Facture
+              </CardTitle>
+              <InfoGrid>
+                <InfoRow>
+                  <InfoLabel>Numéro</InfoLabel>
+                  <InfoValue>{invoice.invoiceNumber}</InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <InfoLabel>Date</InfoLabel>
+                  <InfoValue>{formatDateTime(invoice.createdAt)}</InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <InfoLabel>Statut</InfoLabel>
+                  <InfoValue>{getStatusLabel(invoice.status)}</InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <InfoLabel>Caissier</InfoLabel>
+                  <InfoValue>{invoice.cashier?.name || "N/A"}</InfoValue>
+                </InfoRow>
+              </InfoGrid>
+            </InfoCard>
 
-        {/* Customer Info */}
-        <Section>
-          <SectionTitle>Informations client</SectionTitle>
-          <InfoGrid>
-            <InfoItem>
-              <InfoLabel>Nom</InfoLabel>
-              <InfoValue>{invoice.customer.name}</InfoValue>
-            </InfoItem>
-            <InfoItem>
-              <InfoLabel>Téléphone</InfoLabel>
-              <InfoValue>{invoice.customer.phone}</InfoValue>
-            </InfoItem>
-          </InfoGrid>
-        </Section>
+            {/* Customer Info */}
+            <InfoCard>
+              <CardTitle>
+                <AppIcon name="user" size="sm" /> Informations Client
+              </CardTitle>
+              <InfoGrid>
+                <InfoRow>
+                  <InfoLabel>Nom</InfoLabel>
+                  <InfoValue>{invoice.customer.name}</InfoValue>
+                </InfoRow>
+                <InfoRow>
+                  <InfoLabel>Téléphone</InfoLabel>
+                  <InfoValue>{invoice.customer.phone}</InfoValue>
+                </InfoRow>
+              </InfoGrid>
+            </InfoCard>
+          </TwoColumnLayout>
 
-        {/* Items */}
-        <Section>
-          <SectionTitle>Articles</SectionTitle>
-          <ItemsTable>
-            <ItemsTableHeader>
-              <tr>
-                <ItemsTableHeaderCell>Produit</ItemsTableHeaderCell>
-                <ItemsTableHeaderCell $align="center">Qté</ItemsTableHeaderCell>
-                <ItemsTableHeaderCell $align="right">Prix unit.</ItemsTableHeaderCell>
-                <ItemsTableHeaderCell $align="right">Total</ItemsTableHeaderCell>
-                <ItemsTableHeaderCell $align="center">Garantie</ItemsTableHeaderCell>
-              </tr>
-            </ItemsTableHeader>
-            <tbody>
-              {invoice.items?.map((item, index) => (
-                <ItemsTableRow key={index}>
-                  <ItemsTableCell>
-                    <div>
-                      <div style={{ fontWeight: "medium" }}>
-                        {item.productSnapshot.name}
-                      </div>
-                      {item.productSnapshot.brand && (
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "var(--muted-foreground)",
-                          }}
-                        >
-                          {item.productSnapshot.brand}
-                        </div>
-                      )}
-                    </div>
-                  </ItemsTableCell>
-                  <ItemsTableCell $align="center">{item.quantity}</ItemsTableCell>
-                  <ItemsTableCell $align="right">
-                    {formatCurrency(item.unitPrice)}
-                  </ItemsTableCell>
-                  <ItemsTableCell $align="right">
-                    <strong>{formatCurrency(item.totalPrice)}</strong>
-                  </ItemsTableCell>
-                  <ItemsTableCell $align="center">
-                    <WarrantyInfo>
-                      <WarrantyStatusBadge $status={item.warrantyStatus}>
+          {/* Items Table */}
+          <ItemsSection>
+            <SectionHeader>
+              <AppIcon name="shopping-cart" size="md" color="primary" />
+              <SectionTitle>Articles</SectionTitle>
+            </SectionHeader>
+            
+            <ItemsTable>
+              <TableHeader>
+                <tr>
+                  <TableHeaderCell>Produit</TableHeaderCell>
+                  <TableHeaderCell $align="center">Quantité</TableHeaderCell>
+                  <TableHeaderCell $align="right">Prix Unit.</TableHeaderCell>
+                  <TableHeaderCell $align="right">Total</TableHeaderCell>
+                  <TableHeaderCell $align="center">Garantie</TableHeaderCell>
+                </tr>
+              </TableHeader>
+              <tbody>
+                {invoice.items?.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <ProductInfo>
+                        <ProductName>{item.productSnapshot.name}</ProductName>
+                        {item.productSnapshot.brand && (
+                          <ProductBrand>{item.productSnapshot.brand}</ProductBrand>
+                        )}
+                      </ProductInfo>
+                    </TableCell>
+                    <TableCell $align="center">
+                      <strong>{item.quantity}</strong>
+                    </TableCell>
+                    <TableCell $align="right">
+                      {formatCurrency(item.unitPrice)}
+                    </TableCell>
+                    <TableCell $align="right">
+                      <strong>{formatCurrency(item.totalPrice)}</strong>
+                    </TableCell>
+                    <TableCell $align="center">
+                      <WarrantyBadge $status={item.warrantyStatus}>
                         {getWarrantyStatusLabel(item.warrantyStatus)}
-                      </WarrantyStatusBadge>
+                      </WarrantyBadge>
                       {item.warranty?.hasWarranty && item.warranty.expirationDate && (
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            color: "var(--muted-foreground)",
-                          }}
-                        >
+                        <WarrantyDate>
                           Jusqu'au {formatWarrantyDate(item.warranty.expirationDate)}
-                        </div>
+                        </WarrantyDate>
                       )}
-                    </WarrantyInfo>
-                  </ItemsTableCell>
-                </ItemsTableRow>
-              ))}
-            </tbody>
-          </ItemsTable>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </tbody>
+            </ItemsTable>
 
-          <TotalsSection>
-            <TotalsContainer>
+            {/* Totals */}
+            <TotalsCard>
               <TotalRow>
-                <span>Sous-total:</span>
+                <span>Sous-total</span>
                 <span>{formatCurrency(invoice.subtotal)}</span>
               </TotalRow>
-              <TotalRow $bold $size="base">
-                <span>Total:</span>
+              <TotalRow $highlight $size="lg" $weight="bold">
+                <span>Total à payer</span>
                 <span>{formatCurrency(invoice.totalAmount)}</span>
               </TotalRow>
-            </TotalsContainer>
-          </TotalsSection>
-        </Section>
+            </TotalsCard>
+          </ItemsSection>
+        </ModalBody>
 
-        {/* Status Management Section (Manager only) */}
-        <StatusManagementSection>
-          <SectionTitle>Gestion du statut</SectionTitle>
-          {isTooOld ? (
-            <WarningMessage role="alert">
-              <AppIcon name="lock" size="sm" color="warning" />
-              <span>
-                Cette facture est trop ancienne ({daysDiff} jour{daysDiff > 1 ? "s" : ""}). Elle ne peut plus être modifiée car elle constitue un snapshot historique.
-              </span>
-            </WarningMessage>
-          ) : (
-            <>
-              <StatusForm>
-                <StatusFormField>
-                  <StatusLabel htmlFor="invoice-status">Modifier le statut</StatusLabel>
-                  <Select
-                    id="invoice-status"
-                    value={invoice.status || "active"}
-                    onChange={(e) => handleStatusChange(e.target.value)}
-                    options={statusOptions}
-                    disabled={isUpdatingStatus}
-                  />
-                </StatusFormField>
-              </StatusForm>
-              {statusError && (
-                <ErrorAlert role="alert" style={{ marginTop: "1rem" }}>
-                  <AppIcon name="warning" size="sm" color="error" />
-                  <span>{statusError}</span>
-                </ErrorAlert>
-              )}
-              {isUpdatingStatus && (
-                <InfoText>
-                  <AppIcon name="loader" size="xs" />
-                  Mise à jour en cours...
-                </InfoText>
-              )}
-              <InfoText>
-                ⚠️ Vous pouvez modifier le statut uniquement pour les factures de moins de 7 jours.
-              </InfoText>
-            </>
-          )}
-        </StatusManagementSection>
-
-        {/* Actions */}
-        <ModalActions>
+        <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
+            <AppIcon name="x" size="sm" />
             Fermer
           </Button>
           <Button
             variant="primary"
             onClick={() => onDownloadPDF(invoice._id || invoice.id)}
             disabled={!canPrintInvoice}
-            title={!canPrintInvoice ? "Cette facture ne peut pas être téléchargée" : "Télécharger PDF"}
           >
             <AppIcon name="download" size="sm" color="surface" />
             Télécharger PDF
           </Button>
           <Button
-            variant="primary"
+            variant="success"
             onClick={() => onPrintInvoice(invoice._id || invoice.id)}
             disabled={!canPrintInvoice}
-            title={!canPrintInvoice ? "Cette facture ne peut pas être imprimée" : "Imprimer"}
           >
             <AppIcon name="printer" size="sm" color="surface" />
             Imprimer
           </Button>
-        </ModalActions>
+        </ModalFooter>
       </ModalContent>
     </ModalOverlay>
   );
 }
-

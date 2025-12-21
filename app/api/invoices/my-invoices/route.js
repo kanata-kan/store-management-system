@@ -8,6 +8,7 @@
 import InvoiceService from "@/lib/services/InvoiceService.js";
 import { requireCashier } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/invoices/my-invoices
@@ -30,6 +31,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     const user = await requireCashier(request);
 
     const { searchParams } = new URL(request.url);

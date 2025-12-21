@@ -10,6 +10,7 @@ import { validateCreateUser } from "@/lib/validation/user.validation.js";
 import UserService from "@/lib/services/UserService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/users
@@ -19,6 +20,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { searchParams } = new URL(request.url);
@@ -69,6 +71,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const body = await request.json();

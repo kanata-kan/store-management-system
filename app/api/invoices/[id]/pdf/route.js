@@ -19,6 +19,7 @@
 import InvoiceService from "@/lib/services/InvoiceService.js";
 import { requireCashier } from "@/lib/auth/middleware.js";
 import { error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 // Force Node.js runtime for Puppeteer compatibility
 export const runtime = "nodejs";
@@ -43,6 +44,7 @@ export const maxDuration = 30;
  */
 export async function GET(request, { params }) {
   try {
+    await connectDB();
     // requireCashier allows both managers and cashiers
     // The service layer (InvoiceService.generatePDF) will enforce ownership rules
     const user = await requireCashier(request);

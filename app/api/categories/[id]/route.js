@@ -10,6 +10,7 @@ import { validateUpdateCategory } from "@/lib/validation/category.validation.js"
 import CategoryService from "@/lib/services/CategoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/categories/[id]
@@ -18,6 +19,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;
@@ -37,6 +39,7 @@ export async function GET(request, { params }) {
  */
 export async function PATCH(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;
@@ -58,6 +61,7 @@ export async function PATCH(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;

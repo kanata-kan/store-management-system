@@ -8,6 +8,7 @@ import { validateGetInvoicesQuery } from "@/lib/validation/invoice.validation.js
 import InvoiceService from "@/lib/services/InvoiceService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/invoices
@@ -16,6 +17,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { searchParams } = new URL(request.url);

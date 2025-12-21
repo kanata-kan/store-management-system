@@ -9,6 +9,7 @@ import { validateSale } from "@/lib/validation/sale.validation.js";
 import SaleService from "@/lib/services/SaleService.js";
 import { requireManager, requireCashier } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/sales
@@ -17,6 +18,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { searchParams } = new URL(request.url);
@@ -69,6 +71,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    await connectDB();
     const user = await requireCashier(request);
 
     const body = await request.json();

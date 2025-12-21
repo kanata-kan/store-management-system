@@ -10,6 +10,7 @@ import { requireManager } from "@/lib/auth/middleware.js";
 import SaleService from "@/lib/services/SaleService.js";
 import { success, error } from "@/lib/api/response.js";
 import { createError } from "@/lib/utils/errorFactory.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * POST /api/sales/[id]/cancel
@@ -18,6 +19,7 @@ import { createError } from "@/lib/utils/errorFactory.js";
  */
 export async function POST(request, { params }) {
   try {
+    await connectDB();
     const manager = await requireManager(request);
     const { id } = params;
 

@@ -9,6 +9,7 @@ import { validateCategory } from "@/lib/validation/category.validation.js";
 import CategoryService from "@/lib/services/CategoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/categories
@@ -18,6 +19,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     // Note: Categories list should be accessible to all authenticated users
     // But we'll use requireManager for now as per requirements
     // Can be changed to requireUser if needed
@@ -97,6 +99,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const body = await request.json();

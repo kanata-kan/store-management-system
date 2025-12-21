@@ -9,6 +9,7 @@ import { validateSubCategory } from "@/lib/validation/subcategory.validation.js"
 import SubCategoryService from "@/lib/services/SubCategoryService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/subcategories
@@ -18,6 +19,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { searchParams } = new URL(request.url);
@@ -70,6 +72,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const body = await request.json();

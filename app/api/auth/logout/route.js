@@ -9,6 +9,7 @@ import AuthService from "@/lib/services/AuthService.js";
 import { requireUser } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
 import { cookies } from "next/headers";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * POST /api/auth/logout
@@ -17,6 +18,7 @@ import { cookies } from "next/headers";
  */
 export async function POST(request) {
   try {
+    await connectDB();
     await requireUser(request);
 
     await AuthService.logout();

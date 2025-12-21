@@ -8,6 +8,7 @@
 import ProductService from "@/lib/services/ProductService.js";
 import { requireCashier } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/products/search
@@ -16,6 +17,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     await requireCashier(request);
 
     const { searchParams } = new URL(request.url);

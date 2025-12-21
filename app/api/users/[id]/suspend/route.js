@@ -7,6 +7,7 @@
 import UserService from "@/lib/services/UserService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * PATCH /api/users/[id]/suspend
@@ -16,6 +17,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function PATCH(request, { params }) {
   try {
+    await connectDB();
     const currentUser = await requireManager(request);
 
     const { id } = params;

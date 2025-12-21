@@ -7,6 +7,7 @@
 
 import { requireUser } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/auth/session
@@ -15,6 +16,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request) {
   try {
+    await connectDB();
     const user = await requireUser(request);
 
     return success(user);

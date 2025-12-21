@@ -10,6 +10,7 @@ import { success, error } from "@/lib/api/response.js";
 import { requireManager, requireUser } from "@/lib/auth/middleware.js";
 import StoreSettingsService from "@/lib/services/StoreSettingsService.js";
 import { validateStoreSettings } from "@/lib/validation/storeSettings.validation.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/settings
@@ -18,6 +19,7 @@ import { validateStoreSettings } from "@/lib/validation/storeSettings.validation
  */
 export async function GET(request) {
   try {
+    await connectDB();
     // Require authentication (any role)
     await requireUser(request);
 
@@ -37,6 +39,7 @@ export async function GET(request) {
  */
 export async function PUT(request) {
   try {
+    await connectDB();
     // Authorization: Manager only
     const user = await requireManager(request);
 

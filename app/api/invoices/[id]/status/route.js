@@ -9,6 +9,7 @@
 import { requireManager } from "@/lib/auth/middleware.js";
 import InvoiceService from "@/lib/services/InvoiceService.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * PATCH /api/invoices/[id]/status
@@ -18,6 +19,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function PATCH(request, { params }) {
   try {
+    await connectDB();
     const user = await requireManager(request);
     const invoiceId = params.id;
 

@@ -10,6 +10,7 @@ import { validateUpdateSupplier } from "@/lib/validation/supplier.validation.js"
 import SupplierService from "@/lib/services/SupplierService.js";
 import { requireManager } from "@/lib/auth/middleware.js";
 import { success, error } from "@/lib/api/response.js";
+import connectDB from "@/lib/db/connect.js";
 
 /**
  * GET /api/suppliers/[id]
@@ -18,6 +19,7 @@ import { success, error } from "@/lib/api/response.js";
  */
 export async function GET(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;
@@ -36,6 +38,7 @@ export async function GET(request, { params }) {
  */
 export async function PATCH(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;
@@ -57,6 +60,7 @@ export async function PATCH(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   try {
+    await connectDB();
     await requireManager(request);
 
     const { id } = params;
