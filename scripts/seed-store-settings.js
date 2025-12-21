@@ -44,11 +44,12 @@ async function seedStoreSettings() {
     console.log("\n🔄 Inserting default store settings...");
 
     const defaultSettings = {
-      storeName: "Electro Kanata",
+      storeName: "Abidin Électroménager",
       address: "Avenue Mohammed V, Casablanca",
       phoneLandline: "05 22 12 34 56",
       phoneWhatsApp: "+212 6 12 34 56 78",
-      email: "contact@electrokanata.ma",
+      email: "contact@abidin-electromenager.ma",
+      logoPath: "/assets/logo/abidin-logo.png",
       invoice: {
         footerText: "Merci pour votre confiance.",
         warrantyNotice:
