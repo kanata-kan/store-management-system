@@ -68,6 +68,12 @@ export default async function EnhancedDashboardPage() {
   const totalProducts = kpis.totalProducts || {};
   const lowStockProducts = kpis.lowStockProducts || {};
   const totalInventoryValue = kpis.totalInventoryValue || {};
+  
+  // Debug logging
+  console.log("[Dashboard] KPI Data:");
+  console.log("  - Total Products:", totalProducts);
+  console.log("  - Low Stock Products:", lowStockProducts);
+  console.log("  - Total Inventory Value:", totalInventoryValue);
 
   // Extract charts data
   const salesLast7Days = statistics?.salesLast7Days || [];

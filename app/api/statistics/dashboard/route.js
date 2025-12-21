@@ -23,6 +23,12 @@ export async function GET(request) {
 
     // Get statistics from service (no date filtering for now)
     const statistics = await StatisticsService.getDashboardStatistics();
+    
+    // Debug logging for KPIs
+    console.log("[API] Dashboard Statistics KPIs:");
+    console.log("  - Total Products:", statistics?.kpis?.totalProducts);
+    console.log("  - Low Stock Products:", statistics?.kpis?.lowStockProducts);
+    console.log("  - Total Inventory Value:", statistics?.kpis?.totalInventoryValue);
 
     return success(statistics);
   } catch (err) {
