@@ -94,17 +94,14 @@ const LogoSection = styled.div`
 `;
 
 const LogoIcon = styled.div`
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(
-    135deg,
-    ${(props) => props.theme.colors.primary} 0%,
-    ${(props) => props.theme.colors.secondary} 100%
-  );
+  width: 96px;
+  height: 96px;
   border-radius: ${(props) => props.theme.borderRadius.lg};
   display: flex;
   align-items: center;
   justify-content: center;
+  background: ${(props) => props.theme.colors.surface};
+  border: 1px solid ${(props) => props.theme.colors.border};
   box-shadow: ${(props) => props.theme.shadows.card};
 `;
 
@@ -315,11 +312,15 @@ export default function HomePageClient() {
           <Header>
             <LogoSection>
               <LogoIcon>
-                <AppIcon name="package" size="xl" color="surface" />
+                <img
+                  src="/assets/logo/abidin-logo.png"
+                  alt="Abidin Électroménager"
+                  style={{ width: 80, height: 80, objectFit: "contain" }}
+                />
               </LogoIcon>
             </LogoSection>
-            <SystemTitle>Système de Gestion de Magasin</SystemTitle>
-            <SystemSubtitle>Plateforme professionnelle de gestion d'inventaire</SystemSubtitle>
+            <SystemTitle>Abidin Électroménager</SystemTitle>
+            <SystemSubtitle>Système professionnel de gestion d'inventaire</SystemSubtitle>
           </Header>
 
           <RolesGrid>

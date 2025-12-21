@@ -2,8 +2,12 @@ import StyledComponentsRegistry from "@/components/StyledComponentsRegistry.js";
 import ThemeProviderWrapper from "@/components/ThemeProviderWrapper.js";
 
 export const metadata = {
-  title: "Store Management System",
-  description: "Inventory Management System for Home Appliances Store",
+  title: "Abidin Électroménager - Système de Gestion",
+  description: "Système de gestion de stock pour magasin d'électroménager - Abidin Électroménager",
+  icons: {
+    icon: [{ url: "/assets/logo/abidin-logo.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/assets/logo/abidin-logo.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({ children }) {

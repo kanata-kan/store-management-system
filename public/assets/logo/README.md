@@ -1,4 +1,6 @@
-# 🖼️ Logo Management
+# 🖼️ Logo Management - Abidin Électroménager
+
+**Official Logo:** `abidin-logo.png`
 
 ## 📌 Purpose
 

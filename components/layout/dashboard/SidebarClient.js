@@ -64,6 +64,14 @@ const SidebarHeader = styled.div`
   ${smoothTransition("all")}
 `;
 
+const LogoImage = styled.img`
+  height: ${(props) => (props.$isCollapsed ? "36px" : "40px")};
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  ${smoothTransition("all")}
+`;
+
 const Logo = styled.h1`
   font-size: ${(props) => props.theme.typography.fontSize.xl};
   font-weight: ${(props) => props.theme.typography.fontWeight.bold};
@@ -459,7 +467,12 @@ export default function SidebarClient({ user, alertsCount = 0 }) {
       <Overlay $isOpen={isOpen} onClick={closeSidebar} />
       <SidebarContainer $isOpen={isOpen} $isCollapsed={isCollapsed}>
         <SidebarHeader $isCollapsed={isCollapsed}>
-          <Logo $isCollapsed={isCollapsed}>Gestion Stock</Logo>
+          <LogoImage
+            $isCollapsed={isCollapsed}
+            src="/assets/logo/abidin-logo.png"
+            alt="Abidin Électroménager"
+            style={{ height: isCollapsed ? '32px' : '40px', width: 'auto' }}
+          />
           <ToggleButton onClick={toggleCollapse} title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"} aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}>
             <AppIcon
               name={isCollapsed ? "chevronRight" : "chevronLeft"}

@@ -83,6 +83,19 @@ const LogoContainer = styled.div`
   }
 `;
 
+const BrandMark = styled.div`
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => props.theme.colors.surface};
+  border: 1px solid ${(props) => props.theme.colors.border};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  box-shadow: ${(props) => props.theme.shadows.md};
+  margin-bottom: ${(props) => props.theme.spacing.lg};
+`;
+
 const LogoIcon = styled.div`
   width: 64px;
   height: 64px;
@@ -250,32 +263,15 @@ export default function LoginPage() {
     <PageContainer>
       <LoginCard>
         <LogoContainer>
-          <LogoIcon>
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9 22V12H15V22"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </LogoIcon>
-          <Title>Gestion Stock</Title>
-          <Subtitle>Store Management System</Subtitle>
+          <BrandMark>
+            <img
+              src="/assets/logo/abidin-logo.png"
+              alt="Abidin Électroménager"
+              style={{ width: 120, height: 120, objectFit: "contain" }}
+            />
+          </BrandMark>
+          <Title>Abidin Électroménager</Title>
+          <Subtitle>Système de Gestion de Stock</Subtitle>
         </LogoContainer>
 
         <WelcomeText>
