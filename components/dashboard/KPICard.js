@@ -213,9 +213,20 @@ const TrendText = styled.span`
 function formatCompactNumber(num, compact = true) {
   if (num === null || num === undefined) return "0";
   
-  const numValue = typeof num === "string" ? parseFloat(num.replace(/\s/g, "").replace(",", ".")) : num;
+  // Convert to number if string
+  let numValue;
+  if (typeof num === "string") {
+    // Remove all spaces and non-numeric chars except digits, dot, comma, and minus
+    const cleanNum = num
+      .replace(/[^\d.,-]/g, "")  // Remove non-numeric chars (keep digits, dot, comma, minus)
+      .replace(/\s/g, "")         // Remove spaces
+      .replace(/,/g, "");         // Remove commas (thousands separator)
+    numValue = parseFloat(cleanNum);
+  } else {
+    numValue = num;
+  }
   
-  if (isNaN(numValue)) return String(num);
+  if (isNaN(numValue)) return "0";
   
   // If compact mode is enabled and number is large
   if (compact && Math.abs(numValue) >= 1000) {
@@ -233,7 +244,7 @@ function formatCompactNumber(num, compact = true) {
     }
   }
   
-  // Return formatted number with thousands separator
+  // Return formatted number with thousands separator for numbers < 1000
   return new Intl.NumberFormat("fr-FR", {
     maximumFractionDigits: 2,
   }).format(numValue);

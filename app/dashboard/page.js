@@ -82,8 +82,8 @@ export default async function EnhancedDashboardPage() {
       <EnhancedStatsGrid>
         <KPICard
           title="Ventes aujourd'hui"
-          value={salesToday.formattedAmount || "0,00 MAD"}
-          unit={`${salesToday.count || 0} ventes`}
+          value={salesToday.totalAmount || 0}
+          unit={`MAD · ${salesToday.count || 0} ventes`}
           variant="success"
           icon="trending-up"
           trend={salesToday.trend}
@@ -91,8 +91,8 @@ export default async function EnhancedDashboardPage() {
         />
         <KPICard
           title="Ventes ce mois"
-          value={salesThisMonth.formattedAmount || "0,00 MAD"}
-          unit={`${salesThisMonth.count || 0} ventes`}
+          value={salesThisMonth.totalAmount || 0}
+          unit={`MAD · ${salesThisMonth.count || 0} ventes`}
           variant="primary"
           icon="calendar"
           trend={salesThisMonth.trend}
@@ -100,8 +100,8 @@ export default async function EnhancedDashboardPage() {
         />
         <KPICard
           title="Stock total"
-          value={totalInventoryValue.formattedValue || "0,00 MAD"}
-          unit={`${totalProducts.count || 0} produits`}
+          value={totalInventoryValue.totalValue || 0}
+          unit={`MAD · ${totalProducts.count || 0} produits`}
           variant="info"
           icon="package"
         />
