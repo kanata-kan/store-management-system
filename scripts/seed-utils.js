@@ -37,14 +37,14 @@ export function randomDate(start, end) {
 }
 
 /**
- * Generate random phone number (Algerian format)
+ * Generate random phone number (Moroccan format)
  */
 export function randomPhone() {
-  const prefixes = ["055", "056", "066", "067", "077", "079"];
+  const prefixes = ["06", "07"]; // Moroccan mobile prefixes
   const prefix = randomChoice(prefixes);
-  const number = Math.floor(Math.random() * 10000000)
+  const number = Math.floor(Math.random() * 100000000)
     .toString()
-    .padStart(7, "0");
+    .padStart(8, "0");
   return `${prefix}${number}`;
 }
 

@@ -281,90 +281,90 @@ async function seedProducts(brands, subCategories, suppliers) {
   console.log("📦 Seeding products...");
   
   const productTemplates = [
-    // Électronique
+    // Électronique - PRIX RÉALISTES MAROC
     {
       baseNames: ["TV 32 pouces", "TV 43 pouces", "TV 55 pouces", "TV 65 pouces"],
       brands: ["Samsung", "LG", "Sony", "TCL", "Hisense"],
       subCategoryName: "Téléviseurs",
-      priceRange: { min: 25000, max: 150000 },
-      stockRange: { min: 5, max: 50 },
+      priceRange: { min: 1500, max: 12000 }, // 1,500 - 12,000 MAD
+      stockRange: { min: 5, max: 30 },
     },
     {
       baseNames: ["Home Cinéma", "Enceinte Bluetooth", "Barre de son"],
       brands: ["Sony", "LG", "Samsung"],
       subCategoryName: "Audio",
-      priceRange: { min: 5000, max: 80000 },
-      stockRange: { min: 3, max: 30 },
+      priceRange: { min: 400, max: 3500 }, // 400 - 3,500 MAD
+      stockRange: { min: 10, max: 40 },
     },
-    // Électroménager
+    // Électroménager - PRIX RÉALISTES
     {
       baseNames: ["Réfrigérateur 200L", "Réfrigérateur 300L", "Réfrigérateur 400L"],
       brands: ["Whirlpool", "Bosch", "LG", "Samsung", "Electrolux"],
       subCategoryName: "Réfrigérateurs",
-      priceRange: { min: 40000, max: 200000 },
-      stockRange: { min: 2, max: 15 },
+      priceRange: { min: 3000, max: 15000 }, // 3,000 - 15,000 MAD
+      stockRange: { min: 3, max: 20 },
     },
     {
       baseNames: ["Lave-linge 7kg", "Lave-linge 10kg", "Lave-linge 12kg"],
       brands: ["Whirlpool", "Bosch", "LG", "Samsung"],
       subCategoryName: "Lave-linge",
-      priceRange: { min: 30000, max: 150000 },
-      stockRange: { min: 2, max: 20 },
+      priceRange: { min: 2500, max: 8000 }, // 2,500 - 8,000 MAD
+      stockRange: { min: 3, max: 25 },
     },
     {
       baseNames: ["Four 60cm", "Four 90cm", "Micro-ondes 20L", "Micro-ondes 30L"],
       brands: ["Bosch", "Whirlpool", "LG", "Samsung"],
       subCategoryName: "Four",
-      priceRange: { min: 15000, max: 120000 },
-      stockRange: { min: 3, max: 25 },
+      priceRange: { min: 800, max: 5000 }, // 800 - 5,000 MAD
+      stockRange: { min: 5, max: 35 },
     },
-    // Téléphonie
+    // Téléphonie - PRIX RÉALISTES
     {
       baseNames: ["Smartphone", "Étui", "Chargeur", "Écouteurs"],
       brands: ["Samsung", "Apple", "Xiaomi", "Huawei"],
       subCategoryName: "Smartphones",
-      priceRange: { min: 15000, max: 120000 },
-      stockRange: { min: 5, max: 40 },
+      priceRange: { min: 1200, max: 12000 }, // 1,200 - 12,000 MAD
+      stockRange: { min: 8, max: 50 },
     },
-    // Informatique
+    // Informatique - PRIX RÉALISTES
     {
       baseNames: ["Ordinateur Portable", "Tablette", "Souris", "Clavier"],
       brands: ["HP", "Dell", "Lenovo", "Apple"],
       subCategoryName: "Ordinateurs",
-      priceRange: { min: 25000, max: 200000 },
-      stockRange: { min: 2, max: 20 },
+      priceRange: { min: 2500, max: 18000 }, // 2,500 - 18,000 MAD
+      stockRange: { min: 4, max: 30 },
     },
-    // Cuisine
+    // Cuisine - PRIX RÉALISTES
     {
       baseNames: ["Casserole", "Poêle", "Ustensiles", "Vaisselle"],
       brands: ["Mobilier", "DecoStyle"],
       subCategoryName: "Ustensiles",
-      priceRange: { min: 1000, max: 15000 },
-      stockRange: { min: 10, max: 100 },
+      priceRange: { min: 50, max: 500 }, // 50 - 500 MAD
+      stockRange: { min: 20, max: 150 },
     },
-    // Mobilier
+    // Mobilier - PRIX RÉALISTES
     {
       baseNames: ["Table", "Chaise", "Armoire", "Étagère"],
       brands: ["IKEA", "Mobilier"],
       subCategoryName: "Tables",
-      priceRange: { min: 5000, max: 80000 },
-      stockRange: { min: 3, max: 30 },
+      priceRange: { min: 300, max: 4000 }, // 300 - 4,000 MAD
+      stockRange: { min: 5, max: 40 },
     },
-    // Décoration
+    // Décoration - PRIX RÉALISTES
     {
       baseNames: ["Cadre", "Vase", "Tapis", "Décoration"],
       brands: ["DecoStyle", "Mobilier"],
       subCategoryName: "Cadres",
-      priceRange: { min: 500, max: 10000 },
-      stockRange: { min: 5, max: 50 },
+      priceRange: { min: 30, max: 800 }, // 30 - 800 MAD
+      stockRange: { min: 10, max: 80 },
     },
-    // Éclairage
+    // Éclairage - PRIX RÉALISTES
     {
       baseNames: ["Plafonnier", "Lampe", "Guirlande", "Ampoule LED"],
       brands: ["BrightLight", "DecoStyle"],
       subCategoryName: "Plafonniers",
-      priceRange: { min: 1000, max: 20000 },
-      stockRange: { min: 5, max: 60 },
+      priceRange: { min: 50, max: 1200 }, // 50 - 1,200 MAD
+      stockRange: { min: 10, max: 100 },
     },
   ];
   
