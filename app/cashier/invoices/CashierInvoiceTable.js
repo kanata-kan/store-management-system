@@ -230,8 +230,8 @@ export default function CashierInvoiceTable({
   }
 
   return (
-    <Table>
-      <tbody>
+    <Table
+      header={
         <tr>
           <TableHeader
             label="Numéro de facture"
@@ -276,111 +276,112 @@ export default function CashierInvoiceTable({
           />
           <TableHeader label="Actions" align="center" />
         </tr>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice._id || invoice.id} $status={invoice.status}>
-            <TableCell>
-              <InvoiceNumber 
-                style={{ cursor: "pointer", textDecoration: "underline" }}
-                onClick={() => onViewInvoice(invoice)}
-                title="Cliquer pour voir les détails"
+      }
+    >
+      {invoices.map((invoice) => (
+        <TableRow key={invoice._id || invoice.id} $status={invoice.status}>
+          <TableCell>
+            <InvoiceNumber 
+              style={{ cursor: "pointer", textDecoration: "underline" }}
+              onClick={() => onViewInvoice(invoice)}
+              title="Cliquer pour voir les détails"
+            >
+              {invoice.invoiceNumber}
+            </InvoiceNumber>
+          </TableCell>
+          <TableCell>
+            <CustomerName>{invoice.customer.name}</CustomerName>
+            <SubLabel>{invoice.customer.phone}</SubLabel>
+          </TableCell>
+          <TableCell $align="center">
+            <div
+              style={{ position: "relative", display: "inline-block" }}
+              onMouseEnter={() => setHoveredWarrantyIndex(invoice._id || invoice.id)}
+              onMouseLeave={() => setHoveredWarrantyIndex(null)}
+            >
+              <WarrantyBadge 
+                $status={invoice.warrantyStatus}
+                $hasTooltip={!!getWarrantyTooltipText(invoice)}
               >
-                {invoice.invoiceNumber}
-              </InvoiceNumber>
-            </TableCell>
-            <TableCell>
-              <CustomerName>{invoice.customer.name}</CustomerName>
-              <SubLabel>{invoice.customer.phone}</SubLabel>
-            </TableCell>
-            <TableCell $align="center">
-              <div
-                style={{ position: "relative", display: "inline-block" }}
-                onMouseEnter={() => setHoveredWarrantyIndex(invoice._id || invoice.id)}
-                onMouseLeave={() => setHoveredWarrantyIndex(null)}
-              >
-                <WarrantyBadge 
-                  $status={invoice.warrantyStatus}
-                  $hasTooltip={!!getWarrantyTooltipText(invoice)}
-                >
-                  {invoice.warrantyStatus === "active" && <AppIcon name="shield" size="xs" color="success" />}
-                  {invoice.warrantyStatus === "expired" && <AppIcon name="shield" size="xs" color="error" />}
-                  {getWarrantyStatusLabel(invoice.warrantyStatus)}
-                </WarrantyBadge>
-                {hoveredWarrantyIndex === (invoice._id || invoice.id) && getWarrantyTooltipText(invoice) && (
-                  <WarrantyTooltip $show={true}>
-                    {getWarrantyTooltipText(invoice).split("\n").map((line, idx) => (
-                      <div key={idx}>{line}</div>
-                    ))}
-                  </WarrantyTooltip>
-                )}
-              </div>
-            </TableCell>
-            <TableCell $align="right">
-              <strong>{formatCurrency(invoice.totalAmount)}</strong>
-            </TableCell>
-            <TableCell $align="center">
-              {invoice.status === "active" ? (
-                <StatusBadge $status="active">Active</StatusBadge>
-              ) : invoice.status === "cancelled" ? (
-                <StatusBadge $status="cancelled">Annulée</StatusBadge>
-              ) : invoice.status === "returned" ? (
-                <StatusBadge $status="returned">Retournée</StatusBadge>
-              ) : (
-                <StatusBadge $status="active">{invoice.status}</StatusBadge>
+                {invoice.warrantyStatus === "active" && <AppIcon name="shield" size="xs" color="success" />}
+                {invoice.warrantyStatus === "expired" && <AppIcon name="shield" size="xs" color="error" />}
+                {getWarrantyStatusLabel(invoice.warrantyStatus)}
+              </WarrantyBadge>
+              {hoveredWarrantyIndex === (invoice._id || invoice.id) && getWarrantyTooltipText(invoice) && (
+                <WarrantyTooltip $show={true}>
+                  {getWarrantyTooltipText(invoice).split("\n").map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </WarrantyTooltip>
               )}
-            </TableCell>
-            <TableCell>
-              <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
-            </TableCell>
-            <TableCell $align="center">
-              <TableActionButtons
-                iconOnly={false}
-                align="center"
-                customButtons={[
-                  {
-                    label: "Voir",
-                    icon: "eye",
-                    onClick: () => onViewInvoice(invoice),
-                    title: "Voir les détails",
-                    ariaLabel: "Voir les détails",
-                  },
-                  {
-                    label: printingInvoiceId === (invoice._id || invoice.id) ? "Impression..." : "Imprimer",
-                    icon: printingInvoiceId === (invoice._id || invoice.id) ? "loader" : "printer",
-                    onClick: () => onPrintInvoice(invoice._id || invoice.id),
-                    disabled: !canPrintInvoice(invoice) || printingInvoiceId === (invoice._id || invoice.id),
-                    title: !canPrintInvoice(invoice)
-                      ? invoice.status === "cancelled"
-                        ? "Cette facture est annulée. Elle ne peut pas être imprimée."
-                        : invoice.status === "returned"
-                        ? "Cette facture est retournée. Elle ne peut pas être imprimée."
-                        : "Cette facture ne peut pas être imprimée."
-                      : printingInvoiceId === (invoice._id || invoice.id)
-                      ? "Impression en cours..."
-                      : "Imprimer",
-                    ariaLabel: "Imprimer",
-                  },
-                  {
-                    label: downloadingInvoiceId === (invoice._id || invoice.id) ? "Téléchargement..." : "PDF",
-                    icon: downloadingInvoiceId === (invoice._id || invoice.id) ? "loader" : "download",
-                    onClick: () => onDownloadPDF(invoice._id || invoice.id),
-                    disabled: !canPrintInvoice(invoice) || downloadingInvoiceId === (invoice._id || invoice.id),
-                    title: !canPrintInvoice(invoice)
-                      ? invoice.status === "cancelled"
-                        ? "Cette facture est annulée. Elle ne peut pas être téléchargée."
-                        : invoice.status === "returned"
-                        ? "Cette facture est retournée. Elle ne peut pas être téléchargée."
-                        : "Cette facture ne peut pas être téléchargée."
-                      : downloadingInvoiceId === (invoice._id || invoice.id)
-                      ? "Téléchargement en cours..."
-                      : "Télécharger PDF",
-                    ariaLabel: "Télécharger PDF",
-                  },
-                ]}
-              />
-            </TableCell>
-          </TableRow>
-        ))}
-      </tbody>
+            </div>
+          </TableCell>
+          <TableCell $align="right">
+            <strong>{formatCurrency(invoice.totalAmount)}</strong>
+          </TableCell>
+          <TableCell $align="center">
+            {invoice.status === "active" ? (
+              <StatusBadge $status="active">Active</StatusBadge>
+            ) : invoice.status === "cancelled" ? (
+              <StatusBadge $status="cancelled">Annulée</StatusBadge>
+            ) : invoice.status === "returned" ? (
+              <StatusBadge $status="returned">Retournée</StatusBadge>
+            ) : (
+              <StatusBadge $status="active">{invoice.status}</StatusBadge>
+            )}
+          </TableCell>
+          <TableCell>
+            <SubLabel>{formatDateTime(invoice.createdAt)}</SubLabel>
+          </TableCell>
+          <TableCell $align="center">
+            <TableActionButtons
+              iconOnly={false}
+              align="center"
+              customButtons={[
+                {
+                  label: "Voir",
+                  icon: "eye",
+                  onClick: () => onViewInvoice(invoice),
+                  title: "Voir les détails",
+                  ariaLabel: "Voir les détails",
+                },
+                {
+                  label: printingInvoiceId === (invoice._id || invoice.id) ? "Impression..." : "Imprimer",
+                  icon: printingInvoiceId === (invoice._id || invoice.id) ? "loader" : "printer",
+                  onClick: () => onPrintInvoice(invoice._id || invoice.id),
+                  disabled: !canPrintInvoice(invoice) || printingInvoiceId === (invoice._id || invoice.id),
+                  title: !canPrintInvoice(invoice)
+                    ? invoice.status === "cancelled"
+                      ? "Cette facture est annulée. Elle ne peut pas être imprimée."
+                      : invoice.status === "returned"
+                      ? "Cette facture est retournée. Elle ne peut pas être imprimée."
+                      : "Cette facture ne peut pas être imprimée."
+                    : printingInvoiceId === (invoice._id || invoice.id)
+                    ? "Impression en cours..."
+                    : "Imprimer",
+                  ariaLabel: "Imprimer",
+                },
+                {
+                  label: downloadingInvoiceId === (invoice._id || invoice.id) ? "Téléchargement..." : "PDF",
+                  icon: downloadingInvoiceId === (invoice._id || invoice.id) ? "loader" : "download",
+                  onClick: () => onDownloadPDF(invoice._id || invoice.id),
+                  disabled: !canPrintInvoice(invoice) || downloadingInvoiceId === (invoice._id || invoice.id),
+                  title: !canPrintInvoice(invoice)
+                    ? invoice.status === "cancelled"
+                      ? "Cette facture est annulée. Elle ne peut pas être téléchargée."
+                      : invoice.status === "returned"
+                      ? "Cette facture est retournée. Elle ne peut pas être téléchargée."
+                      : "Cette facture ne peut pas être téléchargée."
+                    : downloadingInvoiceId === (invoice._id || invoice.id)
+                    ? "Téléchargement en cours..."
+                    : "Télécharger PDF",
+                  ariaLabel: "Télécharger PDF",
+                },
+              ]}
+            />
+          </TableCell>
+        </TableRow>
+      ))}
     </Table>
   );
 }
