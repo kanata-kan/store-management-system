@@ -4,18 +4,25 @@
  * ⚠️ WARNING: This script completely clears the database and re-populates it.
  * This is DEV ONLY and will NOT run in production.
  *
- * This script generates realistic store data for testing (3 months of operation):
+ * This script generates REALISTIC store data simulating an established business:
  * - Users (1 manager + 3 cashiers)
+ * - StoreSettings with tax identifiers (ICE, IF, RC, Patente)
  * - Categories and SubCategories
  * - Brands and Suppliers
  * - Products (100+) with warranty data
- * - Inventory Logs (300+)
- * - Sales (400+) with diverse statuses (active, cancelled, returned)
- * - Invoices (400+) automatically created for all sales
- * - Realistic customer data
- * - Dates spanning 3 months
+ * - Inventory Logs (300+) spanning 3-6 months
+ * - Sales (300-600) with diverse scenarios:
+ *   - TVA System: 65% with TVA (20%), 35% without TVA (0%)
+ *   - Document System: 15% NONE, 45% RECEIPT, 40% INVOICE
+ *   - Realistic customer data distribution
+ *   - Price override scenarios (manager)
+ * - Documents (Invoices/Receipts) automatically created based on saleDocumentType
+ * - Diverse statuses (active, cancelled, returned)
+ * - Dates spanning 3-6 months (simulating established business)
  *
- * Updated: Phase 6 - Includes invoice system and warranty management
+ * Updated: TVA System + Document System Integration
+ * Updated: StoreSettings with tax identifiers
+ * Updated: Realistic Moroccan business scenarios
  *
  * Usage: npm run seed
  */
@@ -62,10 +69,12 @@ import Product from "../lib/models/Product.js";
 import InventoryLog from "../lib/models/InventoryLog.js";
 import Sale from "../lib/models/Sale.js";
 import Invoice from "../lib/models/Invoice.js";
+import StoreSettings from "../lib/models/StoreSettings.js";
 
 // Import services
 import SaleService from "../lib/services/SaleService.js";
 import InvoiceService from "../lib/services/InvoiceService.js";
+import StoreSettingsService from "../lib/services/StoreSettingsService.js";
 
 // Import utilities
 import {
@@ -111,6 +120,7 @@ async function clearDatabase() {
   await InventoryLog.deleteMany({});
   await Sale.deleteMany({});
   await Invoice.deleteMany({});
+  await StoreSettings.deleteMany({});
   console.log("✅ Database cleared\n");
 }
 
@@ -509,27 +519,77 @@ async function seedInventoryLogs(products, manager) {
 }
 
 
+// Seed StoreSettings
+async function seedStoreSettings() {
+  console.log("⚙️  Seeding store settings...");
+  
+  // Realistic store settings with tax identifiers (for development/testing)
+  // ⚠️ NOTE: These are realistic placeholder values for development
+  // In production, replace with real client tax identifiers
+  const storeSettingsData = {
+    storeName: "Abidin Électroménager",
+    address: "Avenue Mohammed V, Casablanca, Maroc",
+    phoneLandline: "05 22 12 34 56",
+    phoneWhatsApp: "+212 6 12 34 56 78",
+    email: "contact@abidin-electromenager.ma",
+    logoPath: "/assets/logo/abidin-logo.png",
+    // Tax Identifiers - REALISTIC PLACEHOLDER VALUES for development
+    // ⚠️ These are realistic-looking but still placeholders
+    // In production, these MUST be replaced with real client data
+    taxIdentifiers: {
+      ICE: "001234567890123", // Realistic 15-digit ICE format
+      IF: "123456789", // Realistic 9-digit IF format
+      RC: "RC12345", // Realistic RC format
+      Patente: "PAT987654", // Realistic Patente format
+    },
+    invoice: {
+      footerText: "Merci pour votre confiance.",
+      warrantyNotice: "La garantie est valable uniquement sur présentation de la facture.",
+    },
+    isActive: true,
+  };
+  
+  // Use StoreSettingsService to create settings
+  try {
+    const settings = await StoreSettingsService.updateSettings(storeSettingsData, "system-seed");
+    console.log(`✅ Store settings seeded (with tax identifiers)`);
+    return settings;
+  } catch (error) {
+    // If update fails, try to create directly
+    const settings = await StoreSettings.create(storeSettingsData);
+    console.log(`✅ Store settings seeded (with tax identifiers)`);
+    return settings;
+  }
+}
+
 // Seed Sales with Invoices
 async function seedSales(products, cashiers, manager) {
   console.log("💰 Seeding sales with invoices...");
   
   const sales = [];
   const invoices = [];
-  // Phase 6: 3 months of data (90 days)
+  // Realistic timeline: 3-6 months of operation (simulating established business)
+  const monthsBack = randomInt(3, 6);
   const startDate = new Date();
-  startDate.setDate(startDate.getDate() - 90); // 90 days ago
+  startDate.setMonth(startDate.getMonth() - monthsBack);
   const endDate = new Date();
   
-  // Generate 200-300 sales (optimized for performance)
-  const salesCount = randomInt(200, 300);
+  // Generate realistic sales volume: 300-600 sales over 3-6 months
+  // This simulates an established store with daily operations
+  const salesCount = randomInt(300, 600);
   
-  console.log(`   Creating ${salesCount} sales with invoices...`);
+  console.log(`   Creating ${salesCount} sales (simulating ${monthsBack} months of operation)...`);
   
   // Track sales for cancellation/return later
   const activeSales = [];
   let successCount = 0;
   let errorCount = 0;
   let skippedCount = 0;
+  
+  // Track document types and TVA for statistics (for summary report)
+  let salesWithoutDocument = 0;
+  let salesWithReceipt = 0;
+  let salesWithInvoice = 0;
   
   for (let i = 0; i < salesCount; i++) {
     // Progress indicator every 25 sales
@@ -553,45 +613,120 @@ async function seedSales(products, cashiers, manager) {
     }
     const quantity = randomInt(1, maxQuantity);
     
-    // Selling price: Use priceRange if available, otherwise calculate markup
-    let sellingPrice;
+    // Selling price HT: Use priceRange if available, otherwise calculate markup
+    // TVA System: sellingPrice is sellingPriceHT (user input, HT)
+    let sellingPriceHT;
     if (product.priceRange?.min && product.priceRange?.max) {
       // Use price range: random price between min and max (or suggested price)
       const useSuggestedPrice = Math.random() < 0.3; // 30% chance to use suggested price
       if (useSuggestedPrice) {
         // Use suggested price (midpoint)
-        sellingPrice = Math.round((product.priceRange.min + product.priceRange.max) / 2);
+        sellingPriceHT = Math.round((product.priceRange.min + product.priceRange.max) / 2);
       } else {
         // Random price within range
-        sellingPrice = Math.round(
+        sellingPriceHT = Math.round(
           randomFloat(product.priceRange.min, product.priceRange.max)
         );
       }
     } else {
-      // Fallback: 10-50% markup from purchase price (for backward compatibility)
+      // Fallback: 10-50% markup from purchase price
       const markup = randomFloat(1.1, 1.5);
-      sellingPrice = Math.round(product.purchasePrice * markup * 100) / 100;
+      sellingPriceHT = Math.round(product.purchasePrice * markup * 100) / 100;
     }
     
-    // Generate customer data
-    const customerName = generateCustomerName();
-    const customerPhone = randomPhone();
+    // REALISTIC SCENARIOS: Simulate all possible real-world sale types
     
-    // Random date within 3 months
-    const saleDate = randomDate(startDate, endDate);
+    // Scenario 1: TVA System - Determine if sale has TVA
+    // - Sales WITH TVA (tvaRate = 0.20) - 65% of sales (standard Moroccan rate)
+    // - Sales WITHOUT TVA (tvaRate = 0) - 35% of sales (exempt, B2B, etc.)
+    let tvaRate = 0;
+    if (Math.random() < 0.65) {
+      // 65% of sales have TVA (20% standard rate in Morocco)
+      tvaRate = 0.20;
+    } else {
+      // 35% of sales without TVA (exempt, B2B, quick sales, etc.)
+      tvaRate = 0;
+    }
+    
+    // Scenario 2: Document System - Determine document type
+    // Realistic distribution:
+    // - NONE (no document): 15% - Quick sales, no customer data needed
+    // - RECEIPT (Bon de vente): 45% - Most common for consumer sales without TVA
+    // - INVOICE (Facture): 40% - Legal invoices (with or without TVA)
+    let saleDocumentType;
+    const docTypeRoll = Math.random();
+    if (docTypeRoll < 0.15) {
+      // 15% - Quick sales without document
+      saleDocumentType = "NONE";
+      salesWithoutDocument++;
+    } else if (docTypeRoll < 0.60) {
+      // 45% - Receipt (Bon de vente) - most common
+      saleDocumentType = "RECEIPT";
+      salesWithReceipt++;
+    } else {
+      // 40% - Invoice (Facture) - legal invoices
+      saleDocumentType = "INVOICE";
+      salesWithInvoice++;
+    }
+    
+    // Scenario 3: Customer data - Required for documents, optional for NONE
+    // If saleDocumentType = "NONE", customer data may be missing (realistic)
+    // If saleDocumentType != "NONE", customer data is required
+    let customerName = null;
+    let customerPhone = null;
+    
+    if (saleDocumentType !== "NONE") {
+      // Customer data required for documents
+      customerName = generateCustomerName();
+      customerPhone = randomPhone();
+    } else {
+      // 50% chance to have customer data even for NONE (some quick sales still collect it)
+      if (Math.random() < 0.5) {
+        customerName = generateCustomerName();
+        customerPhone = randomPhone();
+      }
+    }
+    
+    // Scenario 4: Realistic date distribution
+    // More sales on weekdays, less on weekends
+    // More sales during business hours (9 AM - 8 PM)
+    let saleDate = randomDate(startDate, endDate);
+    // Adjust for business hours (optional - keep random for simplicity)
+    
+    // Scenario 5: Price override (10% chance, manager-only scenario)
+    // Simulate manager override for special deals
+    const allowPriceOverride = Math.random() < 0.1 && Math.random() < 0.3; // 3% chance (manager only)
     
     try {
-      // Use SaleService.registerSale() to create sale + invoice automatically
-      const result = await SaleService.registerSale({
+      // TVA System + Document System: Use SaleService.registerSale() 
+      // This creates sale with:
+      // - TVA fields (sellingPriceHT, tvaRate, tvaAmount, sellingPriceTTC)
+      // - saleDocumentType (NONE, RECEIPT, INVOICE)
+      // - Auto-generates Invoice if saleDocumentType !== "NONE" and customer data exists
+      // - productSnapshot auto-generated (NO TVA fields in snapshot)
+      const saleData = {
         productId: product._id.toString(),
         quantity,
-        sellingPrice,
+        sellingPrice: sellingPriceHT, // HT price (user input)
+        tvaRate, // TVA rate: 0 or 0.20
+        saleDocumentType, // Document type: "NONE", "RECEIPT", or "INVOICE"
         cashierId: cashier._id.toString(),
-        customer: {
+      };
+      
+      // Add customer data only if provided (required for documents)
+      if (customerName && customerPhone) {
+        saleData.customer = {
           name: customerName,
           phone: customerPhone,
-        },
-      });
+        };
+      }
+      
+      // Add price override only if manager and override enabled
+      if (allowPriceOverride && manager) {
+        saleData.allowPriceOverride = true;
+      }
+      
+      const result = await SaleService.registerSale(saleData);
       
       // Update sale date (if needed)
       if (result.sale) {
@@ -637,6 +772,10 @@ async function seedSales(products, cashiers, manager) {
   }
   
   console.log(`\n✅ Sales seeded: ${successCount} successful, ${errorCount} errors, ${skippedCount} skipped (total created: ${sales.length})`);
+  console.log(`   📊 Document Type Distribution:`);
+  console.log(`      • NONE: ${salesWithoutDocument} sales`);
+  console.log(`      • RECEIPT: ${salesWithReceipt} sales`);
+  console.log(`      • INVOICE: ${salesWithInvoice} sales`);
   
   // Phase 6: Cancel/return some sales (realistic scenario)
   console.log(`🔄 Processing sale cancellations and returns (${activeSales.length} candidates)...`);
@@ -756,6 +895,9 @@ async function seedDatabase() {
     const users = await seedUsers();
     const manager = users.find((u) => u.role === "manager");
     const cashiers = users.filter((u) => u.role === "cashier");
+    
+    // Seed StoreSettings FIRST (needed for invoice generation with tax identifiers)
+    const storeSettings = await seedStoreSettings();
     
     const categories = await seedCategories();
     const subCategories = await seedSubCategories(categories);

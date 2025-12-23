@@ -394,6 +394,8 @@ function getStockBadgeProps(product) {
  * @param {string} props.userRole - User role ("manager" | "cashier")
  * @param {boolean} props.allowPriceOverride - Whether manager override is enabled
  * @param {Function} props.onAllowPriceOverrideChange - Override change handler: (value) => void
+ * @param {boolean} props.withTva - Whether sale includes TVA (invoice)
+ * @param {Function} props.onWithTvaChange - TVA toggle change handler: (value) => void
  */
 export default function SaleForm({
   product,
@@ -411,6 +413,8 @@ export default function SaleForm({
   userRole = "cashier",
   allowPriceOverride = false,
   onAllowPriceOverrideChange,
+  withTva = false,
+  onWithTvaChange,
 }) {
   if (!product) {
     return null;
@@ -464,10 +468,25 @@ export default function SaleForm({
     });
   };
 
-  // Calculate total amount automatically
-  const calculatedTotal = quantity && sellingPrice && sellingPrice > 0 
-    ? quantity * sellingPrice 
-    : 0;
+  // TVA System: Calculate financial amounts
+  // Default TVA rate for Morocco (can be made configurable later)
+  const DEFAULT_TVA_RATE = 0.20; // 20%
+  
+  // sellingPrice is always HT (Hors Taxe)
+  const sellingPriceHT = sellingPrice || 0;
+  
+  // Calculate TVA amounts based on withTva toggle
+  const tvaRate = withTva ? DEFAULT_TVA_RATE : 0;
+  const tvaAmountPerUnit = sellingPriceHT * tvaRate;
+  const sellingPriceTTCPerUnit = sellingPriceHT * (1 + tvaRate);
+  
+  // Total amounts
+  const totalAmountHT = quantity && sellingPriceHT > 0 ? quantity * sellingPriceHT : 0;
+  const totalTvaAmount = quantity && sellingPriceHT > 0 ? quantity * tvaAmountPerUnit : 0;
+  const totalAmountTTC = quantity && sellingPriceHT > 0 ? quantity * sellingPriceTTCPerUnit : 0;
+  
+  // For backward compatibility, use TTC when TVA is enabled, HT otherwise
+  const calculatedTotal = withTva ? totalAmountTTC : totalAmountHT;
 
   // Check if selling price is less than purchase price
   const isSellingPriceBelowPurchase = sellingPrice !== null && sellingPrice > 0 && purchasePrice > 0 && sellingPrice < purchasePrice;
@@ -631,7 +650,33 @@ export default function SaleForm({
           />
         </FormField>
 
-        <FormField label={`Prix de vente (${getCurrencySymbol()})`} id="sellingPrice" required>
+        {/* TVA System: Toggle for invoice with TVA */}
+        <ManagerOverrideSection>
+          <ManagerOverrideLabel>
+            <ManagerOverrideTitle>
+              Vente avec facture (TVA)
+            </ManagerOverrideTitle>
+            <ManagerOverrideDescription>
+              Activez cette option pour inclure la TVA dans la facture (20%)
+            </ManagerOverrideDescription>
+          </ManagerOverrideLabel>
+          <Switch
+            id="withTva"
+            checked={withTva}
+            onChange={(checked) =>
+              onWithTvaChange && onWithTvaChange(checked)
+            }
+            disabled={isLoading}
+          />
+        </ManagerOverrideSection>
+
+        {/* TVA System: Selling price is always HT */}
+        <FormField 
+          label={`Prix (HT) (${getCurrencySymbol()})`} 
+          id="sellingPrice" 
+          required
+          helperText="Prix sans taxe (Hors Taxe)"
+        >
           <Input
             id="sellingPrice"
             type="number"
@@ -643,7 +688,7 @@ export default function SaleForm({
             }
             disabled={isLoading}
             hasError={isPriceInvalid && !isLoading}
-            placeholder="Prix de vente"
+            placeholder="Prix hors taxe"
           />
         </FormField>
 
@@ -707,13 +752,65 @@ export default function SaleForm({
             </WarningMessage>
           )}
 
-        {/* Total Amount Display (Auto-calculated) */}
-        {calculatedTotal > 0 && (
+        {/* TVA System: Live Preview Panel */}
+        {totalAmountHT > 0 && (
           <TotalAmountDisplay>
-            <TotalAmountLabel>Montant total</TotalAmountLabel>
-            <TotalAmountValue>
-              {formatCurrencyValue(calculatedTotal)} {getCurrencySymbol()}
-            </TotalAmountValue>
+            <TotalAmountLabel>
+              {withTva ? "Récapitulatif (avec TVA)" : "Montant total (HT)"}
+            </TotalAmountLabel>
+            
+            {/* HT Amount (always shown) */}
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "space-between", 
+              alignItems: "center",
+              marginBottom: withTva ? "8px" : "0",
+              fontSize: withTva ? "0.875rem" : "1rem",
+              color: withTva ? "inherit" : undefined
+            }}>
+              <span>Montant HT:</span>
+              <span style={{ fontWeight: withTva ? "normal" : "bold" }}>
+                {formatCurrencyValue(totalAmountHT)} {getCurrencySymbol()}
+              </span>
+            </div>
+            
+            {/* TVA Amount (only shown when TVA is enabled) */}
+            {withTva && totalTvaAmount > 0 && (
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "center",
+                marginBottom: "8px",
+                fontSize: "0.875rem"
+              }}>
+                <span>TVA ({Math.round(tvaRate * 100)}%):</span>
+                <span>{formatCurrencyValue(totalTvaAmount)} {getCurrencySymbol()}</span>
+              </div>
+            )}
+            
+            {/* Total TTC (only shown when TVA is enabled) */}
+            {withTva && (
+              <div style={{ 
+                display: "flex", 
+                justifyContent: "space-between", 
+                alignItems: "center",
+                marginTop: "8px",
+                paddingTop: "8px",
+                borderTop: "1px solid currentColor",
+                fontSize: "1rem",
+                fontWeight: "bold"
+              }}>
+                <span>Total TTC:</span>
+                <span>{formatCurrencyValue(totalAmountTTC)} {getCurrencySymbol()}</span>
+              </div>
+            )}
+            
+            {/* Total without TVA (when TVA is disabled) */}
+            {!withTva && (
+              <TotalAmountValue>
+                {formatCurrencyValue(totalAmountHT)} {getCurrencySymbol()}
+              </TotalAmountValue>
+            )}
           </TotalAmountDisplay>
         )}
 

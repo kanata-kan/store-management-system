@@ -92,6 +92,9 @@ export default function FastSellingClient() {
   // User role and manager override
   const [userRole, setUserRole] = useState("cashier");
   const [allowPriceOverride, setAllowPriceOverride] = useState(false);
+  
+  // TVA System: State for TVA toggle
+  const [withTva, setWithTva] = useState(false);
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -192,6 +195,7 @@ export default function FastSellingClient() {
         : null;
     setSellingPrice(suggestedPrice || product.purchasePrice || null);
     setAllowPriceOverride(false); // Reset override when selecting new product
+    setWithTva(false); // Reset TVA toggle when selecting new product
     setErrorMessage(null);
     setSuccessMessage(null);
     // Keep customer info when selecting new product (for faster workflow)
@@ -234,14 +238,16 @@ export default function FastSellingClient() {
       return;
     }
     
-    // Validate customer information (required for invoice)
+    // Validate customer information
+    // Customer data is required for document generation
+    // (Invoice/Receipt needs customer info)
     if (!customerName || !customerName.trim()) {
-      setErrorMessage("Le nom du client est requis pour générer la facture.");
+      setErrorMessage("Le nom du client est requis pour générer le document.");
       return;
     }
     
     if (!customerPhone || !customerPhone.trim()) {
-      setErrorMessage("Le téléphone du client est requis pour générer la facture.");
+      setErrorMessage("Le téléphone du client est requis pour générer le document.");
       return;
     }
 
@@ -250,10 +256,22 @@ export default function FastSellingClient() {
     setSuccessMessage(null);
 
     try {
+      // TVA System: Calculate tvaRate based on withTva toggle
+      // OFF → tvaRate = 0, ON → tvaRate = 0.20 (default store TVA)
+      const tvaRate = withTva ? 0.20 : 0;
+      
+      // Document System: Determine saleDocumentType based on TVA
+      // Since customer data is always required in UI, we always create a document
+      // If TVA enabled → INVOICE (legal invoice with TVA)
+      // If TVA disabled → RECEIPT (receipt without TVA, for warranty, etc.)
+      const saleDocumentType = tvaRate > 0 ? "INVOICE" : "RECEIPT";
+      
       const requestBody = {
         productId: productId,
         quantity: quantityInt,
-        sellingPrice: price,
+        sellingPrice: price, // HT price (user input)
+        tvaRate: tvaRate, // TVA rate: 0 or 0.20
+        saleDocumentType: saleDocumentType, // Document creation decision
         customer: {
           name: customerName.trim(),
           phone: customerPhone.trim(),
@@ -355,6 +373,7 @@ export default function FastSellingClient() {
     setQuantity(1);
     setSellingPrice(null);
     setAllowPriceOverride(false);
+    setWithTva(false); // Reset TVA toggle
     setCustomerName("");
     setCustomerPhone("");
     setSearchQuery("");
@@ -371,6 +390,7 @@ export default function FastSellingClient() {
     setQuantity(1);
     setSellingPrice(null);
     setAllowPriceOverride(false);
+    setWithTva(false); // Reset TVA toggle
     setCustomerName("");
     setCustomerPhone("");
     setSearchQuery("");
@@ -465,6 +485,8 @@ export default function FastSellingClient() {
             userRole={userRole}
             allowPriceOverride={allowPriceOverride}
             onAllowPriceOverrideChange={setAllowPriceOverride}
+            withTva={withTva}
+            onWithTvaChange={setWithTva}
           />
         </FormSection>
       )}
