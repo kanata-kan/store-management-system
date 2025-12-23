@@ -83,11 +83,26 @@ export async function POST(request) {
 
     const result = await SaleService.registerSale(validated);
 
-    // Phase 2: Include invoice information in response
+    // Snapshot-Only: Build product object from snapshot
+    if (!result.sale.productSnapshot?.productId) {
+      throw new Error("Sale is missing productSnapshot. This should not happen in Snapshot-Only architecture.");
+    }
+
+    const productData = {
+      _id: result.sale.productSnapshot.productId,
+      name: result.sale.productSnapshot.name,
+      purchasePrice: result.sale.productSnapshot.purchasePrice,
+      priceRange: result.sale.productSnapshot.priceRange,
+      warranty: result.sale.productSnapshot.warranty,
+      brand: result.sale.productSnapshot.brand ? { name: result.sale.productSnapshot.brand } : null,
+      category: result.sale.productSnapshot.category || null,
+      subCategory: result.sale.productSnapshot.subCategory || null,
+    };
+
     return success(
       {
         saleId: result.sale._id,
-        product: result.sale.product,
+        product: productData,
         quantity: result.sale.quantity,
         sellingPrice: result.sale.sellingPrice,
         totalAmount: result.sale.quantity * result.sale.sellingPrice,

@@ -119,10 +119,23 @@ export async function createTestProduct(overrides = {}) {
     supplier = await createTestSupplier();
   }
 
+  // Calculate priceRange if not provided
+  const purchasePrice = overrides.purchasePrice || 500;
+  let priceRange = overrides.priceRange;
+  if (!priceRange) {
+    // Default: 20% min profit, 50% max profit
+    const minSellingPrice = Math.round(purchasePrice * 1.2); // 20% profit
+    const maxSellingPrice = Math.round(purchasePrice * 1.5); // 50% profit
+    priceRange = {
+      min: minSellingPrice,
+      max: maxSellingPrice,
+    };
+  }
+
   const product = await Product.create({
     name: `Test Product ${Date.now()}`,
-    purchasePrice: 500,
-    sellingPrice: 750,
+    purchasePrice,
+    priceRange,
     stock: 50,
     lowStockThreshold: 10,
     brand: brand._id,
@@ -169,18 +182,30 @@ export async function createProductEcosystem(overrides = {}) {
 
 /**
  * Create a test sale
+ * Snapshot-Only: Uses SaleService.registerSale to ensure productSnapshot is created
  */
 export async function createTestSale(productId, cashierId, overrides = {}) {
-  const sale = await Sale.create({
-    product: productId,
-    cashier: cashierId,
-    quantity: 2,
-    sellingPrice: 750,
-    status: "active",
+  // Import SaleService here to avoid circular dependency
+  const SaleService = (await import("@/lib/services/SaleService.js")).default;
+  
+  // Use registerSale to create sale with snapshot (Snapshot-Only architecture)
+  const saleData = {
+    productId: productId.toString(),
+    quantity: overrides.quantity || 2,
+    sellingPrice: overrides.sellingPrice || 750,
+    cashierId: cashierId.toString(),
     ...overrides,
-  });
-
-  return sale;
+  };
+  
+  const result = await SaleService.registerSale(saleData);
+  
+  // Update status if needed (registerSale creates active sales by default)
+  if (overrides.status && overrides.status !== "active") {
+    await Sale.findByIdAndUpdate(result.sale._id, { status: overrides.status });
+    result.sale.status = overrides.status;
+  }
+  
+  return result.sale;
 }
 
 /**
@@ -218,5 +243,30 @@ export async function createFullTestScenario() {
     sale,
     inventoryLog,
   };
+}
+
+/**
+ * Create a test product with price range
+ * Helper for testing the new priceRange feature
+ * 
+ * @param {Object} overrides - Override default values
+ * @returns {Promise<Product>} Created product with price range
+ */
+export async function createTestProductWithPriceRange(overrides = {}) {
+  // Default price range configuration
+  const defaultPriceRange = {
+    min: 1200, // 20% profit margin
+    max: 1500, // 50% profit margin
+  };
+
+  const product = await createTestProduct({
+    purchasePrice: 1000,
+    priceRange: overrides.priceRange !== undefined 
+      ? overrides.priceRange 
+      : defaultPriceRange,
+    ...overrides,
+  });
+
+  return product;
 }
 
