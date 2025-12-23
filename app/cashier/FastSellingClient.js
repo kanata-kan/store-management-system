@@ -89,6 +89,10 @@ export default function FastSellingClient() {
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
 
+  // User role and manager override
+  const [userRole, setUserRole] = useState("cashier");
+  const [allowPriceOverride, setAllowPriceOverride] = useState(false);
+
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -97,6 +101,28 @@ export default function FastSellingClient() {
 
   // Debounce timer ref
   const debounceTimerRef = useRef(null);
+
+  // Fetch user role from session
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("/api/auth/session", {
+          credentials: "include",
+        });
+        if (response.ok) {
+          const result = await response.json();
+          if (result.status === "success" && result.data?.role) {
+            setUserRole(result.data.role);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        // Default to cashier on error
+        setUserRole("cashier");
+      }
+    };
+    fetchUserRole();
+  }, []);
 
   // Debounce search query
   useEffect(() => {
@@ -159,7 +185,13 @@ export default function FastSellingClient() {
   const handleProductSelect = (product) => {
     setSelectedProduct(product);
     setQuantity(1);
-    setSellingPrice(product.purchasePrice || null);
+    // Set initial selling price to suggested price if available, otherwise purchase price
+    const suggestedPrice =
+      product.priceRange?.min && product.priceRange?.max
+        ? Math.round((product.priceRange.min + product.priceRange.max) / 2)
+        : null;
+    setSellingPrice(suggestedPrice || product.purchasePrice || null);
+    setAllowPriceOverride(false); // Reset override when selecting new product
     setErrorMessage(null);
     setSuccessMessage(null);
     // Keep customer info when selecting new product (for faster workflow)
@@ -226,6 +258,10 @@ export default function FastSellingClient() {
           name: customerName.trim(),
           phone: customerPhone.trim(),
         },
+        // Include allowPriceOverride only if user is manager and override is enabled
+        ...(userRole === "manager" && allowPriceOverride
+          ? { allowPriceOverride: true }
+          : {}),
       };
 
       // Debug logging in development
@@ -318,6 +354,7 @@ export default function FastSellingClient() {
     setSelectedProduct(null);
     setQuantity(1);
     setSellingPrice(null);
+    setAllowPriceOverride(false);
     setCustomerName("");
     setCustomerPhone("");
     setSearchQuery("");
@@ -333,6 +370,7 @@ export default function FastSellingClient() {
     setSelectedProduct(null);
     setQuantity(1);
     setSellingPrice(null);
+    setAllowPriceOverride(false);
     setCustomerName("");
     setCustomerPhone("");
     setSearchQuery("");
@@ -424,6 +462,9 @@ export default function FastSellingClient() {
             onSubmit={handleSubmit}
             isLoading={isSubmitting}
             error={errorMessage}
+            userRole={userRole}
+            allowPriceOverride={allowPriceOverride}
+            onAllowPriceOverrideChange={setAllowPriceOverride}
           />
         </FormSection>
       )}

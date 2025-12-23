@@ -27,6 +27,78 @@ const FieldsRow = styled.div`
   }
 `;
 
+const PriceRangeContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: ${(props) => props.theme.spacing.md};
+  align-items: start;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const PriceRangeField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.xs};
+`;
+
+const PriceRangeLabel = styled.label`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.foreground};
+`;
+
+const PriceRangeSeparator = styled.div`
+  font-size: ${(props) => props.theme.typography.fontSize.xl};
+  color: ${(props) => props.theme.colors.primary};
+  padding-top: ${(props) => props.theme.spacing.xl};
+  text-align: center;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.md}) {
+    padding-top: 0;
+    padding: ${(props) => props.theme.spacing.sm} 0;
+  }
+`;
+
+const PriceRangeInfo = styled.div`
+  margin-top: ${(props) => props.theme.spacing.md};
+  padding: ${(props) => props.theme.spacing.md};
+  background: ${(props) => `${props.theme.colors.primaryLight}10`};
+  border-left: 3px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.xs};
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const InfoLabel = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+`;
+
+const InfoValue = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) =>
+    props.$success
+      ? props.theme.colors.success
+      : props.theme.colors.foreground};
+`;
+
+const ErrorText = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.error};
+  margin-top: ${(props) => props.theme.spacing.xs};
+`;
+
 /**
  * ProductFormFields Component
  * @param {Object} props
@@ -282,6 +354,121 @@ export default function ProductFormFields({
           min="0"
           step="1"
         />
+      </FormField>
+
+      {/* Price Range Section */}
+      <FormField
+        label="Fourchette de prix de vente"
+        helperText="Définissez les limites de prix pour les ventes (optionnel)"
+        error={errors["priceRange.min"] || errors["priceRange.max"]}
+      >
+        <PriceRangeContainer>
+          <PriceRangeField>
+            <PriceRangeLabel htmlFor="priceRangeMin">
+              Prix minimum (MAD) *
+            </PriceRangeLabel>
+            <Input
+              id="priceRangeMin"
+              type="number"
+              value={
+                values.priceRange?.min !== undefined &&
+                values.priceRange?.min !== null
+                  ? values.priceRange.min
+                  : ""
+              }
+              onChange={(e) => {
+                const min = e.target.value
+                  ? parseFloat(e.target.value)
+                  : null;
+                onChange("priceRange", {
+                  ...values.priceRange,
+                  min,
+                });
+              }}
+              min={values.purchasePrice || 0.01}
+              step="0.01"
+              placeholder="Ex: 1200"
+              disabled={disabled}
+              hasError={!!errors["priceRange.min"]}
+            />
+            {errors["priceRange.min"] && (
+              <ErrorText>{errors["priceRange.min"]}</ErrorText>
+            )}
+          </PriceRangeField>
+
+          <PriceRangeSeparator>→</PriceRangeSeparator>
+
+          <PriceRangeField>
+            <PriceRangeLabel htmlFor="priceRangeMax">
+              Prix maximum (MAD) *
+            </PriceRangeLabel>
+            <Input
+              id="priceRangeMax"
+              type="number"
+              value={
+                values.priceRange?.max !== undefined &&
+                values.priceRange?.max !== null
+                  ? values.priceRange.max
+                  : ""
+              }
+              onChange={(e) => {
+                const max = e.target.value
+                  ? parseFloat(e.target.value)
+                  : null;
+                onChange("priceRange", {
+                  ...values.priceRange,
+                  max,
+                });
+              }}
+              min={
+                values.priceRange?.min ||
+                values.purchasePrice ||
+                0.01
+              }
+              step="0.01"
+              placeholder="Ex: 1500"
+              disabled={disabled}
+              hasError={!!errors["priceRange.max"]}
+            />
+            {errors["priceRange.max"] && (
+              <ErrorText>{errors["priceRange.max"]}</ErrorText>
+            )}
+          </PriceRangeField>
+        </PriceRangeContainer>
+
+        {/* Price Range Info */}
+        {values.purchasePrice &&
+          values.priceRange?.min &&
+          values.priceRange?.max && (
+            <PriceRangeInfo>
+              <InfoRow>
+                <InfoLabel>Marge bénéficiaire:</InfoLabel>
+                <InfoValue>
+                  {Math.round(
+                    ((values.priceRange.min - values.purchasePrice) /
+                      values.purchasePrice) *
+                      100
+                  )}
+                  % -{" "}
+                  {Math.round(
+                    ((values.priceRange.max - values.purchasePrice) /
+                      values.purchasePrice) *
+                      100
+                  )}
+                  %
+                </InfoValue>
+              </InfoRow>
+              <InfoRow>
+                <InfoLabel>Prix suggéré (auto):</InfoLabel>
+                <InfoValue $success>
+                  {Math.round(
+                    (values.priceRange.min + values.priceRange.max) / 2
+                  )}{" "}
+                  MAD
+                </InfoValue>
+              </InfoRow>
+            </PriceRangeInfo>
+          )}
       </FormField>
 
       {/* Warranty Section */}

@@ -48,7 +48,7 @@ describe("ProductService", () => {
       const productData = {
         name: "Samsung TV 55 inch",
         purchasePrice: 50000,
-        sellingPrice: 75000,
+        priceRange: { min: 60000, max: 80000 },
         stock: 10,
         lowStockThreshold: 3,
         brandId: brand._id.toString(),
@@ -73,7 +73,8 @@ describe("ProductService", () => {
       expect(product._id).toBeDefined();
       expect(product.name).toBe("Samsung TV 55 inch");
       expect(product.purchasePrice).toBe(50000);
-      expect(product.sellingPrice).toBe(75000);
+      expect(product.priceRange.min).toBe(60000);
+      expect(product.priceRange.max).toBe(80000);
       expect(product.stock).toBe(10);
       expect(product.brand._id.toString()).toBe(brand._id.toString());
       expect(product.subCategory._id.toString()).toBe(subCategory._id.toString());
@@ -90,7 +91,6 @@ describe("ProductService", () => {
       const productData = {
         name: "Test Product",
         purchasePrice: 1000,
-        sellingPrice: 1500,
         stock: 10,
         brandId: "507f1f77bcf86cd799439011", // Non-existent ObjectId
         subCategoryId: subCategory._id.toString(),
@@ -111,7 +111,6 @@ describe("ProductService", () => {
       const productData = {
         name: "Test Product",
         purchasePrice: 1000,
-        sellingPrice: 1500,
         stock: 10,
         brandId: brand._id.toString(),
         subCategoryId: "507f1f77bcf86cd799439011", // Non-existent ObjectId
@@ -133,7 +132,6 @@ describe("ProductService", () => {
       const productData = {
         name: "Test Product",
         purchasePrice: 1000,
-        sellingPrice: 1500,
         stock: 10,
         brandId: brand._id.toString(),
         subCategoryId: subCategory._id.toString(),
@@ -154,7 +152,7 @@ describe("ProductService", () => {
 
       const updates = {
         name: "Updated Product Name",
-        sellingPrice: 1000,
+        priceRange: { min: 1200, max: 1500 },
         stock: 100,
       };
 
@@ -166,7 +164,8 @@ describe("ProductService", () => {
 
       // Assert
       expect(updatedProduct.name).toBe("Updated Product Name");
-      expect(updatedProduct.sellingPrice).toBe(1000);
+      expect(updatedProduct.priceRange.min).toBe(1200);
+      expect(updatedProduct.priceRange.max).toBe(1500);
       expect(updatedProduct.stock).toBe(100);
     });
 
@@ -302,22 +301,31 @@ describe("ProductService", () => {
 
     it("should sort products by price", async () => {
       // Arrange
-      await createTestProduct({ name: "Product 1", sellingPrice: 1000 });
-      await createTestProduct({ name: "Product 2", sellingPrice: 500 });
-      await createTestProduct({ name: "Product 3", sellingPrice: 1500 });
+      await createTestProduct({ 
+        name: "Product 1", 
+        priceRange: { min: 1000, max: 1200 }
+      });
+      await createTestProduct({ 
+        name: "Product 2", 
+        priceRange: { min: 500, max: 700 }
+      });
+      await createTestProduct({ 
+        name: "Product 3", 
+        priceRange: { min: 1500, max: 1800 }
+      });
 
       // Act
       const result = await ProductService.getProducts({
-        sortBy: "sellingPrice",
+        sortBy: "priceRange.min",
         sortOrder: "asc",
         page: 1,
         limit: 10,
       });
 
       // Assert
-      expect(result.products[0].sellingPrice).toBe(500);
-      expect(result.products[1].sellingPrice).toBe(1000);
-      expect(result.products[2].sellingPrice).toBe(1500);
+      expect(result.products[0].priceRange.min).toBe(500);
+      expect(result.products[1].priceRange.min).toBe(1000);
+      expect(result.products[2].priceRange.min).toBe(1500);
     });
   });
 

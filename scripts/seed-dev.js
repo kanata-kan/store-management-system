@@ -429,12 +429,21 @@ async function seedProducts(brands, subCategories, suppliers) {
             : null,
         };
 
+        // Calculate price range for selling (15-40% profit margin)
+        const minProfitMargin = 1.15; // 15% minimum profit
+        const maxProfitMargin = 1.40; // 40% maximum profit
+        const priceRange = {
+          min: Math.round(purchasePrice * minProfitMargin),
+          max: Math.round(purchasePrice * maxProfitMargin),
+        };
+
         const product = await Product.create({
           name: productName,
           brand: brand._id,
           subCategory: subCategory._id,
           supplier: supplier._id,
           purchasePrice,
+          priceRange, // Phase 10: Price range for controlled bargaining
           stock: 0, // Will be updated by inventory logs
           lowStockThreshold,
           specs,
@@ -544,9 +553,25 @@ async function seedSales(products, cashiers, manager) {
     }
     const quantity = randomInt(1, maxQuantity);
     
-    // Selling price: 10-50% markup from purchase price
-    const markup = randomFloat(1.1, 1.5);
-    const sellingPrice = Math.round(product.purchasePrice * markup * 100) / 100;
+    // Selling price: Use priceRange if available, otherwise calculate markup
+    let sellingPrice;
+    if (product.priceRange?.min && product.priceRange?.max) {
+      // Use price range: random price between min and max (or suggested price)
+      const useSuggestedPrice = Math.random() < 0.3; // 30% chance to use suggested price
+      if (useSuggestedPrice) {
+        // Use suggested price (midpoint)
+        sellingPrice = Math.round((product.priceRange.min + product.priceRange.max) / 2);
+      } else {
+        // Random price within range
+        sellingPrice = Math.round(
+          randomFloat(product.priceRange.min, product.priceRange.max)
+        );
+      }
+    } else {
+      // Fallback: 10-50% markup from purchase price (for backward compatibility)
+      const markup = randomFloat(1.1, 1.5);
+      sellingPrice = Math.round(product.purchasePrice * markup * 100) / 100;
+    }
     
     // Generate customer data
     const customerName = generateCustomerName();

@@ -114,6 +114,7 @@ export default function ProductForm({
     purchasePrice: null,
     stock: 0,
     lowStockThreshold: null,
+    priceRange: { min: null, max: null },
     warranty: { enabled: false, durationMonths: null },
     ...initialValues,
   });
@@ -137,6 +138,7 @@ export default function ProductForm({
         purchasePrice: initialValues.purchasePrice || null,
         stock: initialValues.stock !== undefined ? initialValues.stock : 0,
         lowStockThreshold: initialValues.lowStockThreshold !== undefined ? initialValues.lowStockThreshold : null,
+        priceRange: initialValues.priceRange || { min: null, max: null },
         warranty: initialValues.warranty || { enabled: false, durationMonths: null },
       });
     }
@@ -212,6 +214,38 @@ export default function ProductForm({
       }
     }
 
+    // Price Range validation (optional, but if provided, both min and max are required)
+    if (values.priceRange) {
+      const hasMin = values.priceRange.min !== null && values.priceRange.min !== undefined;
+      const hasMax = values.priceRange.max !== null && values.priceRange.max !== undefined;
+
+      if (hasMin || hasMax) {
+        // If one is provided, both must be provided
+        if (!hasMin) {
+          newErrors["priceRange.min"] = "Le prix minimum est requis si le prix maximum est défini";
+        }
+        if (!hasMax) {
+          newErrors["priceRange.max"] = "Le prix maximum est requis si le prix minimum est défini";
+        }
+
+        // If both are provided, validate them
+        if (hasMin && hasMax) {
+          if (values.priceRange.min <= 0) {
+            newErrors["priceRange.min"] = "Le prix minimum doit être supérieur à 0";
+          }
+          if (values.priceRange.max <= 0) {
+            newErrors["priceRange.max"] = "Le prix maximum doit être supérieur à 0";
+          }
+          if (values.priceRange.max < values.priceRange.min) {
+            newErrors["priceRange.max"] = "Le prix maximum doit être supérieur ou égal au prix minimum";
+          }
+          if (values.purchasePrice && values.priceRange.min < values.purchasePrice) {
+            newErrors["priceRange.min"] = "Le prix minimum doit être supérieur ou égal au prix d'achat";
+          }
+        }
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -244,6 +278,19 @@ export default function ProductForm({
       // Optional fields - only include if they have values
       if (values.lowStockThreshold !== null && values.lowStockThreshold !== undefined && values.lowStockThreshold !== "") {
         formData.lowStockThreshold = Number(values.lowStockThreshold);
+      }
+
+      // Add priceRange if both min and max are provided
+      if (
+        values.priceRange?.min !== null &&
+        values.priceRange?.min !== undefined &&
+        values.priceRange?.max !== null &&
+        values.priceRange?.max !== undefined
+      ) {
+        formData.priceRange = {
+          min: Number(values.priceRange.min),
+          max: Number(values.priceRange.max),
+        };
       }
 
       // Add warranty

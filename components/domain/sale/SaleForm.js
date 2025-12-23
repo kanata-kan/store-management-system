@@ -240,7 +240,103 @@ const WarrantyLabel = styled.span`
   color: ${(props) => props.theme.colors.foreground};
 `;
 
+const PriceRangeBlock = styled.div`
+  padding: ${(props) => props.theme.spacing.lg};
+  background: linear-gradient(
+    135deg,
+    ${(props) => props.theme.colors.primaryLight}20 0%,
+    ${(props) => props.theme.colors.surface} 100%
+  );
+  border: 1px solid ${(props) => props.theme.colors.primary};
+  border-left: 4px solid ${(props) => props.theme.colors.primary};
+  border-radius: ${(props) => props.theme.borderRadius.lg};
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.md};
+  margin-bottom: ${(props) => props.theme.spacing.md};
+`;
+
+const PriceRangeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) => props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.base};
+`;
+
+const PriceRangeDetails = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: ${(props) => props.theme.spacing.md};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+`;
+
+const PriceRangeDetailItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.xs};
+`;
+
+const PriceRangeLabel = styled.span`
+  font-weight: ${(props) => props.theme.typography.fontWeight.medium};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+`;
+
+const PriceRangeValue = styled.span`
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) =>
+    props.$highlight
+      ? props.theme.colors.success
+      : props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.base};
+`;
+
+const ManagerOverrideSection = styled.div`
+  padding: ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.warningLight};
+  border: 1px solid ${(props) => props.theme.colors.warning};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${(props) => props.theme.spacing.md};
+  margin-top: ${(props) => props.theme.spacing.md};
+`;
+
+const ManagerOverrideLabel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.spacing.xs};
+  flex: 1;
+`;
+
+const ManagerOverrideTitle = styled.span`
+  font-weight: ${(props) => props.theme.typography.fontWeight.semibold};
+  color: ${(props) => props.theme.colors.foreground};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+`;
+
+const ManagerOverrideDescription = styled.span`
+  font-size: ${(props) => props.theme.typography.fontSize.xs};
+  color: ${(props) => props.theme.colors.foregroundSecondary};
+`;
+
+const PriceOutOfRangeWarning = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.sm};
+  padding: ${(props) => props.theme.spacing.md};
+  background-color: ${(props) => props.theme.colors.errorLight};
+  border: 1px solid ${(props) => props.theme.colors.error};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  color: ${(props) => props.theme.colors.error};
+  font-size: ${(props) => props.theme.typography.fontSize.sm};
+  margin-top: ${(props) => props.theme.spacing.sm};
+`;
+
 import { formatCurrencyValue, getCurrencySymbol } from "@/lib/utils/currencyConfig.js";
+import { Switch } from "@/components/ui";
 
 /**
  * Get stock badge props (uses backend stockStatus if available)
@@ -295,6 +391,9 @@ function getStockBadgeProps(product) {
  * @param {Function} props.onCustomerNameChange - Customer name change handler: (value) => void
  * @param {string} props.customerPhone - Customer phone (for invoice)
  * @param {Function} props.onCustomerPhoneChange - Customer phone change handler: (value) => void
+ * @param {string} props.userRole - User role ("manager" | "cashier")
+ * @param {boolean} props.allowPriceOverride - Whether manager override is enabled
+ * @param {Function} props.onAllowPriceOverrideChange - Override change handler: (value) => void
  */
 export default function SaleForm({
   product,
@@ -309,6 +408,9 @@ export default function SaleForm({
   onCustomerNameChange,
   customerPhone = "",
   onCustomerPhoneChange,
+  userRole = "cashier",
+  allowPriceOverride = false,
+  onAllowPriceOverrideChange,
 }) {
   if (!product) {
     return null;
@@ -370,6 +472,23 @@ export default function SaleForm({
   // Check if selling price is less than purchase price
   const isSellingPriceBelowPurchase = sellingPrice !== null && sellingPrice > 0 && purchasePrice > 0 && sellingPrice < purchasePrice;
 
+  // Price Range info
+  const priceRange = product.priceRange;
+  const hasPriceRange = priceRange?.min !== undefined && priceRange?.max !== undefined;
+  const suggestedPrice = hasPriceRange
+    ? Math.round((priceRange.min + priceRange.max) / 2)
+    : null;
+
+  // Check if selling price is outside price range
+  const isPriceOutOfRange =
+    hasPriceRange &&
+    sellingPrice !== null &&
+    sellingPrice > 0 &&
+    (sellingPrice < priceRange.min || sellingPrice > priceRange.max);
+
+  // Check if user is manager
+  const isManager = userRole === "manager";
+
   return (
     <FormContainer>
       <ProductInfoCard>
@@ -380,7 +499,10 @@ export default function SaleForm({
               <BrandName>{brandName}</BrandName>
             </ProductMeta>
           </ProductInfoDetails>
-          <PurchasePrice>{formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}</PurchasePrice>
+          {/* Show purchase price only for managers */}
+          {isManager && (
+            <PurchasePrice>{formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}</PurchasePrice>
+          )}
         </ProductInfoHeader>
 
         <StockInfo>
@@ -404,10 +526,43 @@ export default function SaleForm({
           </WarningMessage>
         )}
 
-        <PurchasePrice style={{ marginTop: "8px", fontSize: "0.875rem", color: "inherit" }}>
-          Prix d'achat (référence): {formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}
-        </PurchasePrice>
+        {/* Show purchase price reference only for managers */}
+        {isManager && (
+          <PurchasePrice style={{ marginTop: "8px", fontSize: "0.875rem", color: "inherit" }}>
+            Prix d'achat (référence): {formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}
+          </PurchasePrice>
+        )}
       </ProductInfoCard>
+
+      {/* Price Range Information Block (if product has price range) */}
+      {hasPriceRange && (
+        <PriceRangeBlock>
+          <PriceRangeHeader>
+            <AppIcon name="info" size="sm" color="primary" />
+            <span>Fourchette de prix de vente</span>
+          </PriceRangeHeader>
+          <PriceRangeDetails>
+            <PriceRangeDetailItem>
+              <PriceRangeLabel>Prix minimum:</PriceRangeLabel>
+              <PriceRangeValue>
+                {formatCurrencyValue(priceRange.min)} {getCurrencySymbol()}
+              </PriceRangeValue>
+            </PriceRangeDetailItem>
+            <PriceRangeDetailItem>
+              <PriceRangeLabel>Prix suggéré:</PriceRangeLabel>
+              <PriceRangeValue $highlight>
+                {formatCurrencyValue(suggestedPrice)} {getCurrencySymbol()}
+              </PriceRangeValue>
+            </PriceRangeDetailItem>
+            <PriceRangeDetailItem>
+              <PriceRangeLabel>Prix maximum:</PriceRangeLabel>
+              <PriceRangeValue>
+                {formatCurrencyValue(priceRange.max)} {getCurrencySymbol()}
+              </PriceRangeValue>
+            </PriceRangeDetailItem>
+          </PriceRangeDetails>
+        </PriceRangeBlock>
+      )}
 
       {/* Warranty Information Block (if product has warranty) */}
       {hasWarranty && warrantyDurationMonths && (
@@ -492,13 +647,65 @@ export default function SaleForm({
           />
         </FormField>
 
-        {/* Warning if selling price is below purchase price */}
-        {isSellingPriceBelowPurchase && (
+        {/* Warning if selling price is below purchase price (only for managers) */}
+        {isSellingPriceBelowPurchase && isManager && (
           <WarningMessage>
             <AppIcon name="warning" size="sm" color="warning" />
             <span>Prix de vente inférieur au prix d'achat ({formatCurrencyValue(purchasePrice)} {getCurrencySymbol()}). Êtes-vous sûr?</span>
           </WarningMessage>
         )}
+
+        {/* Warning if price is out of range (for cashiers) */}
+        {hasPriceRange &&
+          isPriceOutOfRange &&
+          !isManager &&
+          !allowPriceOverride && (
+            <PriceOutOfRangeWarning role="alert">
+              <AppIcon name="warning" size="sm" color="error" />
+              <span>
+                {sellingPrice < priceRange.min
+                  ? `Prix trop bas. Minimum autorisé: ${formatCurrencyValue(priceRange.min)} ${getCurrencySymbol()}`
+                  : `Prix trop élevé. Maximum autorisé: ${formatCurrencyValue(priceRange.max)} ${getCurrencySymbol()}`}
+              </span>
+            </PriceOutOfRangeWarning>
+          )}
+
+        {/* Manager Override Section (only for managers) */}
+        {hasPriceRange && isManager && (
+          <ManagerOverrideSection>
+            <ManagerOverrideLabel>
+              <ManagerOverrideTitle>
+                Autoriser la vente hors fourchette
+              </ManagerOverrideTitle>
+              <ManagerOverrideDescription>
+                {isPriceOutOfRange && !allowPriceOverride
+                  ? "Le prix est hors fourchette. Activez cette option pour autoriser la vente."
+                  : "Permet de vendre à un prix en dehors de la fourchette définie."}
+              </ManagerOverrideDescription>
+            </ManagerOverrideLabel>
+            <Switch
+              id="allowPriceOverride"
+              checked={allowPriceOverride}
+              onChange={(checked) =>
+                onAllowPriceOverrideChange && onAllowPriceOverrideChange(checked)
+              }
+              disabled={isLoading}
+            />
+          </ManagerOverrideSection>
+        )}
+
+        {/* Warning if price is out of range but override is enabled (for managers) */}
+        {hasPriceRange &&
+          isPriceOutOfRange &&
+          isManager &&
+          allowPriceOverride && (
+            <WarningMessage>
+              <AppIcon name="warning" size="sm" color="warning" />
+              <span>
+                ⚠️ Vente hors fourchette autorisée par le manager. Le prix sera enregistré avec un indicateur de dépassement.
+              </span>
+            </WarningMessage>
+          )}
 
         {/* Total Amount Display (Auto-calculated) */}
         {calculatedTotal > 0 && (
