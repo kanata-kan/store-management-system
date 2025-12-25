@@ -45,6 +45,7 @@ import {
   FileText,
   Download,
   Printer,
+  PieChart,
   // Add more icons as needed
 } from "lucide-react";
 import styled from "styled-components";
@@ -92,6 +93,7 @@ const ICONS = {
   "file-text": FileText,
   download: Download,
   printer: Printer,
+  "pie-chart": PieChart,
   // Add more icon mappings as needed
 };
 
