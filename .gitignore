@@ -47,4 +47,8 @@ next-env.d.ts
 # OS
 Thumbs.db
 desktop.ini
+*.ini
+
+# Project-specific
+ARCHITECTURE_COMPLIANCE_AUDIT_REPORT.md
 

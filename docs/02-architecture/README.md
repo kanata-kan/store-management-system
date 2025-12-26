@@ -1,64 +1,59 @@
-# 🏗️ Architecture Documentation
+# Architecture Documentation
 
-> فهم شامل لبنية النظام المعمارية
-
-**آخر تحديث:** 20 ديسمبر 2025  
-**المستوى:** Intermediate  
-**الوقت المتوقع:** 1-2 ساعة
+**Last Updated:** 2025-01-02  
+**Level:** Intermediate  
+**Estimated Time:** 1-2 hours
 
 ---
 
-## 📖 Overview
+## Overview
 
-هذا القسم يوفر فهماً عميقاً لبنية Store Management System المعمارية، مبادئها، وأنماطها.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [system-overview.md](system-overview.md) | نظرة شاملة على النظام | ✅ موجود |
-| [architectural-decisions.md](architectural-decisions.md) | القرارات المعمارية المهمة | ✅ موجود |
-| **service-layer.md** _(قريباً)_ | شرح Service Layer | 🔄 قيد الإنشاء |
-| **data-layer.md** _(قريباً)_ | شرح Data Layer (Models) | 🔄 قيد الإنشاء |
-| **api-layer.md** _(قريباً)_ | شرح API Layer | 🔄 قيد الإنشاء |
-| **ui-layer.md** _(قريباً)_ | Server/Client Components | 🔄 قيد الإنشاء |
-| **authentication.md** _(قريباً)_ | نظام المصادقة | 🔄 قيد الإنشاء |
-| **authorization-rbac.md** _(قريباً)_ | نظام الصلاحيات RBAC | 🔄 قيد الإنشاء |
+This section provides a deep understanding of the Store Management System architecture, its principles, and patterns.
 
 ---
 
-## 🎯 المبادئ الأساسية
+## Section Contents
+
+| File | Description | Status |
+|------|-------------|--------|
+| [system-overview.md](./system-overview.md) | System overview | ✅ Available |
+| [architectural-decisions.md](./architectural-decisions.md) | Important architectural decisions | ✅ Available |
+| [service-layer.md](./service-layer.md) | Service Layer explanation | ✅ Available |
+| [data-layer.md](./data-layer.md) | Data Layer (Models) explanation | ✅ Available |
+| [api-layer.md](./api-layer.md) | API Layer explanation | ✅ Available |
+
+---
+
+## Core Principles
 
 ### 1. Service-Oriented Architecture (SOA)
 ```
-جميع منطق الأعمال في Service Layer
-❌ لا منطق أعمال في API Routes
-❌ لا منطق أعمال في Frontend
+All business logic in Service Layer
+❌ No business logic in API Routes
+❌ No business logic in Frontend
 ```
 
 ### 2. Layered Architecture
 ```
 UI Layer → API Layer → Service Layer → Data Layer → Database
-كل طبقة تتحدث فقط مع الطبقات المجاورة
+Each layer only communicates with adjacent layers
 ```
 
 ### 3. Server Components First
 ```
 Server Components = Default
-Client Components = Exception (للتفاعل فقط)
+Client Components = Exception (for interaction only)
 ```
 
 ### 4. No Business Logic in Frontend
 ```
-Frontend: عرض فقط
-Backend: منطق الأعمال
+Frontend: Display only
+Backend: Business logic
 ```
 
 ---
 
-## 📐 الهيكل العام
+## System Structure
 
 ```
 ┌─────────────────────────────────────┐
@@ -89,16 +84,16 @@ Backend: منطق الأعمال
 
 ---
 
-## 🔑 المفاهيم الأساسية
+## Key Concepts
 
 ### Service Layer
-- ✅ جميع منطق الأعمال
+- ✅ All business logic
 - ✅ Transactions (MongoDB)
 - ✅ Business rules validation
 - ✅ Reusable across entry points
 
 ### API Layer
-- ✅ Thin (رفيعة)
+- ✅ Thin layer
 - ✅ Validation (Zod)
 - ✅ Authorization (RBAC)
 - ✅ Delegation to Services
@@ -111,23 +106,23 @@ Backend: منطق الأعمال
 
 ---
 
-## 📚 المرجع الرسمي
+## Official Reference
 
-للمبادئ الرسمية والملزمة، راجع:
-- [ARCHITECTURE.md](../../ARCHITECTURE.md) - المرجع الرسمي والملزم
-
----
-
-## ⏭️ الخطوات التالية
-
-بعد فهم المعمارية:
-1. 💻 اقرأ [Development Guide](../03-development/) للبدء بالتطوير
-2. 🌐 استكشف [API Documentation](../04-api/)
-3. 🎨 تعلم [Features Documentation](../05-features/)
+For official and binding principles, see:
+- [ARCHITECTURE.md](../../ARCHITECTURE.md) - Official and binding reference
 
 ---
 
-## 🔗 روابط ذات صلة
+## Next Steps
+
+After understanding the architecture:
+1. 💻 Read [Development Guide](../03-development/) to start developing
+2. 🌐 Explore [API Documentation](../04-api/)
+3. 🎨 Learn [Features Documentation](../05-features/)
+
+---
+
+## Related Links
 
 - [Official Architecture Principles](../../ARCHITECTURE.md)
 - [API Documentation](../04-api/)
@@ -136,6 +131,5 @@ Backend: منطق الأعمال
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

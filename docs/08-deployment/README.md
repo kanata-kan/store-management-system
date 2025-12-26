@@ -1,103 +1,76 @@
-# 🚀 Deployment Documentation
+# Deployment Documentation
 
-> دليل النشر والبيئات الإنتاجية
-
-**آخر تحديث:** 20 ديسمبر 2025
+**Last Updated:** 2025-01-02
 
 ---
 
-## 📖 Overview
+## Overview
 
-دليل شامل لنشر المشروع في بيئة Production، إعداد CI/CD، والمراقبة.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [ci-cd-guide.md](ci-cd-guide.md) | CI/CD Pipeline | ✅ موجود |
-| [github-setup.md](github-setup.md) | إعداد GitHub | ✅ موجود |
-
-### قريباً:
-- **production-setup.md** - إعداد Production
-- **environment-variables.md** - متغيرات البيئة
-- **monitoring.md** - المراقبة والتتبع
-- **backup-strategy.md** - استراتيجية النسخ الاحتياطي
+Complete guide for deploying the project to production environment, setting up environments, and monitoring.
 
 ---
 
-## 🌐 Deployment Options
+## Section Contents
 
-### Option 1: Vercel (Recommended)
-```bash
-# Easy deployment for Next.js
-vercel deploy
+| File | Description | Status |
+|------|-------------|--------|
+| [DEPLOYMENT_STRATEGY.md](./DEPLOYMENT_STRATEGY.md) | Deployment strategy | ✅ Available |
+| [ENV_REFERENCE.md](./ENV_REFERENCE.md) | Environment variables reference | ✅ Available |
+| [github-setup.md](./github-setup.md) | GitHub setup | ✅ Available |
+| [ci-cd-guide.md](./ci-cd-guide.md) | CI/CD guide | ✅ Available |
+
+---
+
+## Deployment Strategy
+
+The system uses a staging-first deployment approach:
+
+```
+Local Development → Staging Environment → Production Environment
 ```
 
-### Option 2: Docker
-```bash
-# Containerized deployment
-docker build -t store-management-system .
-docker run -p 3000:3000 store-management-system
-```
+**Key Principle:** All changes must be deployed to Staging first, tested, then promoted to Production.
 
-### Option 3: VPS
-```bash
-# Manual deployment on server
-npm run build
-pm2 start npm -- start
-```
+For complete deployment documentation, see:
+- [DEPLOYMENT_STRATEGY.md](./DEPLOYMENT_STRATEGY.md) - Official deployment strategy
+- [ENV_REFERENCE.md](./ENV_REFERENCE.md) - Environment variables reference
 
 ---
 
-## 🔐 Environment Variables
+## Infrastructure
+
+- **Hosting:** Vercel
+- **Database:** MongoDB Atlas
+- **Configuration:** Environment variables only
+- **Deployment Method:** Manual deployment via Vercel dashboard or CLI
+
+---
+
+## Environment Variables
 
 ### Required for Production
 ```bash
 NODE_ENV=production
+APP_ENV=production
 MONGODB_URI=<your-mongodb-atlas-uri>
 JWT_SECRET=<strong-secret-key>
-JWT_EXPIRY=7d
-NEXT_PUBLIC_APP_URL=<your-domain>
 ```
 
 ### Security
 - ⚠️ **Never** commit .env to git
-- ✅ Use environment secrets in CI/CD
+- ✅ Use environment secrets in Vercel
 - ✅ Rotate JWT_SECRET regularly
 
----
-
-## 🔄 CI/CD Pipeline
-
-### GitHub Actions Workflow
-```yaml
-1. Run tests
-2. Build application
-3. Deploy to staging
-4. Run smoke tests
-5. Deploy to production
-```
+For complete environment variables documentation, see [ENV_REFERENCE.md](./ENV_REFERENCE.md).
 
 ---
 
-## 📊 Monitoring
+## Next Steps
 
-### Recommended Tools
-- **Vercel Analytics** - Performance monitoring
-- **Sentry** - Error tracking
-- **MongoDB Atlas Monitoring** - Database monitoring
+- [Maintenance Guide](../09-maintenance/) - Maintenance
+- [Deployment Strategy](./DEPLOYMENT_STRATEGY.md) - Detailed setup
 
 ---
 
-## ⏭️ Next Steps
-
-- [Maintenance Guide](../09-maintenance/) - الصيانة
-- [Production Setup](production-setup.md) - الإعداد التفصيلي
-
----
-
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

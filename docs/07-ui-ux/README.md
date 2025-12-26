@@ -1,33 +1,24 @@
-# 🎨 UI/UX Documentation
+# UI/UX Documentation
 
-> نظام التصميم ودليل واجهة المستخدم
-
-**آخر تحديث:** 20 ديسمبر 2025
+**Last Updated:** 2025-01-02
 
 ---
 
-## 📖 Overview
+## Overview
 
-دليل شامل لنظام التصميم، Theme، Components، وأفضل ممارسات UI/UX.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [design-system.md](design-system.md) | System Design Specification | ✅ موجود |
-
-### قريباً:
-- **theme-guide.md** - Theme tokens ونظام الألوان
-- **component-library.md** - مكتبة المكونات
-- **typography.md** - الخطوط والنصوص
-- **spacing-system.md** - نظام المسافات
-- **accessibility.md** - معايير الوصول
+Complete guide to the design system, Theme, Components, and UI/UX best practices.
 
 ---
 
-## 🎨 Design System
+## Section Contents
+
+| File | Description | Status |
+|------|-------------|--------|
+| [design-system.md](./design-system.md) | Design System Specification | ✅ Available |
+
+---
+
+## Design System
 
 ### Theme Tokens
 
@@ -49,36 +40,36 @@ theme.typography.fontWeight.medium
 
 ---
 
-## 🧩 Component Library
+## Component Library
 
 ### Generic Components (ui/)
-- **Button** - أزرار متنوعة
-- **Input** - حقول الإدخال
-- **Select** - القوائم المنسدلة
-- **Table** - الجداول
-- **Modal** - النوافذ المنبثقة
-- **Pagination** - التصفح
+- **Button** - Various buttons
+- **Input** - Input fields
+- **Select** - Dropdown lists
+- **Table** - Tables
+- **Modal** - Modals
+- **Pagination** - Pagination
 
 ### Domain Components (domain/)
-- **ProductTable** - جدول المنتجات
-- **SaleForm** - نموذج البيع
-- **UserForm** - نموذج المستخدم
+- **ProductTable** - Products table
+- **SaleForm** - Sale form
+- **UserForm** - User form
 
 ---
 
-## 📏 Design Principles
+## Design Principles
 
 ### 1. Desktop-First
 ```
-مصمم أولاً لسطح المكتب (1024px+)
-مع دعم كامل للموبايل (responsive)
+Designed first for desktop (1024px+)
+With full mobile support (responsive)
 ```
 
 ### 2. Consistency
 ```
-✅ استخدام Theme tokens دائماً
-❌ لا قيم hard-coded
-✅ Components قابلة لإعادة الاستخدام
+✅ Always use Theme tokens
+❌ No hard-coded values
+✅ Reusable components
 ```
 
 ### 3. Accessibility
@@ -91,28 +82,27 @@ theme.typography.fontWeight.medium
 
 ---
 
-## 🌈 Color System
+## Color System
 
 ### Primary Colors
-- **Primary:** `#2563eb` - الأزرق الأساسي
-- **Success:** `#10b981` - الأخضر (نجاح)
-- **Warning:** `#f59e0b` - البرتقالي (تحذير)
-- **Error:** `#ef4444` - الأحمر (خطأ)
+- **Primary:** `#2563eb` - Primary blue
+- **Success:** `#10b981` - Green (success)
+- **Warning:** `#f59e0b` - Orange (warning)
+- **Error:** `#ef4444` - Red (error)
 
 ### Status Colors
-- **Critical:** `#ea580c` - برتقالي-أحمر (حرج)
-- **Info:** `#3b82f6` - أزرق (معلومات)
+- **Critical:** `#ea580c` - Orange-red (critical)
+- **Info:** `#3b82f6` - Blue (info)
 
 ---
 
-## ⏭️ Next Steps
+## Next Steps
 
-- [Development Guide](../03-development/) - معايير التطوير
-- [Architecture](../02-architecture/) - البنية المعمارية
-- [Component Patterns](../03-development/component-patterns.md) - أنماط Components
+- [Development Guide](../03-development/) - Development standards
+- [Architecture](../02-architecture/) - System architecture
+- [Component Patterns](../03-development/component-patterns.md) - Component patterns
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

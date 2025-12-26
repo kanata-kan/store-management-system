@@ -1,46 +1,43 @@
-# 🚀 Getting Started
+# Getting Started
 
-> دليل البداية السريعة للمطور الجديد
-
-**آخر تحديث:** 20 ديسمبر 2025  
-**المستوى:** Beginner  
-**الوقت المتوقع:** 30-60 دقيقة
+**Last Updated:** 2025-01-02  
+**Level:** Beginner  
+**Estimated Time:** 30-60 minutes
 
 ---
 
-## 📖 Overview
+## Overview
 
-مرحباً بك في Store Management System! هذا القسم سيساعدك على البدء من الصفر حتى تشغيل المشروع محلياً.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الوقت |
-|------|--------|------|
-| [system-requirements.md](system-requirements.md) | متطلبات النظام والمواصفات | 10 دقائق |
-| [development-auth.md](development-auth.md) | إعداد المصادقة في بيئة التطوير | 5 دقائق |
-| **quick-start.md** _(قريباً)_ | البداية السريعة (10 دقائق) | - |
-| **installation.md** _(قريباً)_ | خطوات التثبيت التفصيلية | - |
-| **environment-setup.md** _(قريباً)_ | إعداد ملف .env | - |
-| **first-steps.md** _(قريباً)_ | أول خطواتك في التطوير | - |
+Welcome to the Store Management System! This section will help you get started from scratch to running the project locally.
 
 ---
 
-## 🎯 ماذا ستتعلم؟
+## Section Contents
 
-بنهاية هذا القسم، ستكون قادراً على:
-
-- ✅ تثبيت المشروع محلياً
-- ✅ إعداد قاعدة البيانات
-- ✅ تشغيل الخادم المحلي
-- ✅ فهم البنية الأساسية للمشروع
-- ✅ إجراء أول تعديل
-- ✅ اختبار التغييرات
+| File | Description | Time |
+|------|-------------|------|
+| [system-requirements.md](./system-requirements.md) | System requirements and specifications | 10 min |
+| [development-auth.md](./development-auth.md) | Development authentication setup | 5 min |
+| [quick-start.md](./quick-start.md) | Quick start guide | 10 min |
+| [installation.md](./installation.md) | Detailed installation steps | 15 min |
+| [first-steps.md](./first-steps.md) | Your first development steps | 20 min |
 
 ---
 
-## ⚡ Quick Start (مختصر)
+## What You'll Learn
+
+By the end of this section, you will be able to:
+
+- ✅ Install the project locally
+- ✅ Set up the database
+- ✅ Run the local server
+- ✅ Understand the basic project structure
+- ✅ Make your first modification
+- ✅ Test your changes
+
+---
+
+## Quick Start
 
 ```bash
 # 1. Clone the repository
@@ -66,64 +63,64 @@ npm run dev
 
 ---
 
-## 📋 المتطلبات الأساسية
+## Prerequisites
 
-قبل البدء، تأكد من توفر:
+Before starting, ensure you have:
 
-- ✅ **Node.js** 18+ و npm
-- ✅ **MongoDB** (Atlas أو محلي)
+- ✅ **Node.js** 18+ and npm
+- ✅ **MongoDB** (Atlas or local)
 - ✅ **Git**
-- ✅ محرر نصوص (VS Code مُوصى به)
+- ✅ Text editor (VS Code recommended)
 
 ---
 
-## 🔑 إعداد المصادقة للتطوير
+## Development Authentication Setup
 
-للتطوير المحلي، راجع:
-- [development-auth.md](development-auth.md) - تفعيل Development Auth Bypass
-
----
-
-## ⏭️ الخطوات التالية
-
-بعد الانتهاء من هذا القسم:
-
-1. 📖 اقرأ [Architecture Documentation](../02-architecture/) لفهم البنية المعمارية
-2. 💻 راجع [Development Guide](../03-development/) لمعايير التطوير
-3. 🌐 استكشف [API Documentation](../04-api/) للتعرف على APIs
-4. 🎨 تعلم [UI/UX Guide](../07-ui-ux/) لفهم نظام التصميم
+For local development, see:
+- [development-auth.md](./development-auth.md) - Enable Development Auth Bypass
 
 ---
 
-## ❓ مشاكل شائعة
+## Next Steps
 
-### المشكلة: لا يمكن الاتصال بقاعدة البيانات
+After completing this section:
+
+1. 📖 Read [Architecture Documentation](../02-architecture/) to understand the system architecture
+2. 💻 Review [Development Guide](../03-development/) for development standards
+3. 🌐 Explore [API Documentation](../04-api/) to learn about APIs
+4. 🎨 Learn [UI/UX Guide](../07-ui-ux/) to understand the design system
+
+---
+
+## Common Issues
+
+### Issue: Cannot connect to database
 ```
-الحل: تأكد من صحة MONGODB_URI في ملف .env
+Solution: Verify MONGODB_URI in .env file
 ```
 
-### المشكلة: خطأ في npm install
+### Issue: npm install error
 ```
-الحل: حذف node_modules/ و package-lock.json ثم إعادة التثبيت
+Solution: Delete node_modules/ and package-lock.json, then reinstall
 ```
 
-### المشكلة: Port 3000 مستخدم
+### Issue: Port 3000 is in use
 ```
-الحل: أوقف أي تطبيق يستخدم Port 3000 أو غير PORT في .env
+Solution: Stop any application using Port 3000 or change PORT in .env
 ```
 
 ---
 
-## 📞 الحصول على المساعدة
+## Getting Help
 
-إذا واجهت مشكلة:
-- 📖 راجع [Troubleshooting Guide](../09-maintenance/troubleshooting.md)
-- 📧 اتصل بالفريق
-- 🐛 أنشئ Issue على GitHub
+If you encounter an issue:
+- 📖 Review [Troubleshooting Guide](../09-maintenance/)
+- 📧 Contact the team
+- 🐛 Create an Issue on GitHub
 
 ---
 
-## 🔗 روابط مفيدة
+## Useful Links
 
 - [Project README](../../README.md)
 - [Architecture Principles](../../ARCHITECTURE.md)
@@ -132,6 +129,5 @@ npm run dev
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

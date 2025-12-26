@@ -1,443 +1,638 @@
-# 🏗️ Architecture & Engineering Principles
+# Architecture Documentation
 
 ## Store Management System
 
 **Version:** 1.0  
 **Status:** Official & Binding  
-**Last Updated:** 2024
+**Last Updated:** 2025-01-02
 
 ---
 
-## 📌 Purpose of This Document
+## Purpose of This Document
 
-This document defines the **official architectural and engineering principles** of the Store Management System.
+This document defines the official architectural principles and system architecture of the Store Management System. It serves as the Single Source of Truth for how the system is structured, how data flows, and how components interact.
 
-It serves three goals:
-
-1. 🧠 **Single Source of Truth** for how the system must be built and evolved
-2. 🧑‍💻 **Reference for any developer or AI (Cursor, Copilot, etc.)** working on the project
-3. 💼 **Sales & credibility argument** proving that the system is professionally designed and future-proof
-
-**Any new feature, refactor, or modification MUST respect these principles.**
+This document is binding. Any modification to the system must respect these architectural principles.
 
 ---
 
-## 🎯 Core Vision
+## Architecture-First Philosophy
 
-This project is **not a simple CRUD application**.
+This system was designed with an architecture-first approach, meaning architectural decisions were made before implementation began. This philosophy was chosen for several reasons:
 
-It is a **professionally architected business system** designed to:
+### Why Architecture-First
 
-- ✅ Scale gracefully with business growth
-- ✅ Evolve without major redesigns
-- ✅ Be maintained long-term by any developer
-- ✅ Deliver real business value
+1. **Long-term Maintainability**: A well-defined architecture ensures the system remains maintainable as it grows. Developers can understand the system structure without reading every line of code.
 
-**Any modification that violates these principles MUST be rejected or redesigned.**
+2. **Scalability**: Clear layer boundaries and separation of concerns allow the system to scale without major redesigns. New features can be added without disrupting existing functionality.
 
----
+3. **Team Collaboration**: When multiple developers work on the system, architectural principles provide clear guidelines. Each developer knows where code belongs and how components should interact.
 
-## 1️⃣ Service-Oriented Architecture (SOA)
+4. **Business Continuity**: A stable architecture ensures business operations continue smoothly even as the system evolves. Changes to one layer do not cascade into unexpected failures.
 
-### Principle
+5. **Quality Assurance**: Architectural principles enforce quality at the design level. Business logic cannot accidentally leak into UI components, and validation cannot be bypassed.
 
-All **business logic lives in the Service Layer**.
-
-### Rules
-
-- ❌ **No business logic in API Routes**
-- ❌ **No business logic in Frontend components**
-- ✅ All rules, workflows, and decisions live in `lib/services/*`
-- ✅ API Routes are **thin**: validation, authorization, delegation only
-
-### Example
-
-```javascript
-// ❌ WRONG: Business logic in API route
-export async function POST(request) {
-  const data = await request.json();
-  await Product.updateOne({ _id: data.id }, { stock: data.stock - data.quantity });
-  await Sale.create({ productId: data.id, quantity: data.quantity });
-  return Response.json({ status: "success" });
-}
-
-// ✅ CORRECT: Business logic in Service
-export async function POST(request) {
-  const user = await requireCashier(request);
-  const data = await request.json();
-  data.cashierId = user.id;
-  const validated = validateSale(data);
-  const sale = await SaleService.registerSale(validated);
-  return success(sale);
-}
-```
-
-### Why This Matters
-
-- Logic is **reusable** across different entry points
-- Logic is **testable** in isolation
-- Logic is **stable** even if UI or API changes
+6. **Reduced Technical Debt**: By establishing clear boundaries from the start, the system avoids accumulating technical debt that would require expensive refactoring later.
 
 ---
 
-## 2️⃣ Layered Architecture
+## Core Architectural Principles
 
-### Principle
+The system is built on seven fundamental principles:
 
-Clear separation of responsibilities between layers.
+### 1. Service-Oriented Architecture (SOA)
 
-### Layers (Top → Bottom)
+All business logic resides in the Service Layer. API routes and UI components are thin layers that delegate to services.
 
-1. **UI Layer** (Server & Client Components)
-   - Rendering and user interaction
-   - No business logic
+**Rule**: If it's a business rule, workflow, or decision, it belongs in a Service.
 
-2. **API Layer** (Route Handlers)
-   - HTTP request/response handling
-   - Validation and authorization
-   - Delegates to Service Layer
+### 2. Layered Architecture
 
-3. **Validation Layer** (Zod schemas)
-   - Input validation at API boundary
-   - Type safety and error formatting
+The system is organized into seven distinct layers, each with a single responsibility. Layers communicate only with adjacent layers.
 
-4. **Authorization Layer** (RBAC middleware)
-   - Role-based access control
-   - `requireManager()`, `requireCashier()`, `requireUser()`
+### 3. Server-First Approach
 
-5. **Service Layer** (Business Logic)
-   - All business rules and workflows
-   - Database operations via Models
-   - Transaction management
+Next.js Server Components are the default. Client Components are used only when user interaction is required.
 
-6. **Data Access Layer** (Mongoose Models)
-   - Data structure definitions
-   - Schema validation
-   - Virtual fields and methods
+### 4. Validation at the Edge
 
-7. **Database Layer** (MongoDB)
-   - Data persistence
-   - Indexes and transactions
+All inputs are validated at the API boundary using Zod schemas before entering business logic.
 
-### Rules
+### 5. Server-Side Authorization
 
-- Each layer only talks to **adjacent layers**
-- ❌ **No layer skipping** (e.g., UI → Service is forbidden)
-- Each layer has a **single responsibility**
+Authorization is enforced only on the server. Frontend authorization checks are for UX only and are never trusted for security.
 
-### Flow Example
+### 6. Data Integrity
+
+Critical operations use MongoDB transactions to ensure atomicity. Historical data uses snapshot-based architecture for accuracy.
+
+### 7. Single Source of Truth
+
+Each concern has exactly one authoritative source. Business rules live in Services, data structure in Models, UI consistency in theme tokens.
+
+---
+
+## System Layers
+
+The system is organized into seven layers, from top to bottom:
+
+### Layer 1: UI Layer
+
+**Location**: `app/dashboard/`, `app/cashier/`, `components/`
+
+**Responsibilities**:
+- Rendering user interfaces
+- Handling user interactions
+- Displaying data from API responses
+- Form state management (client-side only)
+- Client-side UX validation (optional, server always validates)
+
+**Forbidden**:
+- Business logic
+- Authorization logic
+- Data filtering/sorting/pagination (server-side only)
+- Direct database access
+
+**Technology**: Next.js Server Components (default), Client Components (when interaction required), Styled-components
+
+### Layer 2: API Layer
+
+**Location**: `app/api/`
+
+**Responsibilities**:
+- HTTP request/response handling
+- Parsing request parameters and body
+- Formatting responses
+- Error handling and formatting
+- Delegating to Validation and Authorization layers
+- Delegating to Service Layer
+
+**Forbidden**:
+- Business logic
+- Data validation (delegated to Validation Layer)
+- Authorization checks (delegated to Authorization Layer)
+
+**Pattern**: Thin routes that validate, authorize, delegate, and respond.
+
+### Layer 3: Validation Layer
+
+**Location**: `lib/validation/`
+
+**Responsibilities**:
+- Input validation using Zod schemas
+- Type checking and coercion
+- Formatting validation errors in French
+- Ensuring data structure matches expected format
+
+**Technology**: Zod
+
+**Timing**: Validation happens at the API boundary, before data enters business logic.
+
+### Layer 4: Authorization Layer
+
+**Location**: `lib/auth/middleware.js`
+
+**Responsibilities**:
+- Authentication verification (JWT token validation)
+- Role-based access control (RBAC)
+- Enforcing access restrictions
+- Extracting user context from requests
+
+**Functions**:
+- `requireUser(request)`: Requires authenticated user
+- `requireManager(request)`: Requires manager role
+- `requireCashier(request)`: Requires cashier or manager role
+
+**Technology**: JWT tokens stored in HTTP-only cookies
+
+### Layer 5: Service Layer
+
+**Location**: `lib/services/`
+
+**Responsibilities**:
+- All business logic and rules
+- Workflow orchestration
+- Transaction management
+- Data aggregation and computation
+- Business validation (beyond input format)
+- Error creation with business context
+
+**Services**:
+- `ProductService`: Product management, stock operations
+- `SaleService`: Sales registration, cancellation, statistics
+- `InvoiceService`: Invoice generation and management
+- `InventoryService`: Inventory entries, stock adjustments
+- `CategoryService`, `SubCategoryService`: Category hierarchy management
+- `BrandService`, `SupplierService`: Reference data management
+- `UserService`: User management
+- `AuthService`: Authentication operations
+- `FinanceService`: Financial calculations and reporting
+- `StatisticsService`: Analytics and statistics
+
+**Pattern**: Static class methods that encapsulate business operations.
+
+### Layer 6: Data Access Layer
+
+**Location**: `lib/models/`
+
+**Responsibilities**:
+- Data structure definitions (Mongoose schemas)
+- Schema-level validation
+- Virtual fields and computed properties
+- Instance methods
+- Database indexes definition
+
+**Models**:
+- `Product`: Products with relationships to Brand, SubCategory, Supplier
+- `Sale`: Sales with product snapshots
+- `Invoice`: Invoices with customer and item snapshots
+- `InventoryLog`: Inventory entry history
+- `User`: User accounts with roles
+- `Category`, `SubCategory`: Category hierarchy
+- `Brand`, `Supplier`: Reference data
+
+**Technology**: Mongoose ODM
+
+### Layer 7: Database Layer
+
+**Location**: MongoDB Atlas (cloud)
+
+**Responsibilities**:
+- Data persistence
+- Index management
+- Transaction support
+- Query execution
+
+**Technology**: MongoDB with Mongoose
+
+---
+
+## Data Flow Overview
+
+### Request Flow (Top to Bottom)
 
 ```
-User Action → UI Component → API Route → Zod Validation → Authorization → Service → Model → Database
+1. User Action (UI Layer)
+   ↓
+2. API Route Handler (API Layer)
+   ├─ Parse request
+   ├─ Extract parameters
+   ↓
+3. Validation (Validation Layer)
+   ├─ Validate input structure
+   ├─ Type checking
+   └─ Return validated data or error
+   ↓
+4. Authorization (Authorization Layer)
+   ├─ Verify authentication
+   ├─ Check role permissions
+   └─ Return user context or error
+   ↓
+5. Service Method (Service Layer)
+   ├─ Execute business logic
+   ├─ Validate business rules
+   ├─ Manage transactions
+   ├─ Call Data Access Layer
+   └─ Return result or throw error
+   ↓
+6. Model Operations (Data Access Layer)
+   ├─ Query database
+   ├─ Apply schema validation
+   └─ Return documents
+   ↓
+7. Database (Database Layer)
+   ├─ Execute queries
+   ├─ Manage transactions
+   └─ Return data
+```
+
+### Response Flow (Bottom to Top)
+
+```
+7. Database returns data
+   ↓
+6. Model returns documents
+   ↓
+5. Service returns business result
+   ↓
+4. Authorization context available
+   ↓
+3. Validation already passed
+   ↓
+2. API Route formats response
+   ↓
+1. UI displays result
+```
+
+### Example: Creating a Product
+
+```
+1. Manager submits product form (UI Layer)
+   ↓
+2. POST /api/products (API Layer)
+   ├─ Parse request body
+   ↓
+3. validateCreateProduct(body) (Validation Layer)
+   ├─ Validate name, brandId, subCategoryId, etc.
+   ├─ Validate price ranges
+   └─ Return validated data
+   ↓
+4. requireManager(request) (Authorization Layer)
+   ├─ Verify JWT token
+   ├─ Check role is "manager"
+   └─ Return user context
+   ↓
+5. ProductService.createProduct(validated) (Service Layer)
+   ├─ Validate brand exists
+   ├─ Validate subCategory exists
+   ├─ Validate supplier exists
+   ├─ Create product document
+   ├─ Populate relationships
+   └─ Return created product
+   ↓
+6. Product.create() (Data Access Layer)
+   ├─ Apply schema validation
+   ├─ Save to database
+   └─ Return document
+   ↓
+7. MongoDB saves document (Database Layer)
+   ↓
+8. Response flows back up through layers
+   ↓
+9. UI displays success message
 ```
 
 ---
 
-## 3️⃣ Server Components First (Next.js App Router)
+## Service Responsibilities
 
-### Principle
+Each service encapsulates business logic for a specific domain:
 
-Server Components are the **default**. Client Components are the **exception**.
+### ProductService
 
-### Rules
+**Domain**: Product management and inventory operations
 
-- ✅ **Server Components**: Data fetching, layouts, static pages, initial rendering
-- ✅ **Client Components**: Forms, buttons, local state, user interactions only
-- ❌ **No `"use client"`** unless interaction is absolutely required
-- ✅ Use `fetchWithCookies` for server-side data fetching
+**Key Methods**:
+- `createProduct(data)`: Create product with validation of relationships
+- `updateProduct(id, data)`: Update product fields
+- `getProducts(filters)`: Get products with filtering, pagination, sorting
+- `getProductById(id)`: Get single product with populated relationships
+- `adjustStock(productId, quantity, session)`: Atomically adjust stock
+- `searchProducts(query)`: Advanced product search
+- `getLowStockProducts(threshold)`: Get products below threshold
 
-### Example
+**Business Rules**:
+- Stock cannot go negative
+- Low stock status calculated from stock and threshold
+- Product relationships (brand, category, supplier) must exist
+- Stock adjustments are atomic operations
 
-```javascript
-// ✅ Server Component (default) - Data fetching
-export default async function ProductsPage({ searchParams }) {
-  const products = await fetchWithCookies(`/api/products?${buildApiQuery(searchParams)}`);
-  return <ProductsList products={products.data} />;
-}
+### SaleService
 
-// ✅ Client Component (only when needed) - Interaction
-"use client";
-export default function ProductForm({ products }) {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const handleSubmit = async () => {
-    // API call only, no business logic
-  };
-  return <form onSubmit={handleSubmit}>...</form>;
-}
-```
+**Domain**: Sales operations and transaction management
 
-### Why This Matters
+**Key Methods**:
+- `registerSale(data)`: Register sale with atomic transaction
+- `getSales(filters)`: Get sales with filtering and pagination
+- `getCashierSales(cashierId, filters)`: Get sales by cashier
+- `cancelSale(saleId, managerId, reason)`: Cancel sale and restore stock
+- `getSalesStatistics(filters)`: Calculate sales statistics
 
-- Better **performance** (no unnecessary JavaScript sent to client)
-- Better **security** (no API secrets exposed)
-- Cleaner **architecture** (clear separation of concerns)
+**Business Rules**:
+- Sales use MongoDB transactions (sale creation + stock update)
+- Stock must be sufficient before sale
+- TVA calculations (HT, TTC, TVA amount)
+- Product snapshots stored in sale for historical accuracy
+- Sale cancellation restores stock atomically
+
+### InvoiceService
+
+**Domain**: Invoice generation and management
+
+**Key Methods**:
+- `createInvoice(saleId)`: Create invoice from sale
+- `getInvoice(invoiceId)`: Get invoice with populated data
+- `getInvoices(filters)`: Get invoices with filtering
+- `generateInvoicePDF(invoiceId)`: Generate PDF document
+
+**Business Rules**:
+- Invoices created automatically after sale
+- Invoice data uses snapshots (immutable historical record)
+- Invoice numbers are sequential and unique
+
+### InventoryService
+
+**Domain**: Inventory supply and stock management
+
+**Key Methods**:
+- `addInventoryEntry(data)`: Add inventory entry with atomic transaction
+- `getInventoryHistory(filters)`: Get inventory log history
+- `adjustStock(productId, quantity, session)`: Adjust stock (used by other services)
+
+**Business Rules**:
+- Inventory entries use MongoDB transactions (log creation + stock update)
+- Purchase price can be updated during inventory entry
+- All stock changes are logged
+
+### CategoryService, SubCategoryService
+
+**Domain**: Category hierarchy management
+
+**Key Methods**:
+- `createCategory(data)`: Create category
+- `getCategories()`: Get all categories
+- `updateCategory(id, data)`: Update category
+- `deleteCategory(id)`: Delete category (with validation)
+
+**Business Rules**:
+- Categories cannot be deleted if products reference them
+- SubCategories belong to Categories
+
+### BrandService, SupplierService
+
+**Domain**: Reference data management
+
+**Key Methods**:
+- CRUD operations for brands and suppliers
+- Validation before deletion (check for associated products)
+
+### UserService
+
+**Domain**: User account management
+
+**Key Methods**:
+- `createUser(data)`: Create user account
+- `getUsers(filters)`: Get users with filtering
+- `updateUser(id, data)`: Update user
+- `suspendUser(id, managerId)`: Suspend user account
+
+**Business Rules**:
+- Passwords are hashed using bcrypt
+- Email addresses are unique
+- Roles: "manager" or "cashier"
+
+### AuthService
+
+**Domain**: Authentication operations
+
+**Key Methods**:
+- `login(email, password)`: Authenticate user and create session
+- `logout(request)`: Clear session
+- `getUserFromSession(token)`: Verify token and get user
+- `verifyPassword(user, password)`: Verify password
+
+**Business Rules**:
+- JWT tokens stored in HTTP-only cookies
+- Session duration: 7 days
+- Passwords never returned in responses
+
+### FinanceService
+
+**Domain**: Financial calculations and reporting
+
+**Key Methods**:
+- `getFinanceSummary(filters)`: Calculate revenue, profit, expenses
+- `getFinanceStatistics(filters)`: Financial statistics and trends
+- `exportFinanceData(filters)`: Export financial data
+
+**Business Rules**:
+- Revenue calculated from sales
+- Profit calculated from revenue minus purchase costs
+- TVA calculations based on configured rates
+
+### StatisticsService
+
+**Domain**: Analytics and reporting
+
+**Key Methods**:
+- `getDashboardStatistics()`: Dashboard KPIs
+- `getSalesStatistics(filters)`: Sales analytics
+- `getProductStatistics(filters)`: Product performance
 
 ---
 
-## 4️⃣ Validation at the Edge (Zod)
+## Security and Validation Philosophy
 
-### Principle
+### Security Architecture
 
-All inputs are validated **before** entering business logic.
+The system implements defense in depth with multiple security layers:
 
-### Rules
+#### 1. Authentication
 
-- ✅ **Zod validation** happens in API layer (before Service calls)
-- ✅ All API inputs are validated using Zod schemas
-- ❌ **No trust** in frontend validation (it's UX-only)
-- ✅ Error messages are **user-friendly** (French)
-- ✅ Validation errors use standardized format
+**Method**: JWT tokens stored in HTTP-only cookies
 
-### Flow
+**Implementation**:
+- Tokens signed with `JWT_SECRET`
+- Tokens contain: `userId`, `role`, `iat`, `exp`
+- Cookies configured: `httpOnly: true`, `secure: true`, `sameSite: 'strict'`
+- Session duration: 7 days
 
-```
-Request → Zod Validation → (if valid) → Authorization → Service → Database
-         ↓ (if invalid)
-      Return 400 with structured error
-```
+**Flow**:
+1. User submits email and password
+2. `AuthService.login()` verifies credentials
+3. JWT token created and set in HTTP-only cookie
+4. Token verified on each authenticated request
 
-### Example
+#### 2. Authorization
 
-```javascript
-// lib/validation/sale.validation.js
-export function validateSale(data) {
-  return saleSchema.parse(data); // Throws ZodError if invalid
-}
+**Method**: Role-Based Access Control (RBAC)
 
-// app/api/sales/route.js
-export async function POST(request) {
-  const body = await request.json();
-  const validated = validateSale(body); // Validation happens here
-  const sale = await SaleService.registerSale(validated);
-  return success(sale);
-}
-```
-
----
-
-## 5️⃣ Server-Side Authorization (RBAC)
-
-### Principle
-
-Authorization is enforced **only on the server**. Frontend checks are UX-only.
-
-### Rules
-
-- ✅ Use `requireManager()`, `requireCashier()`, `requireUser()` middleware
-- ✅ Authorization checked in **API Routes** before Service calls
-- ✅ Authorization checked in **Server Components** (layouts) before rendering
-- ❌ Frontend authorization checks are **never trusted** for security
-
-### Roles
-
+**Roles**:
 - **Manager**: Full system access (all operations)
-- **Cashier**: Sales operations + read-only access to products/inventory
-- **Hierarchy**: Manager can perform all Cashier operations
+- **Cashier**: Sales operations + read-only product/inventory access
 
-### Example
+**Middleware Functions**:
+- `requireUser(request)`: Requires authentication
+- `requireManager(request)`: Requires manager role
+- `requireCashier(request)`: Requires cashier or manager role
 
-```javascript
-// ✅ API Route - Authorization enforced
-export async function POST(request) {
-  await requireManager(request); // Authorization first
-  const data = await request.json();
-  const result = await ProductService.createProduct(data);
-  return success(result);
-}
+**Enforcement**:
+- Authorization checked in API routes before Service calls
+- Authorization checked in Server Components before rendering
+- Frontend authorization checks are UX-only, never trusted
 
-// ✅ Server Component - Authorization enforced
-export default async function DashboardLayout({ children }) {
-  const user = await requireManager(request);
-  if (!user) redirect("/login");
-  return <Dashboard user={user}>{children}</Dashboard>;
-}
+#### 3. Password Security
+
+**Hashing**: bcrypt with 10 salt rounds
+
+**Storage**: Passwords never stored in plain text
+
+**Verification**: `user.comparePassword(password)` method
+
+#### 4. Input Sanitization
+
+**Validation**: All inputs validated using Zod schemas
+
+**Timing**: Validation happens at API boundary before business logic
+
+**Error Messages**: Validation errors in French for user display
+
+### Validation Philosophy
+
+#### Validation at the Edge
+
+All inputs are validated at the API boundary using Zod schemas. This ensures:
+
+1. **Early Rejection**: Invalid data is rejected before entering business logic
+2. **Type Safety**: Data types are coerced and validated
+3. **Consistent Errors**: Validation errors follow standardized format
+4. **User-Friendly Messages**: Error messages in French for UI display
+
+#### Validation Layers
+
+1. **Input Validation (Zod)**: Structure, types, formats
+2. **Business Validation (Services)**: Business rules, relationships, constraints
+3. **Schema Validation (Mongoose)**: Database-level constraints
+
+#### Example Validation Flow
+
+```
+Request Body
+   ↓
+Zod Schema Validation
+   ├─ Structure check
+   ├─ Type check
+   ├─ Format check
+   └─ Return validated data or error
+   ↓
+Service Business Validation
+   ├─ Relationship existence
+   ├─ Business rules
+   └─ Return result or error
+   ↓
+Mongoose Schema Validation
+   ├─ Required fields
+   ├─ Data types
+   └─ Constraints
 ```
 
 ---
 
-## 6️⃣ French UI / English Code
+## Transaction Management
 
-### Principle
+Critical operations use MongoDB transactions to ensure atomicity:
 
-User experience and codebase speak different languages.
+### Operations Using Transactions
 
-### Rules
+1. **Sale Registration**:
+   - Create sale record
+   - Update product stock
+   - Create invoice
+   - All succeed or all fail
 
-- 🇫🇷 **UI text** (labels, buttons, placeholders, error messages): **French**
-- 🇬🇧 **Code** (variables, functions, comments, documentation): **English**
-- ✅ Error messages from API are in French
-- ✅ All technical documentation in English
+2. **Inventory Entry**:
+   - Create inventory log
+   - Update product stock
+   - Update purchase price (if provided)
+   - All succeed or all fail
 
-### Example
+3. **Sale Cancellation**:
+   - Update sale status
+   - Restore product stock
+   - All succeed or all fail
 
-```javascript
-// ✅ CORRECT
-const buttonLabel = "Ajouter un produit"; // French UI
-const productName = "Samsung TV"; // English code
-throw createError("Le produit est introuvable", "PRODUCT_NOT_FOUND"); // French message
-
-// ❌ WRONG
-const buttonLabel = "Add Product"; // English UI (wrong)
-const nomProduit = "Samsung TV"; // French variable (wrong)
-```
-
----
-
-## 7️⃣ Database Transactions (Atomic Operations)
-
-### Principle
-
-Critical operations must be **atomic**. No partial updates.
-
-### Rules
-
-- ✅ Use **MongoDB transactions** for:
-  - Sale registration (Sale creation + Stock update)
-  - Inventory entries (Log creation + Stock update)
-  - Sale cancellation (Status update + Stock restoration)
-- ✅ All operations in transaction succeed or fail together
-- ❌ No partial updates that could corrupt data
-
-### Example
+### Transaction Pattern
 
 ```javascript
-// ✅ CORRECT: Transaction ensures atomicity
-static async registerSale(data) {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    const sale = await Sale.create([...], { session });
-    await ProductService.adjustStock(productId, -quantity, session);
-    await session.commitTransaction();
-    return sale;
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
-  }
-}
-```
+const session = await mongoose.startSession();
+session.startTransaction();
 
----
-
-## 8️⃣ Single Source of Truth
-
-### Principle
-
-Each concern has exactly **one authoritative source**.
-
-### Rules
-
-- ✅ **Service Layer** → Business rules (single source)
-- ✅ **Models** → Data structure (single source)
-- ✅ **Theme tokens** → UI consistency (single source)
-- ✅ **Populate configs** → Data population patterns (single source)
-- ❌ **No duplicated logic** across layers
-
-### Example
-
-```javascript
-// ✅ Single populate config used everywhere
-export const productPopulateConfig = [
-  { path: "brand", select: "name" },
-  { path: "subCategory", select: "name", populate: { path: "category", select: "name" } },
-  { path: "supplier", select: "name" },
-];
-
-// Used in all services
-const product = await Product.findById(id).populate(productPopulateConfig).lean();
-```
-
----
-
-## 9️⃣ No Business Logic in Frontend
-
-### Principle
-
-Frontend is for **display and interaction only**. Never for business rules.
-
-### Rules
-
-- ✅ **Frontend responsibilities**:
-  - UI rendering
-  - User interaction handling
-  - API calls (fetch)
-  - Form state management
-  - Client-side UX validation (optional, server always validates)
-- ❌ **Frontend forbidden**:
-  - Business rules (e.g., stock validation, price calculation)
-  - Authorization logic (security)
-  - Data filtering/sorting/pagination (server-side)
-  - Direct database access
-
-### Example
-
-```javascript
-// ❌ WRONG: Business logic in frontend
-function ProductCard({ product }) {
-  const isLowStock = product.stock <= product.lowStockThreshold; // Business rule in UI
-  if (isLowStock) return <Alert>Low stock!</Alert>;
-}
-
-// ✅ CORRECT: Business logic in backend, frontend displays
-function ProductCard({ product }) {
-  // isLowStock is calculated in Service Layer
-  if (product.isLowStock) return <Alert>Stock faible!</Alert>;
+try {
+  // Multiple operations within transaction
+  await Operation1.create([...], { session });
+  await Operation2.updateOne({...}, {...}, { session });
+  
+  await session.commitTransaction();
+} catch (error) {
+  await session.abortTransaction();
+  throw error;
+} finally {
+  session.endSession();
 }
 ```
 
----
+### Why Transactions Matter
 
-## 🔟 Design System Consistency
-
-### Principle
-
-UI must be **consistent and centralized**. No hard-coded values.
-
-### Rules
-
-- ✅ **Always use theme tokens**: `theme.colors.primary` (never `"#2563eb"`)
-- ✅ **Reusable UI components**: Button, Input, Table, Modal, etc.
-- ✅ **Centralized icon system**: `AppIcon` component (never direct icon imports)
-- ✅ **Centralized motion system**: `fadeIn`, `smoothTransition` from `@/components/motion`
-- ❌ **No hard-coded colors, sizes, or spacing**
-
-### Example
-
-```javascript
-// ❌ WRONG: Hard-coded values
-const Button = styled.button`
-  background-color: #2563eb;
-  padding: 12px 24px;
-  font-size: 16px;
-`;
-
-// ✅ CORRECT: Theme tokens
-const Button = styled.button`
-  background-color: ${(props) => props.theme.colors.primary};
-  padding: ${(props) => props.theme.spacing.md} ${(props) => props.theme.spacing.lg};
-  font-size: ${(props) => props.theme.typography.fontSize.base};
-`;
-```
+- **Data Integrity**: Prevents partial updates that could corrupt data
+- **Consistency**: Ensures related operations succeed or fail together
+- **Reliability**: Critical business operations are atomic
 
 ---
 
-## 1️⃣1️⃣ Standardized Error Handling
+## Data Integrity and Audit Trail
 
-### Principle
+### Snapshot-Based Architecture
 
-Errors must be **predictable and structured**. Always use standardized format.
+Historical data uses snapshots to ensure accuracy:
 
-### Rules
+- **Sale Product Snapshots**: Product data at time of sale (name, price, brand, etc.)
+- **Invoice Snapshots**: Customer and item data at time of invoice creation
 
-- ✅ Use `createError(message, code, status)` in Services
-- ✅ Use `error(err)` helper in API routes
-- ✅ Unified error format: `{ status: "error", error: { message, code, details } }`
-- ✅ Error messages in **French** for UI display
-- ✅ Error codes are clear and consistent (`PRODUCT_NOT_FOUND`, `VALIDATION_ERROR`)
+**Why Snapshots**: Product data may change over time. Snapshots preserve the exact state at the time of the transaction.
 
-### Error Format
+### Soft Deletes
+
+Important records are never truly deleted:
+
+- **Status Field**: Records use `status` field (`active`, `cancelled`, `returned`)
+- **Metadata**: `cancelledBy`, `cancelledAt`, `cancellationReason` tracked
+- **History Preserved**: All records kept for audit trail
+
+### Audit Trail
+
+The system maintains complete history:
+
+- **InventoryLog**: All stock changes logged with manager, timestamp, reason
+- **Sale Records**: All sales preserved with status changes
+- **User Activity**: User actions tracked through metadata fields
+
+---
+
+## Error Handling
+
+### Standardized Error Format
+
+All errors follow a consistent structure:
 
 ```json
 {
@@ -451,277 +646,71 @@ Errors must be **predictable and structured**. Always use standardized format.
 }
 ```
 
-### Example
+### Error Sources
 
-```javascript
-// ✅ Service Layer
-if (!product) {
-  throw createError("Le produit est introuvable", "PRODUCT_NOT_FOUND", 404);
-}
+1. **Validation Errors**: From Zod schemas (400 Bad Request)
+2. **Authorization Errors**: From auth middleware (401 Unauthorized, 403 Forbidden)
+3. **Business Errors**: From Services (400 Bad Request, 404 Not Found)
+4. **Database Errors**: From Mongoose (500 Internal Server Error)
 
-// ✅ API Route
-try {
-  const product = await ProductService.getProduct(id);
-  return success(product);
-} catch (err) {
-  return error(err); // Automatically formats error
-}
+### Error Flow
+
+```
+Service throws error
+   ↓
+API Route catches error
+   ↓
+error() helper formats error
+   ↓
+Standardized response returned
 ```
 
 ---
 
-## 1️⃣2️⃣ Audit Trail & Data Integrity
+## Performance Considerations
 
-### Principle
+### Server-Side Operations
 
-Nothing important is ever **truly deleted**. Full history is preserved.
+All data operations happen server-side:
 
-### Rules
+- **Pagination**: Server-side pagination (never client-side)
+- **Filtering**: Server-side filtering using database queries
+- **Sorting**: Server-side sorting using database indexes
+- **Search**: Server-side search using database indexes
 
-- ✅ **Soft delete** approach (change `status` field, never actually delete)
-- ✅ **Full history preserved** (all records kept with status: `active`, `cancelled`, `returned`)
-- ✅ **Metadata stored**: `createdAt`, `updatedAt`, `createdBy`, `cancelledBy`, `cancelledAt`
-- ✅ **Audit trail**: Track who did what, when, and why
+### Database Indexes
 
-### Example
+Indexes defined for common query patterns:
 
-```javascript
-// ✅ CORRECT: Soft delete with status
-sale.status = "cancelled";
-sale.cancelledBy = managerId;
-sale.cancelledAt = new Date();
-sale.cancellationReason = reason;
-await sale.save();
+- **Product**: `name` (text), `brand`, `subCategory`, `stock`
+- **Sale**: `product`, `cashier`, `createdAt`
+- **InventoryLog**: `product`, `manager`, `createdAt`
+- **User**: `email` (unique), `role`
 
-// ❌ WRONG: Hard delete
-await Sale.findByIdAndDelete(saleId); // Data lost forever
-```
+### Query Optimization
 
----
-
-## 1️⃣3️⃣ Simple Over Clever (YAGNI Principle)
-
-### Principle
-
-**Clarity beats cleverness**. Only implement what is needed.
-
-### Rules
-
-- ✅ Code must be **simple and readable**
-- ✅ **YAGNI**: You Aren't Gonna Need It - don't build features "just in case"
-- ✅ Each file has **one responsibility** (Single Responsibility Principle)
-- ❌ **No over-engineering** or premature optimization
-- ❌ **No clever hacks** - straightforward solutions preferred
-
-### Example
-
-```javascript
-// ❌ WRONG: Over-engineered
-class ProductStateManager {
-  constructor() {
-    this.state = new Proxy({}, {
-      // Complex reactive state management
-    });
-  }
-}
-
-// ✅ CORRECT: Simple state
-const [products, setProducts] = useState([]);
-```
+- Use `lean()` when Mongoose methods not needed
+- Proper populate configs to avoid over-population
+- Indexed fields for filtering and sorting
 
 ---
 
-## 1️⃣4️⃣ No Breaking Changes
+## Technology Stack
 
-### Principle
-
-System evolution must be **safe and backward-compatible**.
-
-### Rules
-
-- ✅ **Backward compatibility** maintained at all times
-- ✅ **Additive changes** preferred (add new, don't remove old)
-- ✅ When refactoring: **preserve 100% functionality**
-- ✅ Test existing features after any modification
-
-### Example
-
-```javascript
-// ✅ CORRECT: Additive change (backward compatible)
-// Old code still works, new feature added
-static async getProducts(filters = {}) {
-  // ... existing logic
-  if (filters.status) { // New optional filter
-    query.status = filters.status;
-  }
-  return products;
-}
-
-// ❌ WRONG: Breaking change
-// Old code breaks because signature changed
-static async getProducts(filters) {
-  // filters is now required (was optional before)
-}
-```
+- **Frontend**: Next.js 14 (App Router), JavaScript (ES6+)
+- **Backend**: Next.js API Routes
+- **Database**: MongoDB Atlas with Mongoose ODM
+- **Validation**: Zod
+- **Authorization**: JWT with HTTP-only cookies
+- **Styling**: Styled-components with centralized theme
+- **Password Hashing**: bcrypt
 
 ---
 
-## 1️⃣5️⃣ Desktop-First, Mobile-Responsive
+## Document Status
 
-### Principle
+**Version**: 1.0  
+**Status**: Official & Binding  
+**Last Updated**: 2025-01-02
 
-Designed for **real business usage** (desktop) with mobile support.
-
-### Rules
-
-- ✅ **Desktop-first** UI design (optimized for desktop, adapted for mobile)
-- ✅ **Mobile support** without redesigning business logic
-- ✅ Tables use **horizontal scroll** on mobile (not card layout)
-- ✅ Touch-friendly spacing (min 44px for buttons)
-- ❌ Don't compromise desktop UX for mobile
-
----
-
-## 1️⃣6️⃣ Component Reusability
-
-### Principle
-
-**Reuse before creating new code**. Build on existing components.
-
-### Rules
-
-- ✅ **Generic components first**: Button, Input, Table, Modal, etc.
-- ✅ **Domain components** built on generics: ProductTable uses Table
-- ✅ **Centralized systems**: Icons, animations, theme
-- ❌ **No duplicate UI code** - reuse and extend instead
-
-### Component Hierarchy
-
-```
-Generic Components (Button, Input, Table)
-    ↓
-Domain Components (ProductTable, SalesTable)
-    ↓
-Page Components (ProductsPage, SalesPage)
-```
-
----
-
-## 1️⃣7️⃣ Performance & Scalability
-
-### Principle
-
-Performance is a **design concern**, not an afterthought.
-
-### Rules
-
-- ✅ **Server-side pagination** (never client-side)
-- ✅ **Server-side filtering** (never client-side)
-- ✅ **Server-side sorting** (never client-side)
-- ✅ **Database indexes** for common query patterns
-- ✅ Use `lean()` in Mongoose queries when methods aren't needed
-- ✅ Proper populate configs (avoid over-populate)
-
-### Example
-
-```javascript
-// ✅ CORRECT: Server-side pagination
-const skip = (page - 1) * limit;
-const products = await Product.find(query).skip(skip).limit(limit).lean();
-
-// ❌ WRONG: Client-side pagination
-const allProducts = await Product.find().lean(); // Loads everything
-const paginated = allProducts.slice((page - 1) * limit, page * limit); // Client-side
-```
-
----
-
-## 📋 Implementation Checklist
-
-Before implementing any feature or modification, verify:
-
-- [ ] Business logic is in Service Layer (not API or UI)
-- [ ] Data validation uses Zod schemas
-- [ ] Authorization checked server-side
-- [ ] UI text is in French, code is in English
-- [ ] Theme tokens used (no hard-coded values)
-- [ ] Reusable components used where possible
-- [ ] Error handling uses standardized format
-- [ ] Database transactions for critical operations
-- [ ] Server Components used by default
-- [ ] No breaking changes to existing functionality
-
----
-
-## 🚫 Common Violations to Avoid
-
-### ❌ Violation 1: Business Logic in API Route
-
-```javascript
-// ❌ WRONG
-export async function POST(request) {
-  const data = await request.json();
-  if (data.stock < 10) { // Business rule in API
-    return error("Stock too low");
-  }
-  await Product.updateOne({ _id: data.id }, { stock: data.stock - 1 });
-}
-```
-
-### ❌ Violation 2: Business Logic in Frontend
-
-```javascript
-// ❌ WRONG
-function ProductCard({ product }) {
-  const canSell = product.stock > 0 && product.stock >= quantity; // Business rule in UI
-}
-```
-
-### ❌ Violation 3: Hard-Coded Values
-
-```javascript
-// ❌ WRONG
-const Button = styled.button`
-  color: #2563eb; // Hard-coded color
-  padding: 12px; // Hard-coded spacing
-`;
-```
-
-### ❌ Violation 4: Missing Authorization
-
-```javascript
-// ❌ WRONG
-export async function POST(request) {
-  // No authorization check
-  const product = await ProductService.deleteProduct(id);
-  return success(product);
-}
-```
-
----
-
-## 🎯 Final Statement
-
-This document is the **architectural contract** of the project.
-
-**It is binding.**
-
-Any modification that violates these principles **must be rejected or redesigned** to comply.
-
-These principles ensure the system:
-
-- ✅ Remains maintainable as it grows
-- ✅ Scales without major redesigns
-- ✅ Preserves data integrity
-- ✅ Maintains security and authorization
-- ✅ Provides consistent user experience
-- ✅ Delivers professional, enterprise-grade quality
-
----
-
-**Document Version:** 1.0  
-**Status:** Official & Binding  
-**Last Updated:** 2024
-
-**This document is the Single Source of Truth for architectural decisions.**
-
+This document is the Single Source of Truth for architectural decisions. Any modification to the system must respect these principles.

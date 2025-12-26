@@ -1,33 +1,29 @@
-# 💻 Development Guide
+# Development Guide
 
-> دليل التطوير الشامل للمطورين
-
-**آخر تحديث:** 20 ديسمبر 2025  
-**المستوى:** Intermediate  
-**الوقت المتوقع:** 2 ساعة
+**Last Updated:** 2025-01-02  
+**Level:** Intermediate  
+**Estimated Time:** 2 hours
 
 ---
 
-## 📖 Overview
+## Overview
 
-دليلك الكامل لمعايير التطوير، أنماط البرمجة، وأفضل الممارسات في المشروع.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [coding-standards.md](coding-standards.md) | معايير البرمجة | ✅ موجود |
-| **project-structure.md** _(قريباً)_ | هيكل المشروع | 🔄 قيد الإنشاء |
-| **naming-conventions.md** _(قريباً)_ | قواعد التسمية | 🔄 قيد الإنشاء |
-| **component-patterns.md** _(قريباً)_ | أنماط Components | 🔄 قيد الإنشاء |
-| **service-patterns.md** _(قريباً)_ | أنماط Services | 🔄 قيد الإنشاء |
-| **testing-guide.md** _(قريباً)_ | دليل الاختبارات | 🔄 قيد الإنشاء |
+Your complete guide to development standards, programming patterns, and best practices in the project.
 
 ---
 
-## 🎯 المبادئ الأساسية
+## Section Contents
+
+| File | Description | Status |
+|------|-------------|--------|
+| [coding-standards.md](./coding-standards.md) | Coding standards | ✅ Available |
+| [project-structure.md](./project-structure.md) | Project structure | ✅ Available |
+| [component-patterns.md](./component-patterns.md) | Component patterns | ✅ Available |
+| [service-patterns.md](./service-patterns.md) | Service patterns | ✅ Available |
+
+---
+
+## Core Principles
 
 ### 1. French UI / English Code
 ```javascript
@@ -62,7 +58,7 @@ if (product.isLowStock) return <Alert>Stock faible!</Alert>;
 
 ---
 
-## 📁 هيكل المشروع
+## Project Structure
 
 ```
 store-management-system/
@@ -89,7 +85,7 @@ store-management-system/
 
 ---
 
-## 🔧 أدوات التطوير
+## Development Tools
 
 ### Required
 - **Node.js** 18+
@@ -103,7 +99,7 @@ store-management-system/
 
 ---
 
-## 📝 معايير الكود
+## Code Standards
 
 ### JavaScript
 - ✅ ES6+ syntax
@@ -126,63 +122,62 @@ store-management-system/
 
 ---
 
-## 🚀 سير العمل
+## Workflow
 
-### 1. إضافة Feature جديدة
-
-```
-1. أنشئ branch جديد
-2. أضف Service Layer logic
-3. أضف API Route
-4. أضف Validation (Zod)
-5. أضف Frontend (Server/Client Components)
-6. اختبر التغييرات
-7. حدّث التوثيق
-8. أنشئ Pull Request
-```
-
-### 2. إصلاح Bug
+### 1. Adding a New Feature
 
 ```
-1. حدد المشكلة
-2. أضف test case
-3. أصلح المشكلة
-4. تأكد من نجاح الاختبارات
-5. أنشئ Pull Request
+1. Create new branch
+2. Add Service Layer logic
+3. Add API Route
+4. Add Validation (Zod)
+5. Add Frontend (Server/Client Components)
+6. Test changes
+7. Update documentation
+8. Create Pull Request
+```
+
+### 2. Fixing a Bug
+
+```
+1. Identify the issue
+2. Add test case
+3. Fix the issue
+4. Ensure tests pass
+5. Create Pull Request
 ```
 
 ---
 
-## ✅ Checklist قبل Commit
+## Pre-Commit Checklist
 
-- [ ] الكود يعمل بدون أخطاء
-- [ ] ESLint بدون أخطاء
-- [ ] منطق الأعمال في Service Layer
-- [ ] Validation باستخدام Zod
-- [ ] Authorization موجودة
-- [ ] Theme tokens مستخدمة
+- [ ] Code runs without errors
+- [ ] ESLint has no errors
+- [ ] Business logic in Service Layer
+- [ ] Validation using Zod
+- [ ] Authorization present
+- [ ] Theme tokens used
 - [ ] French UI text
 - [ ] English code
-- [ ] التوثيق محدث
+- [ ] Documentation updated
 
 ---
 
-## ⏭️ الخطوات التالية
+## Next Steps
 
-- 🌐 [API Documentation](../04-api/) - فهم APIs
-- 🎨 [UI/UX Guide](../07-ui-ux/) - نظام التصميم
-- 🗄️ [Database Guide](../06-database/) - قاعدة البيانات
+- 🌐 [API Documentation](../04-api/) - Understand APIs
+- 🎨 [UI/UX Guide](../07-ui-ux/) - Design system
+- 🗄️ [Database Guide](../06-database/) - Database
 
 ---
 
-## 🔗 روابط مفيدة
+## Useful Links
 
-- [Coding Standards](coding-standards.md)
+- [Coding Standards](./coding-standards.md)
 - [Architecture](../02-architecture/)
 - [API Reference](../04-api/)
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

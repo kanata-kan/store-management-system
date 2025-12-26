@@ -1,82 +1,73 @@
-# 🎯 Features Documentation
+# Features Documentation
 
-> توثيق شامل لجميع ميزات النظام
-
-**آخر تحديث:** 20 ديسمبر 2025
+**Last Updated:** 2025-01-02
 
 ---
 
-## 📖 Overview
+## Overview
 
-توثيق مفصل لكل ميزة في النظام من منظور المستخدم النهائي والمطور.
-
----
-
-## 📚 الميزات المتاحة
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [invoice-system.md](invoice-system.md) | نظام الفواتير | ✅ موجود |
-
-### قريباً:
-- **authentication-system.md** - نظام المصادقة الكامل
-- **product-management.md** - إدارة المنتجات
-- **sales-system.md** - نظام المبيعات
-- **inventory-management.md** - إدارة المخزون
-- **user-management.md** - إدارة المستخدمين
-- **reports-analytics.md** - التقارير والتحليلات
+Detailed documentation for each feature in the system from both end-user and developer perspectives.
 
 ---
 
-## 🎯 الميزات الرئيسية
+## Available Features
 
-### 1. 🔐 Authentication & Authorization
-- تسجيل دخول آمن (JWT)
+| File | Description | Status |
+|------|-------------|--------|
+| [product-management.md](./product-management.md) | Product management system | ✅ Available |
+| [sales-system.md](./sales-system.md) | Sales management system | ✅ Available |
+| [invoice-system.md](./invoice-system.md) | Invoice system | ✅ Available |
+
+---
+
+## Key Features
+
+### 1. Authentication & Authorization
+- Secure login (JWT)
 - RBAC (Role-Based Access Control)
 - Session management
 - Account suspension
 
-### 2. 📦 Product Management
-- إضافة/تعديل/حذف المنتجات
+### 2. Product Management
+- Create/update/delete products
 - Categories & Subcategories
 - Brands & Suppliers
 - Stock tracking
 - Low stock alerts
 
-### 3. 💰 Sales System
-- تسجيل مبيعات سريع
-- إلغاء/إرجاع المبيعات
+### 3. Sales System
+- Fast sale registration
+- Cancel/return sales
 - Transaction history
 - Statistics & analytics
 
-### 4. 📄 Invoice System
-- إنشاء فواتير تلقائي
+### 4. Invoice System
+- Automatic invoice creation
 - PDF generation
 - Warranty tracking
 - Status management
 
-### 5. 📊 Inventory Management
+### 5. Inventory Management
 - Stock entries logging
 - Stock adjustments
 - Inventory history
 - Audit trail
 
-### 6. 👥 User Management
-- إضافة/تعديل المستخدمين
+### 6. User Management
+- Create/update users
 - Role assignment
 - Account suspension
 - Activity tracking
 
 ---
 
-## ⏭️ Next Steps
+## Next Steps
 
-- [API Documentation](../04-api/) - فهم APIs
-- [Database Documentation](../06-database/) - قاعدة البيانات
-- [Development Guide](../03-development/) - التطوير
+- [API Documentation](../04-api/) - Understand APIs
+- [Database Documentation](../06-database/) - Database
+- [Development Guide](../03-development/) - Development
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02

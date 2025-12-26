@@ -1,55 +1,46 @@
-# 🗄️ Database Documentation
+# Database Documentation
 
-> توثيق شامل لقاعدة البيانات والـ Models
-
-**آخر تحديث:** 20 ديسمبر 2025
+**Last Updated:** 2025-01-02
 
 ---
 
-## 📖 Overview
+## Overview
 
-توثيق كامل لتصميم قاعدة البيانات، Models، Schemas، وأفضل الممارسات.
-
----
-
-## 📚 محتويات القسم
-
-| الملف | الوصف | الحالة |
-|------|--------|--------|
-| [setup-guide.md](setup-guide.md) | إعداد قاعدة البيانات | ✅ موجود |
-| [seeding-guide.md](seeding-guide.md) | توثيق Seed Scripts | ✅ موجود |
-| [seed-data-examples.md](seed-data-examples.md) | أمثلة البيانات | ✅ موجود |
-
-### قريباً:
-- **schema-design.md** - تصميم قاعدة البيانات
-- **models-reference.md** - مرجع جميع Models
-- **indexes.md** - Indexes المستخدمة
-- **transactions.md** - MongoDB Transactions
-- **migrations.md** - Database Migrations
+Complete documentation for database design, Models, Schemas, and best practices.
 
 ---
 
-## 🗂️ Models
+## Section Contents
+
+| File | Description | Status |
+|------|-------------|--------|
+| [setup-guide.md](./setup-guide.md) | Database setup | ✅ Available |
+| [seeding-guide.md](./seeding-guide.md) | Seed scripts documentation | ✅ Available |
+| [seed-data-examples.md](./seed-data-examples.md) | Data examples | ✅ Available |
+
+---
+
+## Models
 
 ### Core Models
-- **User** - المستخدمون (Manager/Cashier)
-- **Product** - المنتجات
-- **Sale** - المبيعات
-- **Invoice** - الفواتير
-- **InventoryLog** - سجل المخزون
+- **User** - Users (Manager/Cashier)
+- **Product** - Products
+- **Sale** - Sales
+- **Invoice** - Invoices
+- **InventoryLog** - Inventory log
 
 ### Reference Models
-- **Category** - التصنيفات
-- **SubCategory** - التصنيفات الفرعية
-- **Brand** - العلامات التجارية
-- **Supplier** - الموردون
+- **Category** - Categories
+- **SubCategory** - Subcategories
+- **Brand** - Brands
+- **Supplier** - Suppliers
 
 ### Security Models
-- **LoginAttempt** - محاولات تسجيل الدخول
+- **LoginAttempt** - Login attempts
 
 ---
 
-## 🔑 Database Technology
+## Database Technology
 
 - **Database:** MongoDB (NoSQL)
 - **ODM:** Mongoose
@@ -58,11 +49,11 @@
 
 ---
 
-## 📋 Schema Design Principles
+## Schema Design Principles
 
 ### 1. Soft Delete
 ```javascript
-// لا حذف فعلي - تغيير الحالة فقط
+// No actual deletion - change status only
 sale.status = "cancelled";
 sale.cancelledAt = new Date();
 await sale.save();
@@ -70,7 +61,7 @@ await sale.save();
 
 ### 2. Audit Trail
 ```javascript
-// جميع التغييرات مسجلة
+// All changes are logged
 {
   createdAt: Date,
   updatedAt: Date,
@@ -82,7 +73,7 @@ await sale.save();
 
 ### 3. Transactions
 ```javascript
-// العمليات الحرجة atomic
+// Critical operations are atomic
 const session = await mongoose.startSession();
 session.startTransaction();
 // ... operations
@@ -91,14 +82,13 @@ await session.commitTransaction();
 
 ---
 
-## ⏭️ Next Steps
+## Next Steps
 
-- [Architecture](../02-architecture/) - فهم البنية
-- [Features](../05-features/) - الميزات
+- [Architecture](../02-architecture/) - Understand system architecture
+- [Features](../05-features/) - Features
 - [API Documentation](../04-api/) - APIs
 
 ---
 
-**Status:** ✅ Active  
-**Last Updated:** 2025-12-20
-
+**Status:** Active  
+**Last Updated:** 2025-01-02
